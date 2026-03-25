@@ -24,3 +24,25 @@ CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`users` (
     UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
     UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
     ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `MiniBankingSystem`.`bank_accounts`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`bank_accounts` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `account_number` VARCHAR(45) NOT NULL,
+    `account_type` VARCHAR(45) NOT NULL,
+    `balance` DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    `status` VARCHAR(45) NOT NULL DEFAULT 'OPEN',
+    `created_at` DATETIME NOT NULL,
+    `users_id` BIGINT NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+    UNIQUE INDEX `account_number_UNIQUE` (`account_number` ASC) VISIBLE,
+    INDEX `fk_bank_accounts_users_idx` (`users_id` ASC) VISIBLE,
+    CONSTRAINT `fk_bank_accounts_users`
+    FOREIGN KEY (`users_id`)
+    REFERENCES `MiniBankingSystem`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+    ENGINE = InnoDB;
