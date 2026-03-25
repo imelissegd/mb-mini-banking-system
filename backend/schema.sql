@@ -1,10 +1,6 @@
 -- -----------------------------------------------------
 -- Schema MiniBankingSystem
 -- -----------------------------------------------------
-
--- -----------------------------------------------------
--- Schema MiniBankingSystem
--- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `MiniBankingSystem` DEFAULT CHARACTER SET utf8 ;
 USE `MiniBankingSystem` ;
 
@@ -43,6 +39,33 @@ CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`bank_accounts` (
     CONSTRAINT `fk_bank_accounts_users`
     FOREIGN KEY (`users_id`)
     REFERENCES `MiniBankingSystem`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+    ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `MiniBankingSystem`.`transactions`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`transactions` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `from_account_id` BIGINT NULL,
+    `to_account_id` BIGINT NULL,
+    `amount` DECIMAL(15,2) NOT NULL,
+    `type` VARCHAR(45) NOT NULL,
+    `timestamp` DATETIME NOT NULL,
+    `description` VARCHAR(255) NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+    INDEX `fk_transactions_bank_accounts1_idx` (`from_account_id` ASC) VISIBLE,
+    INDEX `fk_transactions_bank_accounts2_idx` (`to_account_id` ASC) VISIBLE,
+    CONSTRAINT `fk_transactions_bank_accounts1`
+    FOREIGN KEY (`from_account_id`)
+    REFERENCES `MiniBankingSystem`.`bank_accounts` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT `fk_transactions_bank_accounts2`
+    FOREIGN KEY (`to_account_id`)
+    REFERENCES `MiniBankingSystem`.`bank_accounts` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
     ENGINE = InnoDB;
