@@ -24,6 +24,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "username", nullable = false, unique = true, length = 45)
+    private String username;
+
     @Column(name = "first_name", nullable = false, length = 45)
     private String firstName;
 
@@ -38,6 +41,9 @@ public class User {
 
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
+
+    @Column(name = "contact_number", nullable = false, unique = true, length = 20)
+    private String contactNumber;
 
     @Column(name = "password_hash", nullable = false, length = 100)
     private String passwordHash;
