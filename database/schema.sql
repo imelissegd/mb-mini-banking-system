@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`users` (
     `email` VARCHAR(255) NOT NULL,
     `password_hash` VARCHAR(100) NOT NULL,
     `role` VARCHAR(45) NOT NULL DEFAULT 'CUSTOMER',
-    `is_active` TINYINT NOT NULL DEFAULT 1,
+    `is_active` BIT NOT NULL DEFAULT 1,
     `created_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `user_id_UNIQUE` (`id` ASC) VISIBLE,
