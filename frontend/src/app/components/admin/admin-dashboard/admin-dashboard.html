@@ -1,0 +1,51 @@
+<div class="container" style="padding-top:24px;">
+
+  <h2 style="margin-bottom:16px;">Admin Dashboard</h2>
+
+  <div ng-if="vm.loading" style="text-align:center;padding:40px;">
+    Loading dashboard...
+  </div>
+
+  <div ng-if="!vm.loading && vm.summary">
+
+    <!-- Summary Cards -->
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;">
+
+      <div class="card" style="flex:1;min-width:180px;text-align:center;">
+        <div style="font-size:32px;font-weight:bold;color:#007bff;">
+          {{ vm.summary.totalCustomers }}
+        </div>
+        <div style="color:#666;margin-top:6px;">Total Customers</div>
+      </div>
+
+      <div class="card" style="flex:1;min-width:180px;text-align:center;">
+        <div style="font-size:32px;font-weight:bold;color:#28a745;">
+          {{ vm.summary.totalTransactions }}
+        </div>
+        <div style="color:#666;margin-top:6px;">Total Transactions</div>
+      </div>
+
+      <div class="card" style="flex:1;min-width:180px;text-align:center;">
+        <div style="font-size:32px;font-weight:bold;color:#17a2b8;">
+          ₱{{ vm.summary.totalBalance | number:2 }}
+        </div>
+        <div style="color:#666;margin-top:6px;">Total Balance</div>
+      </div>
+
+    </div>
+
+    <!-- Quick Links -->
+    <div class="card">
+      <h4 style="margin-bottom:12px;">Quick Actions</h4>
+      <a href="#!/admin/customers" class="btn btn-primary" style="margin-right:8px;">
+        View All Customers
+      </a>
+    </div>
+
+  </div>
+
+  <div ng-if="!vm.loading && !vm.summary" style="color:#dc3545;">
+    Could not load dashboard data.
+  </div>
+
+</div>
