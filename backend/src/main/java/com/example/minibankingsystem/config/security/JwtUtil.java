@@ -52,12 +52,12 @@ public class JwtUtil {
      * Transaction token: short-lived, scoped to a specific account and action.
      * This token must be presented alongside the access token when executing a transfer.
      */
-    public String generateTransactionToken(String email, Long accountId, String action) {
+    public String generateTransactionToken(String username, Long accountId, String action) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(TOKEN_TYPE_CLAIM, TRANSACTION);
         claims.put("account_id", accountId);
         claims.put("action", action);
-        return buildToken(claims, email, transactionTokenExpiration);
+        return buildToken(claims, username, transactionTokenExpiration);
     }
 
     private String buildToken(Map<String, Object> extraClaims, String subject, long expiration) {
@@ -90,15 +90,15 @@ public class JwtUtil {
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-    public boolean isTransactionTokenValid(String token, String email, Long accountId, String action) {
+    public boolean isTransactionTokenValid(String token, String username, Long accountId, String action) {
         try {
             Claims claims = extractAllClaims(token);
-            boolean emailMatches = email.equals(claims.getSubject());
+            boolean usernameMatches = username.equals(claims.getSubject());
             boolean accountMatches = accountId.equals(claims.get("account_id", Long.class));
             boolean actionMatches = action.equals(claims.get("action", String.class));
             boolean notExpired = !isTokenExpired(token);
             boolean isTransactionType = TRANSACTION.equals(claims.get(TOKEN_TYPE_CLAIM, String.class));
-            return emailMatches && accountMatches && actionMatches && notExpired && isTransactionType;
+            return usernameMatches && accountMatches && actionMatches && notExpired && isTransactionType;
         } catch (JwtException e) {
             log.warn("Transaction token validation failed: {}", e.getMessage());
             return false;

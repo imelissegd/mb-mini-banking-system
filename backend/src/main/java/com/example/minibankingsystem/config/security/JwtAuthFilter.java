@@ -49,9 +49,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
 
         try {
-            final String userEmail = jwtUtil.extractUsername(token);
+            final String username = jwtUtil.extractUsername(token);
 
-            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 // Only process access tokens here; refresh and transaction tokens
                 // are validated explicitly in their respective service methods.
                 if (!jwtUtil.isAccessToken(token)) {
@@ -59,7 +59,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     return;
                 }
 
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail);
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
                 if (jwtUtil.isTokenValid(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken =
