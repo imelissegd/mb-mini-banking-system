@@ -29,12 +29,12 @@ CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`users` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`bank_accounts` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `users_id` BIGINT NOT NULL,
     `account_number` VARCHAR(45) NOT NULL,
     `account_type` VARCHAR(45) NOT NULL,
     `balance` DECIMAL(15,2) NOT NULL DEFAULT 0.00,
     `status` VARCHAR(45) NOT NULL DEFAULT 'OPEN',
     `created_at` DATETIME NOT NULL,
-    `users_id` BIGINT NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
     UNIQUE INDEX `account_number_UNIQUE` (`account_number` ASC) VISIBLE,
