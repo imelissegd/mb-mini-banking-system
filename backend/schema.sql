@@ -9,7 +9,10 @@ USE `MiniBankingSystem` ;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`users` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `username` VARCHAR(45) NOT NULL,
+    `first_name` VARCHAR(45) NOT NULL,
+    `middle_name` VARCHAR(45) NULL DEFAULT '',
+    `last_name` VARCHAR(45) NOT NULL,
+    `suffix` VARCHAR(45) NULL DEFAULT '',
     `email` VARCHAR(255) NOT NULL,
     `password_hash` VARCHAR(100) NOT NULL,
     `role` VARCHAR(45) NOT NULL DEFAULT 'CUSTOMER',
@@ -17,9 +20,9 @@ CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`users` (
     `created_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `user_id_UNIQUE` (`id` ASC) VISIBLE,
-    UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
     UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
     ENGINE = InnoDB;
+
 
 -- -----------------------------------------------------
 -- Table `MiniBankingSystem`.`bank_accounts`
@@ -42,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`bank_accounts` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
     ENGINE = InnoDB;
+
 
 -- -----------------------------------------------------
 -- Table `MiniBankingSystem`.`transactions`
