@@ -9,26 +9,32 @@ USE `MiniBankingSystem`;
 -- =============================================================================
 
 INSERT INTO `users`
-(`first_name`, `middle_name`, `last_name`, `suffix`, `email`, `password_hash`, `role`, `is_active`, `created_at`)
+(`username`, `first_name`, `middle_name`, `last_name`, `suffix`, `email`, `contact_number`, `password_hash`, `role`, `is_active`, `created_at`)
 VALUES
     -- Admin
     (
+        'admin01',
         'System', '', 'Admin', '',
         'admin@bank.com',
+        '+639171111111',
         '$2a$12$pWMzGNiQrC8n2fSZMvB/5.VrnjBxnlZy3lTuwk4gvC6EcPmwV.tJy',
         'ADMIN', 1, NOW()
     ),
     -- Customer 1
     (
+        'juan01',
         'Juan', 'Santos', 'Dela Cruz', '',
         'juan@example.com',
+        '+639172222222',
         '$2a$12$l8sOsUVqBbM0dEqIxqFvOuK8bIg7k2TNPnkuEjjOhgWP.RbMCKUyK',
         'CUSTOMER', 1, NOW()
     ),
     -- Customer 2
     (
+        'maria01',
         'Maria', 'Reyes', 'Garcia', '',
         'maria@example.com',
+        '+639173333333',
         '$2a$12$l8sOsUVqBbM0dEqIxqFvOuK8bIg7k2TNPnkuEjjOhgWP.RbMCKUyK',
         'CUSTOMER', 1, NOW()
     );
