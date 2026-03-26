@@ -1,0 +1,25 @@
+package com.example.minibankingsystem.dto.response;
+
+import com.example.minibankingsystem.model.enums.AccountStatus;
+import com.example.minibankingsystem.model.enums.AccountType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BankAccountResponse {
+    private Long id;
+    private String accountNumber;
+    private AccountType accountType;
+    private BigDecimal balance;
+    private AccountStatus status;
+    private LocalDateTime createdAt;
+    private String ownerName;
+}
