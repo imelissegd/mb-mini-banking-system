@@ -8,20 +8,24 @@ USE `MiniBankingSystem` ;
 -- Table `MiniBankingSystem`.`users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`users` (
-    `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `first_name` VARCHAR(45) NOT NULL,
-    `middle_name` VARCHAR(45) NULL DEFAULT '',
-    `last_name` VARCHAR(45) NOT NULL,
-    `suffix` VARCHAR(45) NULL DEFAULT '',
-    `email` VARCHAR(255) NOT NULL,
-    `password_hash` VARCHAR(100) NOT NULL,
-    `role` VARCHAR(45) NOT NULL DEFAULT 'CUSTOMER',
-    `is_active` BIT NOT NULL DEFAULT 1,
-    `created_at` DATETIME NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE INDEX `user_id_UNIQUE` (`id` ASC) VISIBLE,
-    UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
-    ENGINE = InnoDB;
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(45) NOT NULL,
+  `first_name` VARCHAR(45) NOT NULL,
+  `middle_name` VARCHAR(45) NULL DEFAULT '',
+  `last_name` VARCHAR(45) NOT NULL,
+  `suffix` VARCHAR(15) NULL DEFAULT '',
+  `email` VARCHAR(255) NOT NULL,
+  `contact_number` VARCHAR(20) NOT NULL,
+  `password_hash` VARCHAR(100) NOT NULL,
+  `role` VARCHAR(45) NOT NULL DEFAULT 'CUSTOMER',
+  `is_active` TINYINT NOT NULL DEFAULT 1,
+  `created_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `user_id_UNIQUE` (`id` ASC) VISIBLE,
+  UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
+  UNIQUE INDEX `contact_number_UNIQUE` (`contact_number` ASC) VISIBLE)
+ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
