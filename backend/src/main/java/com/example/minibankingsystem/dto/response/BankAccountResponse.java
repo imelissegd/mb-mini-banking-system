@@ -17,9 +17,9 @@ import java.time.LocalDateTime;
 public class BankAccountResponse {
     private Long id;
     private String accountNumber;
-    private AccountType accountType;
+    private String accountType;
     private BigDecimal balance;
-    private AccountStatus status;
+    private String status;
     private LocalDateTime createdAt;
     private String ownerName;
 }
