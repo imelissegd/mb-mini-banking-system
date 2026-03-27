@@ -75,8 +75,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(errors));
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Void>> handleIllegalArg(IllegalArgumentException ex) {
+    @ExceptionHandler({
+            IllegalArgumentException.class,
+            ResourceDuplicateException.class,
+            MissingFieldsException.class,
+    })
+    public ResponseEntity<ApiResponse<Void>> handleBadRequest(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(ex.getMessage()));
     }
