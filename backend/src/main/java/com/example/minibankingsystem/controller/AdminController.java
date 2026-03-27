@@ -11,6 +11,8 @@ import com.example.minibankingsystem.service.BankAccountServiceImpl;
 import com.example.minibankingsystem.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +27,8 @@ public class AdminController {
     @Autowired
     AuthServiceImpl authService;
     @Autowired
+    UserServiceImpl userService;
+    @Autowired
     BankAccountServiceImpl bankAccountService;
 
     @PostMapping("/users")
@@ -32,6 +36,20 @@ public class AdminController {
             @Valid @RequestBody CreateUserAdmin createUserAdmin) {
         UserResponse response = authService.addUser(createUserAdmin);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("User added successfully", response));
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUser(
+            @Valid @PathVariable("userId") Long userId) {
+        UserResponse response = userService.getUserDetails(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User retrieved successfully", response));
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> getAllUsers(
+            Pageable pageable) {
+        Page<UserResponse> response = userService.getUsers(pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User retrieved successfully", response));
     }
 
     @PostMapping("/users/accounts")
