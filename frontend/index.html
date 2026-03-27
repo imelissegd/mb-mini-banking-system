@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MB Mini Banking System</title>
+  <title>MB Bank</title>
   <link rel="icon" href="data:,">
 
   <!-- AngularJS 1.8 via CDN -->
@@ -13,53 +13,49 @@
   <!-- App Styles -->
   <link rel="stylesheet" href="src/app/styles/main.css" />
 </head>
+  <!-- NAVBAR -->
+  <bank-nav></bank-nav>
 <body>
-    <h1>MB Bank</h1>
 
-    <nav>
-    <a href="#!/login">Login</a>|
-    <a href="#!/register"> Register</a>|
-    <a href="#!/dashboard"> Dashboard</a>|
-    <a href="#!/transfer"> Transfer</a>|
-    <a href="#!/history"> History</a>|
-    <a href="#!/admin"> Admin</a>
-    </nav>
 
-    <bank-toast></bank-toast>   
 
-    <hr>
+  <!-- TOAST -->
+  <bank-toast></bank-toast>
 
-    <!-- ROUTE VIEW -->
-    <div ng-view></div>
+  <hr>
 
-    <!-- APP -->
-    <script src="src/app/app.js"></script>
-    
-    <!-- CONFIG -->
-    <script src="src/app/config/app.config.js"></script>
+  <!-- ROUTE VIEW -->
+  <div ng-view></div>
 
-    <!-- INTERCEPTOR -->
-    <script src="src/app/services/authInterceptor.js"></script>
+  <!-- ─── Scripts ──────────────────────────────────────────────────────── -->
 
-    <!-- AUTH SERVICE -->
-    <script src="src/app/services/auth.service.js"></script>
-  
-    <!-- ROUTES -->
-    <script src="src/app/routes/app.routes.js"></script>
+  <!-- APP -->
+  <script src="src/app/app.js"></script>
 
-    <!-- TOAST -->
-    <script src="src/app/services/toast.service.js"></script>
-    <script src="src/app/components/toast/toast.directive.js"></script>
+  <!-- CONFIG -->
+  <script src="src/app/config/app.config.js"></script>
 
-    <!-- CONTROLLERS -->
-    <script src="src/app/components/login/login.controller.js"></script>
-    <script src="src/app/components/register/register.controller.js"></script>
-    <script src="src/app/components/dashboard/dashboard.controller.js"></script>
-    <script src="src/app/components/transfer/transfer.controller.js"></script>
-    <script src="src/app/components/history/history.controller.js"></script>
-    <script src="src/app/components/admin/admin-dashboard/admin-dashboard.controller.js"></script>
-    <script src="src/app/components/admin/customer-list/customer-list.controller.js"></script>  
-    <script src="src/app/components/admin/customer-detail/customer-detail.controller.js"></script>
+  <!-- SERVICES -->
+  <script src="src/app/services/authInterceptor.js"></script>
+  <script src="src/app/services/auth.service.js"></script>
+  <script src="src/app/services/toast.service.js"></script>
+
+  <!-- ROUTES -->
+  <script src="src/app/routes/app.routes.js"></script>
+
+  <!-- DIRECTIVES -->
+  <script src="src/app/components/toast/toast.directive.js"></script>
+  <script src="src/app/components/nav/nav.directive.js"></script>
+
+  <!-- CONTROLLERS -->
+  <script src="src/app/components/login/login.controller.js"></script>
+  <script src="src/app/components/register/register.controller.js"></script>
+  <script src="src/app/components/dashboard/dashboard.controller.js"></script>
+  <script src="src/app/components/transfer/transfer.controller.js"></script>
+  <script src="src/app/components/history/history.controller.js"></script>
+  <script src="src/app/components/admin/admin-dashboard/admin-dashboard.controller.js"></script>
+  <script src="src/app/components/admin/customer-list/customer-list.controller.js"></script>
+  <script src="src/app/components/admin/customer-detail/customer-detail.controller.js"></script>
 
 </body>
 </html>
