@@ -2,6 +2,7 @@ package com.example.minibankingsystem.service;
 
 import com.example.minibankingsystem.config.security.CustomUserDetailsService;
 import com.example.minibankingsystem.config.security.JwtUtil;
+import com.example.minibankingsystem.dto.admin.request.CreateUserAdmin;
 import com.example.minibankingsystem.dto.request.LoginRequest;
 import com.example.minibankingsystem.dto.request.RegisterRequest;
 import com.example.minibankingsystem.dto.response.AuthResponse;
@@ -13,6 +14,7 @@ import com.example.minibankingsystem.model.User;
 import com.example.minibankingsystem.model.enums.Role;
 import com.example.minibankingsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -80,6 +82,14 @@ public class AuthServiceImpl {
                 .build();
     }
 
+    // for admin: includes role
+    public UserResponse addUser(CreateUserAdmin createUserAdmin) {
+        User newUser = createUserFromRequest(createUserAdmin);
+        newUser.setRole(Role.valueOf(createUserAdmin.getRole()));
+        newUser = userRepository.save(newUser);
+        return mapToUserResponse(newUser);
+    }
+
     private User createUserFromRequest(RegisterRequest request) {
         User user = new User();
         user.setUsername(request.getUsername());
@@ -98,6 +108,7 @@ public class AuthServiceImpl {
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
+                .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .middleName(user.getMiddleName())
                 .lastName(user.getLastName())
