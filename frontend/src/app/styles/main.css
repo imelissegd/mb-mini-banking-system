@@ -12,3 +12,24 @@ nav a{
 nav a:hover{
     text-decoration:underline;
 }
+
+/* ─── Toast ─────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px; border-radius: 8px; color: #fff;
+  font-size: 14px; box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  min-width: 280px; max-width: 420px;
+  animation: toastSlideIn 0.25s ease;
+}
+@keyframes toastSlideIn {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.toast-success { background: #28a745; }
+.toast-error   { background: #dc3545; }
+.toast-info    { background: #1a237e; }
+.toast-warning { background: #ffc107; color: #333; }
+.toast-message { flex: 1; }
+.toast-close { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 18px; line-height: 1; padding: 0; width: auto; opacity: 0.8; }
+.toast-close:hover { opacity: 1; }
