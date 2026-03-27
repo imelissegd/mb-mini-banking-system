@@ -19,4 +19,10 @@ public class UserServiceImpl {
         if (user == null) return false;
         return user.isActive();
     }
+
+    public User getUserById(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return null;
+        return user;
+    }
 }

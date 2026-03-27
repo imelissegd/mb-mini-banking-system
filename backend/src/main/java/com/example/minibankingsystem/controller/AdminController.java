@@ -7,6 +7,7 @@ import com.example.minibankingsystem.dto.response.ApiResponse;
 import com.example.minibankingsystem.dto.response.BankAccountResponse;
 import com.example.minibankingsystem.dto.response.UserResponse;
 import com.example.minibankingsystem.service.AuthServiceImpl;
+import com.example.minibankingsystem.service.BankAccountServiceImpl;
 import com.example.minibankingsystem.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,21 @@ public class AdminController {
 
     @Autowired
     AuthServiceImpl authService;
+    @Autowired
+    BankAccountServiceImpl bankAccountService;
 
     @PostMapping("/users")
     public ResponseEntity<ApiResponse<UserResponse>> register(
             @Valid @RequestBody CreateUserAdmin createUserAdmin) {
         UserResponse response = authService.addUser(createUserAdmin);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("User added successfully", response));
+    }
+
+    @PostMapping("/users/accounts")
+    public ResponseEntity<ApiResponse<BankAccountResponse>> addBankAccount(
+            @Valid @RequestBody CreateBankAccountRequest createBankAccountRequest
+    ) {
+        BankAccountResponse response = bankAccountService.addBankAccount(createBankAccountRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Bank account added successfully", response));
     }
 }

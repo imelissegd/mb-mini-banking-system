@@ -73,7 +73,8 @@ public class BankAccountServiceImpl {
         bankAccountResponse.setBalance(bankAccount.getBalance());
         bankAccountResponse.setStatus(String.valueOf(bankAccount.getStatus()));
         bankAccountResponse.setCreatedAt(bankAccount.getCreatedAt());
-        bankAccountResponse.setOwnerName(formatOwnerName(bankAccount.getUser()));
+        User user = userService.getUserById(bankAccount.getUser().getId());
+        bankAccountResponse.setOwnerName(formatOwnerName(user));
         return bankAccountResponse;
     }
 
