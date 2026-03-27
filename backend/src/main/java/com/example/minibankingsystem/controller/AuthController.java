@@ -1,6 +1,8 @@
 package com.example.minibankingsystem.controller;
 
+import com.example.minibankingsystem.component.CookieUtil;
 import com.example.minibankingsystem.dto.request.CreateBankAccountRequest;
+import com.example.minibankingsystem.dto.request.LoginRequest;
 import com.example.minibankingsystem.dto.request.RegisterRequest;
 import com.example.minibankingsystem.dto.response.ApiResponse;
 import com.example.minibankingsystem.dto.response.AuthResponse;
@@ -13,6 +15,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +33,8 @@ public class AuthController {
     private AuthServiceImpl authService;
     @Autowired
     private BankAccountServiceImpl bankAccountService;
+    @Autowired
+    private CookieUtil cookieUtil;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(
@@ -43,5 +48,17 @@ public class AuthController {
         BankAccountResponse bankAccountResponse = bankAccountService.addBankAccount(createBankAccountRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Register successful", response));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<UserResponse>> login(
+            @Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE,
+                        cookieUtil.createAccessTokenCookie(response.getAccessToken()).toString())
+                .header(HttpHeaders.SET_COOKIE,
+                        cookieUtil.createRefreshTokenCookie(response.getRefreshToken()).toString())
+                .body(ApiResponse.success("Login successful.", response.getUser()));
     }
 }

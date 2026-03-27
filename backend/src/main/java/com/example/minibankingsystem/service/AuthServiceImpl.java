@@ -1,13 +1,20 @@
 package com.example.minibankingsystem.service;
 
+import com.example.minibankingsystem.config.security.CustomUserDetailsService;
+import com.example.minibankingsystem.config.security.JwtUtil;
+import com.example.minibankingsystem.dto.request.LoginRequest;
 import com.example.minibankingsystem.dto.request.RegisterRequest;
+import com.example.minibankingsystem.dto.response.AuthResponse;
 import com.example.minibankingsystem.dto.response.UserResponse;
 import com.example.minibankingsystem.exceptions.MissingFieldsException;
 import com.example.minibankingsystem.exceptions.ResourceDuplicateException;
+import com.example.minibankingsystem.exceptions.ResourceNotFoundException;
 import com.example.minibankingsystem.model.User;
 import com.example.minibankingsystem.model.enums.Role;
 import com.example.minibankingsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +30,14 @@ public class AuthServiceImpl {
 
     @Autowired
     PasswordEncoder passwordEncoder;
-
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    AuthenticationManager authenticationManager;
+    @Autowired
+    JwtUtil jwtUtil;
+    @Autowired
+    CustomUserDetailsService customUserDetailsService;
 
     enum ValidationRule {
         CHECK_ID,
@@ -47,7 +59,25 @@ public class AuthServiceImpl {
         User newUser = createUserFromRequest(registerRequest);
         newUser.setRole(Role.valueOf("CUSTOMER"));
         newUser = userRepository.save(newUser);
-        return createUserResponseFromRequest(newUser);
+        return mapToUserResponse(newUser);
+    }
+
+    public AuthResponse login(LoginRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("User "  + request.getUsername() + " not found."));
+
+        String accessToken  = jwtUtil.generateAccessToken(user);
+        String refreshToken = jwtUtil.generateRefreshToken(user);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(mapToUserResponse(user))
+                .build();
     }
 
     private User createUserFromRequest(RegisterRequest request) {
@@ -65,17 +95,17 @@ public class AuthServiceImpl {
         return user;
     }
 
-    private UserResponse createUserResponseFromRequest(User user) {
-        UserResponse userResponse = new UserResponse();
-        userResponse.setId(user.getId());
-        userResponse.setUsername(user.getUsername());
-        userResponse.setFirstName(user.getFirstName());
-        userResponse.setLastName(user.getLastName());
-        userResponse.setEmail(user.getEmail());
-        userResponse.setContactNumber(user.getContactNumber());
-        userResponse.setRole(user.getRole());
-        userResponse.setActive(user.isActive());
-        return userResponse;
+    private UserResponse mapToUserResponse(User user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .middleName(user.getMiddleName())
+                .lastName(user.getLastName())
+                .suffix(user.getSuffix())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .isActive(user.isActive())
+                .build();
     }
 
 

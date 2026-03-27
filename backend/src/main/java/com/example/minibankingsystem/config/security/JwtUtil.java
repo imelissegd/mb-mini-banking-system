@@ -1,8 +1,10 @@
 package com.example.minibankingsystem.config.security;
 
+import com.example.minibankingsystem.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,9 +28,12 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
+    // Getters
+    @Getter
     @Value("${jwt.access-token.expiration}")
     private long accessTokenExpiration;
 
+    @Getter
     @Value("${jwt.refresh-token.expiration}")
     private long refreshTokenExpiration;
 
@@ -36,16 +41,16 @@ public class JwtUtil {
     private long transactionTokenExpiration;
 
 
-    public String generateAccessToken(UserDetails userDetails) {
+    public String generateAccessToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(TOKEN_TYPE_CLAIM, ACCESS);
-        return buildToken(claims, userDetails.getUsername(), accessTokenExpiration);
+        return buildToken(claims, user.getUsername(), accessTokenExpiration);
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(TOKEN_TYPE_CLAIM, REFRESH);
-        return buildToken(claims, userDetails.getUsername(), refreshTokenExpiration);
+        return buildToken(claims, user.getUsername(), refreshTokenExpiration);
     }
 
     /**
@@ -135,4 +140,5 @@ public class JwtUtil {
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
+
 }
