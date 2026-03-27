@@ -29,6 +29,12 @@ public class UserServiceImpl {
         return user;
     }
 
+    public User getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) return null;
+        return user;
+    }
+
     public UserResponse getUserDetails(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return null;

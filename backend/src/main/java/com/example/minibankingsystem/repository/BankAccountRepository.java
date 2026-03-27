@@ -5,7 +5,10 @@ import com.example.minibankingsystem.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.Optional;
+
 public interface BankAccountRepository extends JpaRepository<BankAccount, Long> {
     boolean existsByAccountNumber(String accountNumber);
     Long countByUser(User user);
+    Optional<BankAccount> findByAccountNumberAndUserId(String accountNumber, Long userId);
 }

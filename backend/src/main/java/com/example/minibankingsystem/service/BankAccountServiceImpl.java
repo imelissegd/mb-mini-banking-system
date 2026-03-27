@@ -10,6 +10,7 @@ import com.example.minibankingsystem.model.enums.AccountStatus;
 import com.example.minibankingsystem.model.enums.AccountType;
 import com.example.minibankingsystem.repository.BankAccountRepository;
 import com.example.minibankingsystem.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.minibankingsystem.service.BankAccountServiceImpl.ValidationRule.*;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 import static com.example.minibankingsystem.service.BankAccountServiceImpl.ValidationRule.*;
 
 @Service
+@Slf4j
 public class BankAccountServiceImpl {
 
     enum ValidationRule {
@@ -38,6 +40,19 @@ public class BankAccountServiceImpl {
     private BankAccountRepository bankAccountRepository;
     @Autowired
     private UserServiceImpl userService;
+
+
+    public BankAccountResponse getBankAccountByAccountNumber(String username, String accountNumber) {
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+
+        BankAccount account = bankAccountRepository.findByAccountNumberAndUserId(accountNumber, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+
+        return createResponseBankAccount(account);
+    }
 
 
     public BankAccountResponse addBankAccount(CreateBankAccountRequest request) {
