@@ -2,3 +2,13 @@ body{
     font-family: 'Segoe UI', Arial, sans-serif;
     margin:20px;
 }
+
+nav a{
+    margin-right:10px;
+    text-decoration:none;
+    color:blue;
+}
+
+nav a:hover{
+    text-decoration:underline;
+}
