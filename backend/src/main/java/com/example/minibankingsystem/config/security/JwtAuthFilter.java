@@ -35,6 +35,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/auth/");
+    }
+
+    @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
@@ -43,19 +49,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = extractToken(request);
 
-        // No token — pass through, Spring Security handles unauthorized access
+        // No token — pass through
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Only access tokens are processed here
-        if (!jwtUtil.isAccessToken(token)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         try {
+            if (!jwtUtil.isAccessToken(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String username = jwtUtil.extractUsername(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -71,25 +77,26 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            log.warn("JWT processing failed for request [{}]: {}", request.getRequestURI(), e.getMessage());
-            // Clear any partial auth state
+            log.warn("JWT processing failed for [{}]: {}", request.getRequestURI(), e.getMessage());
             SecurityContextHolder.clearContext();
         }
 
-        // Single exit point — always called once
         filterChain.doFilter(request, response);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private String extractToken(HttpServletRequest request) {
         // 1. Try HttpOnly cookie first
         if (request.getCookies() != null) {
-            return Arrays.stream(request.getCookies())
+            String cookieToken = Arrays.stream(request.getCookies())
                     .filter(c -> "access_token".equals(c.getName()))
                     .map(Cookie::getValue)
                     .findFirst()
                     .orElse(null);
+
+            if (cookieToken != null) {
+                return cookieToken;
+            }
         }
 
         // 2. Fall back to Authorization header (Postman / API clients)
