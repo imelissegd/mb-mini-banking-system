@@ -17,7 +17,7 @@ VALUES
         'System', '', 'Admin', '',
         'admin@bank.com',
         '+639171111111',
-        '$2a$12$pWMzGNiQrC8n2fSZMvB/5.VrnjBxnlZy3lTuwk4gvC6EcPmwV.tJy',
+        '$2a$10$icnyqAE.vwSDwUCmkF10EedfSFQO5WWGY2UrKcAQ2/O8khtR.3hV2',
         'ADMIN', 1, NOW()
     ),
     -- Customer 1
@@ -26,7 +26,7 @@ VALUES
         'Juan', 'Santos', 'Dela Cruz', '',
         'juan@example.com',
         '+639172222222',
-        '$2a$12$l8sOsUVqBbM0dEqIxqFvOuK8bIg7k2TNPnkuEjjOhgWP.RbMCKUyK',
+        '$2a$10$6mdr8gxKJvRYUlgcrkHPH.ZU41mU0V9AYsY2bA1HE5XrlLRMjRREe',
         'CUSTOMER', 1, NOW()
     ),
     -- Customer 2
@@ -35,7 +35,7 @@ VALUES
         'Maria', 'Reyes', 'Garcia', '',
         'maria@example.com',
         '+639173333333',
-        '$2a$12$l8sOsUVqBbM0dEqIxqFvOuK8bIg7k2TNPnkuEjjOhgWP.RbMCKUyK',
+        '$2a$10$6mdr8gxKJvRYUlgcrkHPH.ZU41mU0V9AYsY2bA1HE5XrlLRMjRREe',
         'CUSTOMER', 1, NOW()
     );
 
