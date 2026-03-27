@@ -1,10 +1,14 @@
 package com.example.minibankingsystem.controller;
 
+import com.example.minibankingsystem.dto.request.CreateBankAccountRequest;
 import com.example.minibankingsystem.dto.request.RegisterRequest;
 import com.example.minibankingsystem.dto.response.ApiResponse;
 import com.example.minibankingsystem.dto.response.AuthResponse;
+import com.example.minibankingsystem.dto.response.BankAccountResponse;
 import com.example.minibankingsystem.dto.response.UserResponse;
+import com.example.minibankingsystem.model.BankAccount;
 import com.example.minibankingsystem.service.AuthServiceImpl;
+import com.example.minibankingsystem.service.BankAccountServiceImpl;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +28,20 @@ public class AuthController {
 
     @Autowired
     private AuthServiceImpl authService;
+    @Autowired
+    private BankAccountServiceImpl bankAccountService;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(
             @Valid @RequestBody RegisterRequest request) {
         UserResponse response = authService.registerUser(request);
+
+        // TO DO: change auto create account to a request to admin
+        CreateBankAccountRequest createBankAccountRequest = new CreateBankAccountRequest();
+        createBankAccountRequest.setUserId(response.getId());
+        createBankAccountRequest.setAccountType("CHECKING");
+        BankAccountResponse bankAccountResponse = bankAccountService.addBankAccount(createBankAccountRequest);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Register successful", response));
     }
 }
