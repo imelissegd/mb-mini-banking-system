@@ -2,6 +2,7 @@ package com.example.minibankingsystem.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 @Slf4j
@@ -39,26 +41,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        String token = extractToken(request);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // No token — pass through, Spring Security handles unauthorized access
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String token = authHeader.substring(7);
+        // Only access tokens are processed here
+        if (!jwtUtil.isAccessToken(token)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
-            final String username = jwtUtil.extractUsername(token);
+            String username = jwtUtil.extractUsername(token);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Only process access tokens here; refresh and transaction tokens
-                // are validated explicitly in their respective service methods.
-                if (!jwtUtil.isAccessToken(token)) {
-                    filterChain.doFilter(request, response);
-                    return;
-                }
-
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
                 if (jwtUtil.isTokenValid(token, userDetails)) {
@@ -71,9 +71,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            log.warn("JWT processing failed: {}", e.getMessage());
+            log.warn("JWT processing failed for request [{}]: {}", request.getRequestURI(), e.getMessage());
+            // Clear any partial auth state
+            SecurityContextHolder.clearContext();
         }
 
+        // Single exit point — always called once
         filterChain.doFilter(request, response);
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private String extractToken(HttpServletRequest request) {
+        // 1. Try HttpOnly cookie first
+        if (request.getCookies() != null) {
+            return Arrays.stream(request.getCookies())
+                    .filter(c -> "access_token".equals(c.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        // 2. Fall back to Authorization header (Postman / API clients)
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        return null;
     }
 }
