@@ -7,20 +7,17 @@ import com.example.minibankingsystem.dto.request.LoginRequest;
 import com.example.minibankingsystem.dto.request.RegisterRequest;
 import com.example.minibankingsystem.dto.response.AuthResponse;
 import com.example.minibankingsystem.dto.response.UserResponse;
-import com.example.minibankingsystem.exceptions.MissingFieldsException;
-import com.example.minibankingsystem.exceptions.ResourceDuplicateException;
-import com.example.minibankingsystem.exceptions.ResourceNotFoundException;
+import com.example.minibankingsystem.exception.MissingFieldsException;
+import com.example.minibankingsystem.exception.ResourceDuplicateException;
+import com.example.minibankingsystem.exception.ResourceNotFoundException;
 import com.example.minibankingsystem.model.User;
 import com.example.minibankingsystem.model.enums.Role;
 import com.example.minibankingsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.example.minibankingsystem.service.AuthServiceImpl.ValidationRule.*;
 
 import java.time.LocalDateTime;
 import java.util.Set;

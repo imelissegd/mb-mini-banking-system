@@ -1,4 +1,4 @@
-package com.example.minibankingsystem.exceptions;
+package com.example.minibankingsystem.exception;
 import com.example.minibankingsystem.dto.response.ApiResponse;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;

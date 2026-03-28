@@ -1,4 +1,4 @@
-package com.example.minibankingsystem.exceptions;
+package com.example.minibankingsystem.exception;
 
 public class MissingFieldsException extends RuntimeException {
     // User

@@ -2,18 +2,16 @@ package com.example.minibankingsystem.service;
 
 import com.example.minibankingsystem.dto.request.CreateBankAccountRequest;
 import com.example.minibankingsystem.dto.response.BankAccountResponse;
-import com.example.minibankingsystem.exceptions.AccountNotActiveException;
-import com.example.minibankingsystem.exceptions.ResourceNotFoundException;
+import com.example.minibankingsystem.exception.AccountNotActiveException;
+import com.example.minibankingsystem.exception.ResourceNotFoundException;
 import com.example.minibankingsystem.model.BankAccount;
 import com.example.minibankingsystem.model.User;
 import com.example.minibankingsystem.model.enums.AccountStatus;
 import com.example.minibankingsystem.model.enums.AccountType;
 import com.example.minibankingsystem.repository.BankAccountRepository;
-import com.example.minibankingsystem.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.minibankingsystem.service.BankAccountServiceImpl.ValidationRule.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
