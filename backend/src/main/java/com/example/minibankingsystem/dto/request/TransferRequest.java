@@ -13,7 +13,7 @@ public class TransferRequest {
 
     /** The source account ID owned by the authenticated user. */
     @NotNull
-    private Long fromAccountId;
+    private String fromAccountNumber;
 
     /** Destination account number (the payee). */
     @NotBlank

@@ -1,8 +1,10 @@
 package com.example.minibankingsystem.controller;
 
-import com.example.minibankingsystem.dto.response.ApiResponse;
-import com.example.minibankingsystem.dto.response.BankAccountResponse;
+import com.example.minibankingsystem.dto.request.TransactionTokenRequest;
+import com.example.minibankingsystem.dto.request.TransferRequest;
+import com.example.minibankingsystem.dto.response.*;
 import com.example.minibankingsystem.service.BankAccountServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,21 @@ public class BankAccountController {
             @PathVariable String accountNumber) {
         BankAccountResponse account = bankAccountService.getBankAccountByAccountNumber(userDetails.getUsername(), accountNumber);
         return ResponseEntity.ok(ApiResponse.success(account));
+    }
+
+
+    @PostMapping("/transaction-token")
+    public ResponseEntity<ApiResponse<TransactionTokenResponse>> issueTransactionToken(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody TransactionTokenRequest request
+    ) {
+
+        TransactionTokenResult result =
+                bankAccountService.issueTransactionToken(userDetails.getUsername(), request);
+
+        return ResponseEntity.ok()
+                .header("X-Transaction-Token", result.getToken())
+                .body(ApiResponse.success("Transaction token issued", result.getMeta()));
     }
 
 }

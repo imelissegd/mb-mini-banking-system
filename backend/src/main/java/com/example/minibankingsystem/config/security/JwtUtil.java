@@ -37,6 +37,7 @@ public class JwtUtil {
     @Value("${jwt.refresh-token.expiration}")
     private long refreshTokenExpiration;
 
+    @Getter
     @Value("${jwt.transaction-token.expiration}")
     private long transactionTokenExpiration;
 
@@ -57,10 +58,10 @@ public class JwtUtil {
      * Transaction token: short-lived, scoped to a specific account and action.
      * This token must be presented alongside the access token when executing a transfer.
      */
-    public String generateTransactionToken(String username, Long accountId, String action) {
+    public String generateTransactionToken(String username, String accountNumber, String action) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(TOKEN_TYPE_CLAIM, TRANSACTION);
-        claims.put("account_id", accountId);
+        claims.put("account_number", accountNumber);
         claims.put("action", action);
         return buildToken(claims, username, transactionTokenExpiration);
     }
@@ -95,11 +96,11 @@ public class JwtUtil {
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-    public boolean isTransactionTokenValid(String token, String username, Long accountId, String action) {
+    public boolean isTransactionTokenValid(String token, String username, String accountNumber, String action) {
         try {
             Claims claims = extractAllClaims(token);
             boolean usernameMatches = username.equals(claims.getSubject());
-            boolean accountMatches = accountId.equals(claims.get("account_id", Long.class));
+            boolean accountMatches = accountNumber.equals(claims.get("account_number", String.class));
             boolean actionMatches = action.equals(claims.get("action", String.class));
             boolean notExpired = !isTokenExpired(token);
             boolean isTransactionType = TRANSACTION.equals(claims.get(TOKEN_TYPE_CLAIM, String.class));
@@ -117,8 +118,8 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public Long extractAccountId(String token) {
-        return extractClaim(token, c -> c.get("account_id", Long.class));
+    public String extractAccountId(String token) {
+        return extractClaim(token, c -> c.get("account_number", String.class));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
