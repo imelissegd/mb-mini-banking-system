@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class TransactionTokenRequest {
     @NotNull
-    private Long accountId;
+    private String accountNumber;
     @NotBlank
     private String action; // e.g. "TRANSFER", "WITHDRAWAL, DEPOSIT"
 }

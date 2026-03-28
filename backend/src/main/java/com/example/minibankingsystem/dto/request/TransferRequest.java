@@ -25,10 +25,4 @@ public class TransferRequest {
 
     private String description;
 
-    /**
-     * Short-lived transaction token obtained from POST /api/accounts/transaction-token.
-     * Must be scoped to fromAccountId with action "TRANSFER".
-     */
-    @NotBlank
-    private String transactionToken;
 }

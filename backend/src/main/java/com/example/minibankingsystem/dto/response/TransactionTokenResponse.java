@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionTokenResponse {
-    private String transactionToken;
     private String action;
-    private Long accountId;
+    private String accountNumber;
 
     /** Expiry in seconds from now (default: 300) */
     private long expiresIn;
