@@ -14,11 +14,13 @@ import com.example.minibankingsystem.repository.TransactionRepository;
 import com.example.minibankingsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.example.minibankingsystem.service.BankAccountServiceImpl.AccountValidationRule.*;
 
@@ -29,10 +31,10 @@ public class TransactionServiceImpl {
 
     private final TransactionRepository transactionRepository;
     private final BankAccountServiceImpl bankAccountService;
+    private final UserServiceImpl userService;
     private final JwtUtil jwtUtil;
 
-    // ── Transfer ──────────────────────────────────────────────────────────────
-
+    // Account Transactions
     @Transactional
     public TransactionResponse transfer(String username, TransferRequest request) {
 
@@ -220,6 +222,25 @@ public class TransactionServiceImpl {
     }
 
 
+
+    // Customer transaction queries
+    public List<TransactionResponse> getMyTransactions(String username) {
+        User user = userService.getUserByUsername(username);
+        return transactionRepository.findRecentByUserId(user.getId(), PageRequest.of(0,10))
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+
+    public List<TransactionResponse> getMyAccountTransactions(String username, String accountNumber) {
+        BankAccount account = bankAccountService.getAccountOwnedByUser(accountNumber, username);
+
+        return transactionRepository.findRecentByAccountId(account.getId(), PageRequest.of(0,10))
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
 
 
 

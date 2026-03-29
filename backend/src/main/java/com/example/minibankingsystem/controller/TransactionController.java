@@ -12,6 +12,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
@@ -64,5 +66,25 @@ public class TransactionController {
                 transactionService.deposit(userDetails.getUsername(), request);
 
         return ResponseEntity.ok(ApiResponse.success("Deposit successful", response));
+    }
+
+
+    // Customer Queries limited only to 10
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<TransactionResponse>>> getMyTransactions(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        List<TransactionResponse> transactions =
+                transactionService.getMyTransactions(userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("Transactions fetched successfully",transactions));
+    }
+
+
+    @GetMapping("/account/{accountNumber}")
+    public ResponseEntity<ApiResponse<List<TransactionResponse>>> getMyAccountTransactions(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable String accountNumber) {
+        List<TransactionResponse> transactions =
+                transactionService.getMyAccountTransactions(userDetails.getUsername(), accountNumber);
+        return ResponseEntity.ok(ApiResponse.success("Transactions from account fetched successfully", transactions));
     }
 }
