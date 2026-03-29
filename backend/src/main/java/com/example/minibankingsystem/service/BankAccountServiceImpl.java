@@ -17,6 +17,8 @@ import com.example.minibankingsystem.repository.BankAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -149,15 +151,14 @@ public class BankAccountServiceImpl {
         return createResponseBankAccount(account);
     }
 
-    public List<BankAccountResponse> getBankAccountsByUsername(String username) {
+    public Page<BankAccountResponse> getBankAccountsByUsername(String username, Pageable pageable) {
         User user = userService.getUserByUsername(username);
         if (user == null) {
             throw new ResourceNotFoundException("User not found: " + username);
         }
-        return bankAccountRepository.findByUserId(user.getId())
-                .stream()
-                .map(this::createResponseBankAccount)
-                .toList();
+        Page<BankAccount> bankAccounts = bankAccountRepository.findByUserId(user.getId(), pageable);
+        return bankAccounts.map(this::createResponseBankAccount);
+
     }
 
     public BankAccountResponse addBankAccount(CreateBankAccountRequest request) {

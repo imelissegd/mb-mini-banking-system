@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,9 +30,16 @@ public class BankAccountController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable String accountNumber) {
         BankAccountResponse account = bankAccountService.getBankAccountByAccountNumber(userDetails.getUsername(), accountNumber);
-        return ResponseEntity.ok(ApiResponse.success(account));
+        return ResponseEntity.ok(ApiResponse.success("Bank Account fetched successfully", account));
     }
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<BankAccountResponse>>> getBankAccount(
+            @AuthenticationPrincipal UserDetails userDetails,
+            Pageable pageable) {
+        Page<BankAccountResponse> response = bankAccountService.getBankAccountsByUsername(userDetails.getUsername(), pageable);
+        return ResponseEntity.ok(ApiResponse.success("Bank Accounts fetched successfully", response));
+    }
 
     @PostMapping("/transaction-token")
     public ResponseEntity<ApiResponse<TransactionTokenResponse>> issueTransactionToken(
