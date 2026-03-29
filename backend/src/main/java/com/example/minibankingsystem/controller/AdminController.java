@@ -57,6 +57,12 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User retrieved successfully", response));
     }
 
+    @PatchMapping("/users/{userId}/toggle-active")
+    public ResponseEntity<ApiResponse<UserResponse>> toggleActive(@Valid @PathVariable("userId") Long userId) {
+        UserResponse response = userService.toggleUserActive(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User toggle active successfully", response));
+    }
+
     @PostMapping("/accounts")
     public ResponseEntity<ApiResponse<BankAccountResponse>> addBankAccount(
             @Valid @RequestBody CreateBankAccountRequest createBankAccountRequest

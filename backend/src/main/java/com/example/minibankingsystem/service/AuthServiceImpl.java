@@ -7,6 +7,7 @@ import com.example.minibankingsystem.dto.request.LoginRequest;
 import com.example.minibankingsystem.dto.request.RegisterRequest;
 import com.example.minibankingsystem.dto.response.AuthResponse;
 import com.example.minibankingsystem.dto.response.UserResponse;
+import com.example.minibankingsystem.exception.AccountNotActiveException;
 import com.example.minibankingsystem.exception.MissingFieldsException;
 import com.example.minibankingsystem.exception.ResourceDuplicateException;
 import com.example.minibankingsystem.exception.ResourceNotFoundException;
@@ -68,6 +69,9 @@ public class AuthServiceImpl {
 
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User "  + request.getUsername() + " not found."));
+        if (!user.isActive()) {
+            throw new AccountNotActiveException("error.account.not.active");
+        }
 
         String accessToken  = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);

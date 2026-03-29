@@ -1,6 +1,8 @@
 package com.example.minibankingsystem.service;
 
 import com.example.minibankingsystem.dto.response.UserResponse;
+import com.example.minibankingsystem.exception.MissingFieldsException;
+import com.example.minibankingsystem.exception.ResourceNotFoundException;
 import com.example.minibankingsystem.model.User;
 import com.example.minibankingsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ public class UserServiceImpl {
     @Autowired
     UserRepository userRepository;
 
+    // Functions used by other services
     public boolean userExistsById(Long id) {
         return userRepository.existsById(id);
     }
@@ -35,17 +38,34 @@ public class UserServiceImpl {
         return user;
     }
 
+
+    // Admin functions
     public UserResponse getUserDetails(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
-        if (user == null) return null;
+        if (user == null) {
+            throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID);
+        };
         return mapToUserResponse(user);
     }
+
 
     public Page<UserResponse> getUsers(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
         return users.map(this::mapToUserResponse);
     }
 
+    public UserResponse toggleUserActive(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if  (user == null) {
+            throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID);
+        }
+        user.setActive(!user.isActive());
+        userRepository.save(user);
+        return mapToUserResponse(user);
+    }
+
+
+    // Helper functions
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
@@ -55,6 +75,7 @@ public class UserServiceImpl {
                 .lastName(user.getLastName())
                 .suffix(user.getSuffix())
                 .email(user.getEmail())
+                .contactNumber(user.getContactNumber())
                 .role(user.getRole())
                 .isActive(user.isActive())
                 .build();
