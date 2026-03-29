@@ -11,16 +11,12 @@ import java.math.BigDecimal;
 @Data
 public class TransferRequest {
 
-    /** The source account ID owned by the authenticated user. */
-    @NotNull
     private String fromAccountNumber;
 
-    /** Destination account number (the payee). */
-    @NotBlank
     private String toAccountNumber;
 
     @NotNull
-    @DecimalMin(value = "0.01", message = "Transfer amount must be greater than zero")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     private BigDecimal amount;
 
     private String description;

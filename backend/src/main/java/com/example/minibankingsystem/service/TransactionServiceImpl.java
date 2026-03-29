@@ -3,15 +3,12 @@ package com.example.minibankingsystem.service;
 import com.example.minibankingsystem.config.security.JwtUtil;
 import com.example.minibankingsystem.dto.request.TransferRequest;
 import com.example.minibankingsystem.dto.response.TransactionResponse;
+import com.example.minibankingsystem.exception.*;
 import com.example.minibankingsystem.model.BankAccount;
 import com.example.minibankingsystem.model.Transaction;
 import com.example.minibankingsystem.model.User;
 import com.example.minibankingsystem.model.enums.AccountStatus;
 import com.example.minibankingsystem.model.enums.TransactionType;
-import com.example.minibankingsystem.exception.AccountNotActiveException;
-import com.example.minibankingsystem.exception.InsufficientFundsException;
-import com.example.minibankingsystem.exception.InvalidTransactionTokenException;
-import com.example.minibankingsystem.exception.ResourceNotFoundException;
 import com.example.minibankingsystem.repository.BankAccountRepository;
 import com.example.minibankingsystem.repository.TransactionRepository;
 import com.example.minibankingsystem.repository.UserRepository;
@@ -45,6 +42,13 @@ public class TransactionServiceImpl {
 //                request.getFromAccountNumber(),
 //                "TRANSFER"
 //        );
+
+        if (request.getFromAccountNumber() == null || request.getFromAccountNumber().isBlank()) {
+            throw new MissingFieldsException(MissingFieldsException.FROM_BANK_ACCOUNT_NUMBER);
+        }
+        if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
+            throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
+        }
 
         BankAccount source = bankAccountService
                 .getAccountOwnedByUser(request.getFromAccountNumber(), username);
@@ -90,6 +94,133 @@ public class TransactionServiceImpl {
 
         return mapToResponse(transaction);
     }
+
+
+    @Transactional
+    public TransactionResponse withdraw(String username, TransferRequest request) {
+
+//        validateTransactionToken(
+//                request.getTransactionToken(),
+//                username,
+//                request.getFromAccountNumber(),
+//                "WITHDRAWAL"
+//        );
+
+        if (request.getFromAccountNumber() == null || request.getFromAccountNumber().isBlank()) {
+            throw new MissingFieldsException(MissingFieldsException.FROM_BANK_ACCOUNT_NUMBER);
+        }
+
+        // Check if account exists and owned by the user
+        BankAccount source = bankAccountService
+                .getAccountOwnedByUser(request.getFromAccountNumber(), username);
+
+        // Check if account is allowed for withdraw
+        bankAccountService.validateAccount(
+                source,
+                username,
+                request.getAmount(),
+                CHECK_OPEN,
+                CHECK_SUFFICIENT_FUNDS
+        );
+
+        bankAccountService.debit(source, request.getAmount());
+
+        Transaction transaction = buildTransaction(
+                source, null, // no destination for withdrawal
+                request.getAmount(),
+                TransactionType.TRANSFER,
+                request.getDescription()
+        );
+
+        transactionRepository.save(transaction);
+
+        return mapToResponse(transaction);
+    }
+
+    @Transactional
+    public TransactionResponse deposit(String username, TransferRequest request) {
+
+//        validateTransactionToken(
+//                request.getTransactionToken(),
+//                username,
+//                request.getFromAccountNumber(),
+//                "DEPOSIT"
+//        );
+
+        if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
+            throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
+        }
+
+        // Check if account exists and owned by the user
+        BankAccount destination = bankAccountService
+                .getAccountOwnedByUser(request.getToAccountNumber(), username);
+
+        // Check if destination is valid
+        bankAccountService.validateAccount(
+                destination,
+                null,
+                null,
+                CHECK_OPEN
+        );
+
+        bankAccountService.credit(destination, request.getAmount());
+
+        Transaction transaction = buildTransaction(
+                null, destination, // no source for deposit
+                request.getAmount(),
+                TransactionType.TRANSFER,
+                request.getDescription()
+        );
+
+        transactionRepository.save(transaction);
+
+        return mapToResponse(transaction);
+    }
+
+
+    // Admin can deposit when a user requests it
+    @Transactional
+    public TransactionResponse depositAdmin(TransferRequest request) {
+
+//        validateTransactionToken(
+//                request.getTransactionToken(),
+//                username,
+//                request.getFromAccountNumber(),
+//                "DEPOSIT"
+//        );
+
+        if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
+            throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
+        }
+
+        // Check if account exists
+        BankAccount destination = bankAccountService
+                .getAccountByAccountNumber(request.getToAccountNumber());
+
+        // Check if destination is valid
+        bankAccountService.validateAccount(
+                destination,
+                null,
+                null,
+                CHECK_OPEN
+        );
+
+        bankAccountService.credit(destination, request.getAmount());
+
+        Transaction transaction = buildTransaction(
+                null, destination, // no source for deposit
+                request.getAmount(),
+                TransactionType.DEPOSIT,
+                request.getDescription()
+        );
+
+        transactionRepository.save(transaction);
+
+        return mapToResponse(transaction);
+    }
+
+
+
 
 
 //    private void validateTransactionToken(

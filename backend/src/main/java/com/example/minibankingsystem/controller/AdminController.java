@@ -3,11 +3,14 @@ package com.example.minibankingsystem.controller;
 import com.example.minibankingsystem.dto.admin.request.CreateUserAdmin;
 import com.example.minibankingsystem.dto.request.CreateBankAccountRequest;
 import com.example.minibankingsystem.dto.request.RegisterRequest;
+import com.example.minibankingsystem.dto.request.TransferRequest;
 import com.example.minibankingsystem.dto.response.ApiResponse;
 import com.example.minibankingsystem.dto.response.BankAccountResponse;
+import com.example.minibankingsystem.dto.response.TransactionResponse;
 import com.example.minibankingsystem.dto.response.UserResponse;
 import com.example.minibankingsystem.service.AuthServiceImpl;
 import com.example.minibankingsystem.service.BankAccountServiceImpl;
+import com.example.minibankingsystem.service.TransactionServiceImpl;
 import com.example.minibankingsystem.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,8 @@ public class AdminController {
     UserServiceImpl userService;
     @Autowired
     BankAccountServiceImpl bankAccountService;
+    @Autowired
+    TransactionServiceImpl transactionService;
 
     @PostMapping("/users")
     public ResponseEntity<ApiResponse<UserResponse>> register(
@@ -58,5 +63,13 @@ public class AdminController {
     ) {
         BankAccountResponse response = bankAccountService.addBankAccount(createBankAccountRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Bank account added successfully", response));
+    }
+
+    @PostMapping("/transactions/deposit")
+    public ResponseEntity<ApiResponse<TransactionResponse>> deposit(@Valid @RequestBody TransferRequest request) {
+        TransactionResponse response =
+                transactionService.depositAdmin(request);
+
+        return ResponseEntity.ok(ApiResponse.success("Deposit successful", response));
     }
 }

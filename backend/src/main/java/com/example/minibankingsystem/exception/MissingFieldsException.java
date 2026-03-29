@@ -11,6 +11,10 @@ public class MissingFieldsException extends RuntimeException {
     public static final String USER_PASSWORD = "error.user.password.missing";
     public static final String USER_ROLE = "error.user.role.missing";
 
+    // Bank account
+    public static final String FROM_BANK_ACCOUNT_NUMBER = "error.from_bank.account_number.missing";
+    public static final String TO_BANK_ACCOUNT_NUMBER = "error.to_bank.account_number.missing";
+
 
     public MissingFieldsException(String key) {
         super(key);

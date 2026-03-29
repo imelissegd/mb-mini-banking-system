@@ -32,7 +32,37 @@ public class TransactionController {
         TransactionResponse response =
                 transactionService.transfer(userDetails.getUsername(), request);
 
-        return ResponseEntity.ok(ApiResponse.success("Transfer successful.", response));
+        return ResponseEntity.ok(ApiResponse.success("Transfer successful", response));
     }
 
+    @PostMapping("/withdraw")
+    public ResponseEntity<ApiResponse<TransactionResponse>> withdraw(
+            @AuthenticationPrincipal UserDetails userDetails,
+//            @RequestHeader("X-Transaction-Token") String transactionToken,
+            @Valid @RequestBody TransferRequest request
+    ) {
+
+//        request.setTransactionToken(transactionToken);
+
+        TransactionResponse response =
+                transactionService.withdraw(userDetails.getUsername(), request);
+
+        return ResponseEntity.ok(ApiResponse.success("Withdraw successful", response));
+    }
+
+
+    @PostMapping("/deposit")
+    public ResponseEntity<ApiResponse<TransactionResponse>> deposit(
+            @AuthenticationPrincipal UserDetails userDetails,
+//            @RequestHeader("X-Transaction-Token") String transactionToken,
+            @Valid @RequestBody TransferRequest request
+    ) {
+
+//        request.setTransactionToken(transactionToken);
+
+        TransactionResponse response =
+                transactionService.deposit(userDetails.getUsername(), request);
+
+        return ResponseEntity.ok(ApiResponse.success("Deposit successful", response));
+    }
 }
