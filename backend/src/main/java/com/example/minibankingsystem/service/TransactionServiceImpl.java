@@ -14,7 +14,9 @@ import com.example.minibankingsystem.repository.TransactionRepository;
 import com.example.minibankingsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -242,6 +244,20 @@ public class TransactionServiceImpl {
                 .toList();
     }
 
+
+    // Admin transaction queries
+    public TransactionResponse getTransactionById(long id) {
+        Transaction transaction = transactionRepository.findById(id).orElse(null);
+        if (transaction == null) {
+            throw new ResourceNotFoundException(ResourceNotFoundException.TRANSACTION_ID);
+        }
+        return mapToResponse(transaction);
+    }
+
+    public Page<TransactionResponse> getAllTransactions(Pageable pageable) {
+        Page<Transaction> transactions = transactionRepository.findAll(pageable);
+        return transactions.map(this::mapToResponse);
+    }
 
 
 //    private void validateTransactionToken(

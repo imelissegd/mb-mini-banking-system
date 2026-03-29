@@ -36,6 +36,7 @@ public class AdminController {
     @Autowired
     TransactionServiceImpl transactionService;
 
+    // Users
     @PostMapping("/users")
     public ResponseEntity<ApiResponse<UserResponse>> register(
             @Valid @RequestBody CreateUserAdmin createUserAdmin) {
@@ -63,12 +64,27 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User toggle active successfully", response));
     }
 
+    // Bank accounts
+
     @PostMapping("/accounts")
     public ResponseEntity<ApiResponse<BankAccountResponse>> addBankAccount(
             @Valid @RequestBody CreateBankAccountRequest createBankAccountRequest
     ) {
         BankAccountResponse response = bankAccountService.addBankAccount(createBankAccountRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Bank account added successfully", response));
+    }
+
+    // Transaction
+    @GetMapping("/transactions")
+    public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getTransactions(Pageable pageable) {
+        Page<TransactionResponse> response = transactionService.getAllTransactions(pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Transactions retrieved successfully", response));
+    }
+
+    @GetMapping("/transactions/{transactionId}")
+    public ResponseEntity<ApiResponse<TransactionResponse>> getTransactionById(@Valid @PathVariable Long transactionId, Pageable pageable) {
+        TransactionResponse response = transactionService.getTransactionById(transactionId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Transaction retrieved successfully", response));
     }
 
     @PostMapping("/transactions/deposit")
