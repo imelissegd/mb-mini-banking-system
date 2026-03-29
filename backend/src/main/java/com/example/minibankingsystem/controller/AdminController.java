@@ -57,7 +57,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User retrieved successfully", response));
     }
 
-    @PostMapping("/users/accounts")
+    @PostMapping("/accounts")
     public ResponseEntity<ApiResponse<BankAccountResponse>> addBankAccount(
             @Valid @RequestBody CreateBankAccountRequest createBankAccountRequest
     ) {
