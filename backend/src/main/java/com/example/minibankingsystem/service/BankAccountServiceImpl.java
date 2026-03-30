@@ -1,5 +1,6 @@
 package com.example.minibankingsystem.service;
 
+import com.example.minibankingsystem.component.BankAccountSpecification;
 import com.example.minibankingsystem.config.security.JwtUtil;
 import com.example.minibankingsystem.dto.request.CreateBankAccountRequest;
 import com.example.minibankingsystem.dto.request.TransactionTokenRequest;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -154,6 +156,21 @@ public class BankAccountServiceImpl {
         Page<BankAccount> bankAccounts = bankAccountRepository.findByUserId(user.getId(), pageable);
         return bankAccounts.map(this::createResponseBankAccount);
 
+    }
+
+    // Admin Bank account getter
+    public Page<BankAccountResponse> getBankAccountsAdmin(
+            String username,
+            String accountNumber,
+            AccountType accountType,
+            AccountStatus status,
+            Pageable pageable) {
+
+        Specification<BankAccount> spec = BankAccountSpecification.withFilters(
+                username, accountNumber, accountType, status);
+
+        return bankAccountRepository.findAll(spec, pageable)
+                .map(this::createResponseBankAccount);
     }
 
     public BankAccountResponse addBankAccount(CreateBankAccountRequest request) {
