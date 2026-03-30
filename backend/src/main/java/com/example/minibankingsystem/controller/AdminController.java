@@ -56,10 +56,25 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse<Page<UserResponse>>> getAllUsers(
-            Pageable pageable) {
-        Page<UserResponse> response = userService.getUsers(pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User retrieved successfully", response));
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsers(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<UserResponse> result = userService.getUsers(
+                username, firstName, lastName, pageable);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Users retrieved successfully", result));
     }
 
     @PatchMapping("/users/{userId}/toggle-active")
