@@ -1,51 +1,77 @@
-<div class="container" style="padding-top:24px;">
+<div class="page">
 
-  <h2 style="margin-bottom:16px;">Admin Dashboard</h2>
-
-  <div ng-if="vm.loading" style="text-align:center;padding:40px;">
-    Loading dashboard...
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Admin Panel</p>
+      <h1 class="page-title">Dashboard</h1>
+    </div>
   </div>
 
-  <div ng-if="!vm.loading && vm.summary">
+  <!-- ─── Loading ────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-if="loading">
+    <div class="spinner"></div>
+    <span>Loading summary…</span>
+  </div>
 
-    <!-- Summary Cards -->
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;">
+  <!-- ─── Content ────────────────────────────────────────────────────── -->
+  <div ng-if="!loading">
 
-      <div class="card" style="flex:1;min-width:180px;text-align:center;">
-        <div style="font-size:32px;font-weight:bold;color:#007bff;">
-          {{ vm.summary.totalCustomers }}
+    <!-- Stat Cards -->
+    <div class="admin-stat-grid">
+
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon admin-stat-icon--blue">👥</div>
+        <div class="admin-stat-body">
+          <span class="admin-stat-label">Total Customers</span>
+          <span class="admin-stat-value">{{ summary.totalCustomers }}</span>
         </div>
-        <div style="color:#666;margin-top:6px;">Total Customers</div>
       </div>
 
-      <div class="card" style="flex:1;min-width:180px;text-align:center;">
-        <div style="font-size:32px;font-weight:bold;color:#28a745;">
-          {{ vm.summary.totalTransactions }}
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon admin-stat-icon--orange">🏦</div>
+        <div class="admin-stat-body">
+          <span class="admin-stat-label">Total Accounts</span>
+          <span class="admin-stat-value">{{ summary.totalAccounts }}</span>
         </div>
-        <div style="color:#666;margin-top:6px;">Total Transactions</div>
       </div>
 
-      <div class="card" style="flex:1;min-width:180px;text-align:center;">
-        <div style="font-size:32px;font-weight:bold;color:#17a2b8;">
-          ₱{{ vm.summary.totalBalance | number:2 }}
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon admin-stat-icon--teal">🔁</div>
+        <div class="admin-stat-body">
+          <span class="admin-stat-label">Transactions Today</span>
+          <span class="admin-stat-value">{{ summary.transactionsToday }}</span>
         </div>
-        <div style="color:#666;margin-top:6px;">Total Balance</div>
+      </div>
+
+      <div class="admin-stat-card admin-stat-card--wide">
+        <div class="admin-stat-icon admin-stat-icon--green">💰</div>
+        <div class="admin-stat-body">
+          <span class="admin-stat-label">Total Balance</span>
+          <span class="admin-stat-value admin-stat-value--currency">
+            {{ summary.totalBalance | currency:'₱' }}
+          </span>
+        </div>
       </div>
 
     </div>
 
-    <!-- Quick Links -->
-    <div class="card">
-      <h4 style="margin-bottom:12px;">Quick Actions</h4>
-      <a href="#!/admin/customers" class="btn btn-primary" style="margin-right:8px;">
-        View All Customers
+    <!-- Quick Navigation -->
+    <h2 class="section-title" style="">Quick Navigation</h2>
+    <div class="quick-actions">
+
+      <a class="quick-action-card" href="#/admin/customers">
+        <span class="quick-action-icon">👤</span>
+        <span class="quick-action-label">Customers</span>
       </a>
+
+      <a class="quick-action-card" href="#/admin/transactions">
+        <span class="quick-action-icon">📋</span>
+        <span class="quick-action-label">Transactions</span>
+      </a>
+
     </div>
 
-  </div>
-
-  <div ng-if="!vm.loading && !vm.summary" style="color:#dc3545;">
-    Could not load dashboard data.
   </div>
 
 </div>

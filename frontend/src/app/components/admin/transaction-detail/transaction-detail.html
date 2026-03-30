@@ -1,0 +1,85 @@
+<div class="page">
+
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Admin Panel › Transactions</p>
+      <h1 class="page-title">Transaction Detail</h1>
+    </div>
+    <button class="btn-action btn-action--ghost" ng-click="goBack()">← Back</button>
+  </div>
+
+  <!-- ─── Loading ────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-if="loading">
+    <div class="spinner"></div>
+    <span>Loading transaction…</span>
+  </div>
+
+  <!-- ─── Error fallback ─────────────────────────────────────────────── -->
+  <div class="state-empty" ng-if="!loading && error">
+    <p class="state-empty-icon">⚠️</p>
+    <h3 class="state-empty-title">Transaction not found</h3>
+    <p class="state-empty-sub">This transaction could not be loaded.</p>
+    <button class="btn-action btn-action--ghost" ng-click="goBack()">← Back to Transactions</button>
+  </div>
+
+  <!-- ─── Content ────────────────────────────────────────────────────── -->
+  <div ng-if="!loading && !error && transaction">
+
+    <div class="form-card tx-detail-card">
+
+      <!-- Type badge + ID -->
+      <div class="tx-detail-header">
+        <span class="tx-type-badge tx-type-badge--lg" ng-class="txBadgeClass(transaction.type)">
+          {{ transaction.type }}
+        </span>
+        <span class="tx-detail-id">Transaction #{{ transaction.id }}</span>
+      </div>
+
+      <div class="auth-divider"></div>
+
+      <!-- Fields -->
+      <div class="profile-fields">
+
+        <div class="profile-field-row">
+          <div class="profile-field">
+            <span class="profile-field-label">Date &amp; Time</span>
+            <span class="profile-field-value admin-table-mono">{{ formatDate(transaction.timestamp) }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="profile-field-label">Amount</span>
+            <span class="profile-field-value" ng-class="txAmountClass(transaction.type)">
+              {{ transaction.amount | currency:'₱' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="profile-field-row">
+          <div class="profile-field">
+            <span class="profile-field-label">From Account</span>
+            <span class="profile-field-value profile-field-value--mono">
+              {{ transaction.fromAccountNumber || '—' }}
+            </span>
+          </div>
+          <div class="profile-field">
+            <span class="profile-field-label">To Account</span>
+            <span class="profile-field-value profile-field-value--mono">
+              {{ transaction.toAccountNumber || '—' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="profile-field-row">
+          <div class="profile-field profile-field--full">
+            <span class="profile-field-label">Description</span>
+            <span class="profile-field-value">{{ transaction.description || '—' }}</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

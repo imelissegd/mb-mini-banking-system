@@ -1,24 +1,44 @@
 angular.module('bankingApp')
-  .controller('CustomerListController', ['AdminService', 'ToastService',
-    function (AdminService, ToastService) {
+  .controller('CustomerListController', ['$scope', '$location', 'AdminService', 'ToastService',
+    function ($scope, $location, AdminService, ToastService) {
 
-      var vm = this;
+      $scope.loading     = true;
+      $scope.customers   = [];
+      $scope.searchQuery = '';
 
-      vm.loading   = true;
-      vm.customers = [];
-      vm.search    = '';
+      // ─── Client-side filter function ──────────────────────────────────
+      // Used by ng-repeat's filter: expression.
+      // Matches against full name (first + last) or email.
+      $scope.filterCustomer = function (customer) {
+        var q = ($scope.searchQuery || '').toLowerCase().trim();
+        if (!q) return true;
+        var fullName = (customer.firstName + ' ' + customer.lastName).toLowerCase();
+        var email    = (customer.email || '').toLowerCase();
+        return fullName.indexOf(q) !== -1 || email.indexOf(q) !== -1;
+      };
 
+      // ─── Navigate to customer detail ──────────────────────────────────
+      $scope.viewCustomer = function (customerId) {
+        $location.path('/admin/customers/' + customerId);
+      };
+
+      $scope.goToCreate = function () {
+        $location.path('/admin/customers/new');
+      };
+
+      // ─── Load all customers on init ───────────────────────────────────
       AdminService.getAllCustomers()
-        .then(function (response) {
-          vm.customers = response.data;
+        .then(function (data) {
+          $scope.customers = data;
         })
-        .catch(function (error) {
+        .catch(function () {
           ToastService.show('Failed to load customers.', 'error');
-          console.error('CustomerList: load failed', error);
         })
         .finally(function () {
-          vm.loading = false;
+          $scope.loading = false;
         });
+
+
 
     }
   ]);

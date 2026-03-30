@@ -1,0 +1,127 @@
+<div class="page">
+
+  <!-- ─── Page Header ──────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Manage Funds</p>
+      <h1 class="page-title">{{ isDeposit() ? 'Deposit' : 'Withdraw' }}</h1>
+    </div>
+    <a class="btn-action btn-action--ghost" href="#!/dashboard">&#8592; Back</a>
+  </div>
+
+  <!-- ─── Mode Toggle ───────────────────────────────────────────────────── -->
+  <div class="dw-toggle-wrap">
+    <div class="dw-toggle">
+      <button class="dw-toggle-btn"
+              ng-class="{ 'dw-toggle-btn--active': isDeposit() }"
+              ng-click="setMode('DEPOSIT')">
+        <span class="dw-toggle-icon">&#8595;</span>
+        Deposit
+      </button>
+      <button class="dw-toggle-btn"
+              ng-class="{ 'dw-toggle-btn--active': isWithdraw() }"
+              ng-click="setMode('WITHDRAW')">
+        <span class="dw-toggle-icon">&#8593;</span>
+        Withdraw
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── Loading accounts ─────────────────────────────────────────────── -->
+  <div class="state-loading" ng-show="loadingAccounts">
+    <div class="spinner"></div>
+    <p>Loading your accounts&hellip;</p>
+  </div>
+
+  <!-- ─── No active accounts ───────────────────────────────────────────── -->
+  <div class="state-empty" ng-show="!loadingAccounts && accounts.length === 0">
+    <p class="state-empty-icon">&#128683;</p>
+    <p class="state-empty-title">No active accounts</p>
+    <p class="state-empty-sub">You need at least one active account to continue.</p>
+    <a class="btn-action" href="#!/open-account">Open Account</a>
+  </div>
+
+  <!-- ─── Form ─────────────────────────────────────────────────────────── -->
+  <div ng-show="!loadingAccounts && accounts.length > 0">
+    <div class="form-card">
+
+      <!-- Dynamic header inside card -->
+      <div class="form-card-header">
+        <span class="form-step-badge"
+              ng-class="isDeposit() ? 'form-step-badge--deposit' : 'form-step-badge--withdraw'">
+          {{ isDeposit() ? '&#8595; Deposit Funds' : '&#8593; Withdraw Funds' }}
+        </span>
+        <h2 class="form-card-title">
+          {{ isDeposit() ? 'Add money to your account' : 'Take money from your account' }}
+        </h2>
+        <p class="form-card-sub" ng-show="isDeposit()">
+          Select the account you want to top up and enter the amount.
+        </p>
+        <p class="form-card-sub" ng-show="isWithdraw()">
+          Select the account to withdraw from. Make sure you have sufficient balance.
+        </p>
+      </div>
+
+      <!-- Account selector -->
+      <div class="field-group">
+        <label>Account <span class="field-required">*</span></label>
+        <div class="input-wrap input-wrap--select">
+          <span class="input-icon">&#9654;</span>
+          <select ng-model="form.accountId"
+                  ng-change="onAccountChange()"
+                  ng-options="a.id as (a.accountType + '  ·  ' + a.accountNumber + '  —  ₱ ' + (a.balance | number:2)) for a in accounts"
+                  required>
+            <option value="" disabled selected>Select account</option>
+          </select>
+        </div>
+
+        <!-- Balance pill -->
+        <div class="account-balance-pill" ng-show="selectedAccount">
+          <span class="balance-pill-label">Available balance:</span>
+          <span class="balance-pill-amount">&#8369; {{ selectedAccount.balance | number:2 }}</span>
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div class="field-group">
+        <label>Amount <span class="field-required">*</span></label>
+        <div class="input-wrap input-wrap--amount">
+          <span class="input-icon input-currency">&#8369;</span>
+          <input type="number"
+                 ng-model="form.amount"
+                 placeholder="0.00"
+                 min="1"
+                 step="0.01"
+                 required />
+        </div>
+
+        <!-- Withdraw: inline warning when amount exceeds balance -->
+        <p class="field-error"
+           ng-show="isWithdraw() && selectedAccount && form.amount > selectedAccount.balance">
+          Amount exceeds your available balance.
+        </p>
+      </div>
+
+      <!-- Submit button -->
+      <button class="btn-primary"
+              ng-class="isWithdraw() ? 'btn-primary--withdraw' : ''"
+              ng-click="submit()"
+              ng-disabled="submitting">
+        <span ng-show="!submitting">
+          {{ isDeposit() ? '&#8595; Confirm Deposit' : '&#8593; Confirm Withdrawal' }}
+        </span>
+        <span ng-show="submitting" class="btn-spinner">
+          <span class="spinner spinner--btn"></span>
+          {{ isDeposit() ? 'Depositing&hellip;' : 'Processing&hellip;' }}
+        </span>
+      </button>
+
+      <!-- Reset link -->
+      <div class="form-reset-row" ng-show="form.accountId || form.amount">
+        <button class="btn-link" ng-click="resetForm()">Clear form</button>
+      </div>
+
+    </div><!-- /.form-card -->
+  </div>
+
+</div><!-- /.page -->

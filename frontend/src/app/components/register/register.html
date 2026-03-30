@@ -1,0 +1,132 @@
+<div class="auth-page">
+  <div class="auth-card auth-card--wide">
+    <div class="auth-brand">
+      <div class="logo">MB<span>Bank</span></div>
+      <div class="tagline">Mini Banking System</div>
+    </div>
+
+    <div class="auth-divider"></div>
+
+    <h1>Register</h1>
+
+    <form name="registerForm" ng-submit="register()" novalidate>
+
+      <!-- Name row: First + Middle -->
+      <div class="field-row">
+        <div class="field-group">
+          <label for="firstName">First Name</label>
+          <div class="input-wrap">
+            <input id="firstName"
+                   name="firstName"
+                   type="text"
+                   ng-model="form.firstName"
+                   placeholder="Juan"
+                   required />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="middleName">Middle Name <span class="field-optional">(optional)</span></label>
+          <div class="input-wrap">
+            <input id="middleName"
+                   name="middleName"
+                   type="text"
+                   ng-model="form.middleName"
+                   placeholder="Santos" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Name row: Last + Suffix -->
+      <div class="field-row">
+        <div class="field-group">
+          <label for="lastName">Last Name</label>
+          <div class="input-wrap">
+            <input id="lastName"
+                   name="lastName"
+                   type="text"
+                   ng-model="form.lastName"
+                   placeholder="dela Cruz"
+                   required />
+          </div>
+        </div>
+
+        <div class="field-group field-group--narrow">
+          <label for="suffix">Suffix <span class="field-optional">(optional)</span></label>
+          <div class="input-wrap">
+            <input id="suffix"
+                   name="suffix"
+                   type="text"
+                   ng-model="form.suffix"
+                   placeholder="Jr." />
+          </div>
+        </div>
+      </div>
+
+      <!-- Username -->
+      <div class="field-group">
+        <label for="username">Username</label>
+        <div class="input-wrap">
+          <input id="username"
+                 name="username"
+                 type="text"
+                 ng-model="form.username"
+                 placeholder="your_username"
+                 autocomplete="username"
+                 required />
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="field-group">
+        <label for="email">Email</label>
+        <div class="input-wrap">
+          <input id="email"
+                 name="email"
+                 type="email"
+                 ng-model="form.email"
+                 placeholder="juan@email.com"
+                 autocomplete="email"
+                 required />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input id="password"
+                 name="password"
+                 type="password"
+                 ng-model="form.password"
+                 placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                 autocomplete="new-password"
+                 required />
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="field-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="input-wrap">
+          <input id="confirmPassword"
+                 name="confirmPassword"
+                 type="password"
+                 ng-model="form.confirmPassword"
+                 placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                 autocomplete="new-password"
+                 required />
+        </div>
+        <p class="field-error" ng-if="passwordMismatch">Passwords do not match.</p>
+      </div>
+
+      <button class="btn-primary" type="submit" ng-disabled="loading">
+        <span ng-if="!loading">Create Account</span>
+        <span ng-if="loading">Creating Account&hellip;</span>
+      </button>
+
+    </form>
+
+    <p class="auth-footer">Already have an account? <a href="#!/login">Login</a></p>
+  </div>
+</div>

@@ -1,0 +1,89 @@
+<div class="page">
+
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">My Banking</p>
+      <h1 class="page-title">Open an Account</h1>
+    </div>
+    <button class="btn-action btn-action--ghost" ng-click="cancel()">← Dashboard</button>
+  </div>
+
+  <!-- ─── Form card ───────────────────────────────────────────────────── -->
+  <div class="form-card">
+
+    <div class="form-card-header">
+      <span class="form-step-badge">New Account</span>
+      <h2 class="form-card-title">Choose Account Type</h2>
+      <p class="form-card-sub">Select the type of account you'd like to open.</p>
+    </div>
+
+    <!-- Account type cards (radio) -->
+    <div class="account-type-options">
+
+      <label
+        class="account-type-option"
+        ng-class="{ 'account-type-option--selected': selectedType === 'CHECKING' }"
+      >
+        <input
+          type="radio"
+          name="accountType"
+          value="CHECKING"
+          ng-model="selectedType"
+        />
+        <div class="account-type-option-body">
+          <div class="account-type-option-header">
+            <span class="account-type-option-icon">🏧</span>
+            <span class="account-type-option-name">Checking</span>
+            <span class="account-type-option-check" ng-if="selectedType === 'CHECKING'">✔</span>
+          </div>
+          <p class="account-type-option-desc">
+            Everyday spending and transactions. Ideal for bills, transfers, and debit purchases.
+          </p>
+        </div>
+      </label>
+
+      <label
+        class="account-type-option"
+        ng-class="{ 'account-type-option--selected': selectedType === 'SAVINGS' }"
+      >
+        <input
+          type="radio"
+          name="accountType"
+          value="SAVINGS"
+          ng-model="selectedType"
+        />
+        <div class="account-type-option-body">
+          <div class="account-type-option-header">
+            <span class="account-type-option-icon">🐖</span>
+            <span class="account-type-option-name">Savings</span>
+            <span class="account-type-option-check" ng-if="selectedType === 'SAVINGS'">✔</span>
+          </div>
+          <p class="account-type-option-desc">
+            Grow your money over time. Best for setting aside funds you don't need daily.
+          </p>
+        </div>
+      </label>
+
+    </div>
+
+    <!-- Actions -->
+    <button
+      class="btn-primary"
+      ng-click="submit()"
+      ng-disabled="busy || !selectedType"
+      style="margin-top: 0.5rem;"
+    >
+      <span ng-if="!busy">Open Account</span>
+      <span ng-if="busy" class="btn-spinner">
+        <span class="spinner spinner--btn"></span> Opening…
+      </span>
+    </button>
+
+    <div class="form-reset-row">
+      <button class="btn-link" ng-click="cancel()" ng-disabled="busy">Cancel</button>
+    </div>
+
+  </div>
+
+</div>

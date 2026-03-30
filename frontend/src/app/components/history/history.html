@@ -1,0 +1,62 @@
+<div class="page">
+
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">My Banking</p>
+      <h1 class="page-title">Transaction History</h1>
+    </div>
+  </div>
+
+  <!-- ─── Loading ────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-if="loading">
+    <div class="spinner"></div>
+    <span>Loading transactions…</span>
+  </div>
+
+  <!-- ─── Content ────────────────────────────────────────────────────── -->
+  <div ng-if="!loading">
+
+    <!-- Empty state -->
+    <div class="state-empty" ng-if="transactions.length === 0">
+      <p class="state-empty-icon">📋</p>
+      <h3 class="state-empty-title">No transactions yet</h3>
+      <p class="state-empty-sub">Your transaction history will appear here.</p>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-table-wrap" ng-if="transactions.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Date / Time</th>
+            <th>Type</th>
+            <th>From Account</th>
+            <th>To Account</th>
+            <th>Amount</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            ng-repeat="tx in transactions"
+            ng-class="txRowClass(tx.type)"
+          >
+            <td class="admin-table-mono tx-date">{{ formatDate(tx.timestamp) }}</td>
+            <td>
+              <span class="tx-type-badge" ng-class="txBadgeClass(tx.type)">{{ tx.type }}</span>
+            </td>
+            <td class="admin-table-mono">{{ tx.fromAccountNumber || '—' }}</td>
+            <td class="admin-table-mono">{{ tx.toAccountNumber || '—' }}</td>
+            <td class="admin-table-mono" ng-class="txAmountClass(tx.type)">
+              {{ tx.amount | currency:'₱' }}
+            </td>
+            <td class="tx-description">{{ tx.description || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>

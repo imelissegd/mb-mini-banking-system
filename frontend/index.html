@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mini Banking System</title>
+  <title>MB Bank</title>
   <link rel="icon" href="data:,">
 
   <!-- AngularJS 1.8 via CDN -->
@@ -15,12 +15,58 @@
 </head>
 <body>
 
-  <!-- Router outlet -->
+  <!-- NAVBAR -->
+  <bank-nav></bank-nav>
+
+  <!-- TOAST -->
+  <bank-toast></bank-toast>
+
+  <hr>
+
+  <!-- ROUTE VIEW -->
   <div ng-view></div>
 
-  <!-- S-11 : App module -->
+  <!-- ─── Scripts ──────────────────────────────────────────────────────── -->
+
+  <!-- APP -->
   <script src="src/app/app.js"></script>
 
+  <!-- CONFIG -->
+  <script src="src/app/config/app.config.js"></script>
+
+  <!-- SERVICES -->
+  <script src="src/app/services/authInterceptor.js"></script>
+  <script src="src/app/services/auth.service.js"></script>
+  <script src="src/app/services/toast.service.js"></script>
+  <script src="src/app/services/account.service.js"></script>
+  <script src="src/app/services/transaction.service.js"></script>
+  <script src="src/app/services/profile.service.js"></script>
+  <script src="src/app/services/admin.service.js"></script>
+
+  <!-- ROUTES -->
+  <script src="src/app/routes/app.routes.js"></script>
+
+  <!-- DIRECTIVES -->
+  <script src="src/app/components/toast/toast.directive.js"></script>
+  <script src="src/app/components/nav/nav.directive.js"></script>
+
+  <!-- CONTROLLERS — Customer -->
+  <script src="src/app/components/login/login.controller.js"></script>
+  <script src="src/app/components/register/register.controller.js"></script>
+  <script src="src/app/components/dashboard/dashboard.controller.js"></script>
+  <script src="src/app/components/transfer/transfer.controller.js"></script>
+  <script src="src/app/components/transfer/deposit-withdraw.controller.js"></script>
+  <script src="src/app/components/history/history.controller.js"></script>
+  <script src="src/app/components/profile/profile.controller.js"></script>
+  <script src="src/app/components/open-account/open-account.controller.js"></script>
+
+  <!-- CONTROLLERS — Admin -->
+  <script src="src/app/components/admin/admin-dashboard/admin-dashboard.controller.js"></script>
+  <script src="src/app/components/admin/customer-list/customer-list.controller.js"></script>
+  <script src="src/app/components/admin/customer-detail/customer-detail.controller.js"></script>
+  <script src="src/app/components/admin/create-customer/create-customer.controller.js"></script>
+  <script src="src/app/components/admin/transaction-list/transaction-list.controller.js"></script>
+  <script src="src/app/components/admin/transaction-detail/transaction-detail.controller.js"></script>
 
 </body>
 </html>
