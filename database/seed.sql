@@ -1,17 +1,16 @@
-USE `MiniBankingSystem`;
+USE `minibankingsystem`;
 
 -- =============================================================================
 -- USERS
 -- Passwords are BCrypt-hashed.
---   admin@bank.com     → password: Admin@1234
---   juan@example.com   → password: Customer@1234
---   maria@example.com  → password: Customer@1234
+--   admin01   → Admin@1234
+--   juan01    → Customer@1234
+--   maria01   → Customer@1234
 -- =============================================================================
 
-INSERT INTO `users`
+INSERT IGNORE INTO `users`
 (`username`, `first_name`, `middle_name`, `last_name`, `suffix`, `email`, `contact_number`, `password_hash`, `role`, `is_active`, `created_at`)
 VALUES
-    -- Admin
     (
         'admin01',
         'System', '', 'Admin', '',
@@ -20,7 +19,6 @@ VALUES
         '$2a$10$icnyqAE.vwSDwUCmkF10EedfSFQO5WWGY2UrKcAQ2/O8khtR.3hV2',
         'ADMIN', 1, NOW()
     ),
-    -- Customer 1
     (
         'juan01',
         'Juan', 'Santos', 'Dela Cruz', '',
@@ -29,7 +27,6 @@ VALUES
         '$2a$10$6mdr8gxKJvRYUlgcrkHPH.ZU41mU0V9AYsY2bA1HE5XrlLRMjRREe',
         'CUSTOMER', 1, NOW()
     ),
-    -- Customer 2
     (
         'maria01',
         'Maria', 'Reyes', 'Garcia', '',
@@ -41,36 +38,42 @@ VALUES
 
 -- =============================================================================
 -- BANK ACCOUNTS
+-- Uses subqueries to resolve user IDs so hardcoded IDs don't break
+-- if the auto_increment shifts after a wipe-and-reseed.
 -- =============================================================================
 
-INSERT INTO `bank_accounts`
+INSERT IGNORE INTO `bank_accounts`
 (`users_id`, `account_number`, `account_type`, `balance`, `status`, `created_at`)
 VALUES
-    -- Juan: Savings + Checking
-    (2, '1000000001', 'SAVINGS',  50000.00, 'OPEN', NOW()),
-    (2, '1000000002', 'CHECKING', 15000.00, 'OPEN', NOW()),
-    -- Maria: Savings
-    (3, '2000000001', 'SAVINGS',  80000.00, 'OPEN', NOW()),
-    (3, '2000000002', 'CHECKING',  5000.00, 'OPEN', NOW());
+    ((SELECT id FROM users WHERE username = 'juan01'),  '1000000001', 'SAVINGS',  50000.00, 'ACTIVE', NOW()),
+    ((SELECT id FROM users WHERE username = 'juan01'),  '1000000002', 'CHECKING', 15000.00, 'ACTIVE', NOW()),
+    ((SELECT id FROM users WHERE username = 'maria01'), '2000000001', 'SAVINGS',  80000.00, 'ACTIVE', NOW()),
+    ((SELECT id FROM users WHERE username = 'maria01'), '2000000002', 'CHECKING',  5000.00, 'ACTIVE', NOW());
 
 -- =============================================================================
--- SEED TRANSACTIONS (sample history)
+-- TRANSACTIONS
+-- Uses subqueries to resolve account IDs for the same reason.
 -- =============================================================================
 
-INSERT INTO `transactions`
+INSERT IGNORE INTO `transactions`
 (`from_account_id`, `to_account_id`, `amount`, `type`, `timestamp`, `description`)
 VALUES
-    -- Initial deposit into Juan's savings (no from_account → DEPOSIT)
-    (NULL, 1, 50000.00, 'DEPOSIT',    DATE_SUB(NOW(), INTERVAL 30 DAY), 'Initial deposit'),
-    -- Initial deposit into Juan's checking
-    (NULL, 2, 20000.00, 'DEPOSIT',    DATE_SUB(NOW(), INTERVAL 30 DAY), 'Initial deposit'),
-    -- Initial deposit into Maria's savings
-    (NULL, 3, 80000.00, 'DEPOSIT',    DATE_SUB(NOW(), INTERVAL 30 DAY), 'Initial deposit'),
-    -- Initial deposit into Maria's checking
-    (NULL, 4,  5000.00, 'DEPOSIT',    DATE_SUB(NOW(), INTERVAL 30 DAY), 'Initial deposit'),
-    -- Juan checking → Maria savings (transfer)
-    (2,    3,  5000.00, 'TRANSFER',   DATE_SUB(NOW(), INTERVAL 10 DAY), 'Payment for rent'),
-    -- Maria savings → Juan savings (transfer)
-    (3,    1,  2500.00, 'TRANSFER',   DATE_SUB(NOW(), INTERVAL  5 DAY), 'Loan repayment'),
-    -- Juan checking withdrawal (no to_account → WITHDRAWAL)
-    (2,    NULL, 500.00, 'WITHDRAWAL', DATE_SUB(NOW(), INTERVAL  2 DAY), 'ATM withdrawal');
+    (NULL, (SELECT id FROM bank_accounts WHERE account_number = '1000000001'), 50000.00, 'DEPOSIT',    DATE_SUB(NOW(), INTERVAL 30 DAY), 'Initial deposit'),
+    (NULL, (SELECT id FROM bank_accounts WHERE account_number = '1000000002'), 20000.00, 'DEPOSIT',    DATE_SUB(NOW(), INTERVAL 30 DAY), 'Initial deposit'),
+    (NULL, (SELECT id FROM bank_accounts WHERE account_number = '2000000001'), 80000.00, 'DEPOSIT',    DATE_SUB(NOW(), INTERVAL 30 DAY), 'Initial deposit'),
+    (NULL, (SELECT id FROM bank_accounts WHERE account_number = '2000000002'),  5000.00, 'DEPOSIT',    DATE_SUB(NOW(), INTERVAL 30 DAY), 'Initial deposit'),
+    (
+        (SELECT id FROM bank_accounts WHERE account_number = '1000000002'),
+        (SELECT id FROM bank_accounts WHERE account_number = '2000000001'),
+        5000.00, 'TRANSFER', DATE_SUB(NOW(), INTERVAL 10 DAY), 'Payment for rent'
+    ),
+    (
+        (SELECT id FROM bank_accounts WHERE account_number = '2000000001'),
+        (SELECT id FROM bank_accounts WHERE account_number = '1000000001'),
+        2500.00, 'TRANSFER', DATE_SUB(NOW(), INTERVAL 5 DAY), 'Loan repayment'
+    ),
+    (
+        (SELECT id FROM bank_accounts WHERE account_number = '1000000002'),
+        NULL,
+        500.00, 'WITHDRAWAL', DATE_SUB(NOW(), INTERVAL 2 DAY), 'ATM withdrawal'
+    );

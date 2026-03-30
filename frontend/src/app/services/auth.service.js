@@ -7,12 +7,12 @@ angular.module('bankingApp')
       // ─── MOCK FLAGS ──────────────────────────────────────────────────────
       // One flag per method so each can be wired independently.
       // Set to false as each backend endpoint becomes ready.
-      var MOCK_LOAD_USER = true;   // GET  /auth/me
-      var MOCK_LOGIN     = true;   // POST /auth/login
+      var MOCK_LOAD_USER = false;   // GET  /auth/me
+      var MOCK_LOGIN     = false;   // POST /auth/login
       var MOCK_REGISTER  = false;  // POST /auth/register  ← C-01: wired
-      var MOCK_LOGOUT    = true;   // POST /auth/logout
+      var MOCK_LOGOUT    = false;   // POST /auth/logout
 
-      // ─── Mock users ──────────────────────────────────────────────────────
+      // ─── Mock users ──────  ────────────────────────────────────────────────
       // Simulates what GET /api/auth/me returns from the server.
       var MOCK_USERS = {
         admin: {

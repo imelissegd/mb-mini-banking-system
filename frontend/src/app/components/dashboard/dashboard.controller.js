@@ -3,12 +3,29 @@ angular.module('bankingApp')
     function ($scope, $q, AccountService, TransactionService, AuthService, ToastService) {
 
       // ─── User info ────────────────────────────────────────────────────
+      // Read from currentUser directly — by the time the dashboard loads,
+      // the route guard has already called loadCurrentUser() and currentUser
+      // is populated. Watching the service property keeps it reactive if
+      // currentUser is ever updated mid-session.
       $scope.displayName  = AuthService.getDisplayName() || 'there';
       $scope.accounts     = [];
       $scope.totalBalance = 0;
       $scope.recentTx     = [];
       $scope.loading      = true;
       $scope.txLoading    = true;
+
+      // ─── Ensure currentUser is hydrated before reading display name ───
+      // The route guard calls loadCurrentUser() but its promise resolves
+      // before the controller runs. If currentUser is already set (normal
+      // login flow), this resolves instantly. If for any reason it isn't
+      // (e.g. hard refresh before guard wires up), this recovers it.
+      AuthService.loadCurrentUser()
+        .then(function () {
+          $scope.displayName = AuthService.getDisplayName() || 'there';
+        })
+        .catch(function () {
+          // 401 — interceptor will redirect to /login, nothing to do here
+        });
 
       // ─── Load accounts ────────────────────────────────────────────────
       AccountService.getMyAccounts()
@@ -31,11 +48,9 @@ angular.module('bankingApp')
       // ─── Load recent transactions (last 5) ────────────────────────────
       TransactionService.getMyTransactions()
         .then(function (data) {
-          // Show only the 5 most recent
           $scope.recentTx = (data || []).slice(0, 5);
         })
         .catch(function () {
-          // Non-critical — silently fail, history page will show full list
           $scope.recentTx = [];
         })
         .finally(function () {
@@ -43,14 +58,12 @@ angular.module('bankingApp')
         });
 
       // ─── Helpers ──────────────────────────────────────────────────────
-      // Returns CSS modifier class for a transaction type
       $scope.txTypeClass = function (type) {
         if (type === 'DEPOSIT')    return 'tx--credit';
         if (type === 'WITHDRAWAL') return 'tx--debit';
         return 'tx--transfer';
       };
 
-      // Returns a sign prefix for amount display
       $scope.txSign = function (type) {
         if (type === 'DEPOSIT')    return '+';
         if (type === 'WITHDRAWAL') return '-';
