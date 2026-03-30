@@ -77,3 +77,28 @@ CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`transactions` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
     ENGINE = InnoDB;
+    
+
+-- -----------------------------------------------------
+-- Table `MiniBankingSystem`.`requests`
+-- -----------------------------------------------------
+  CREATE TABLE IF NOT EXISTS `MiniBankingSystem`.`requests` (
+    `id`             BIGINT       NOT NULL AUTO_INCREMENT,
+    `users_id`       BIGINT       NOT NULL,
+    `type`           VARCHAR(45)  NOT NULL,  -- OPEN_ACCOUNT, EDIT_PROFILE
+    `status`         VARCHAR(45)  NOT NULL DEFAULT 'PENDING',  -- PENDING, APPROVED, REJECTED
+    `payload`        JSON         NOT NULL,  -- the requested changes
+    `remarks`        VARCHAR(255) NULL,      -- admin rejection reason
+    `created_at`     DATETIME     NOT NULL,
+    `resolved_at`    DATETIME     NULL,      -- when admin acted on it
+    `resolved_by`    BIGINT       NULL,      -- which admin approved/rejected
+    PRIMARY KEY (`id`),
+    INDEX `fk_requests_users_idx` (`users_id` ASC),
+    INDEX `fk_requests_resolved_by_idx` (`resolved_by` ASC),
+    CONSTRAINT `fk_requests_users`
+        FOREIGN KEY (`users_id`)
+        REFERENCES `MiniBankingSystem`.`users` (`id`),
+    CONSTRAINT `fk_requests_resolved_by`
+        FOREIGN KEY (`resolved_by`)
+        REFERENCES `MiniBankingSystem`.`users` (`id`)
+) ENGINE = InnoDB;
