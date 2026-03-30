@@ -2,8 +2,8 @@ angular.module('bankingApp')
   .controller('RegisterController', ['$scope', '$location', 'AuthService', 'ToastService',
     function ($scope, $location, AuthService, ToastService) {
 
-      $scope.form            = {};
-      $scope.loading         = false;
+      $scope.form             = {};
+      $scope.loading          = false;
       $scope.passwordMismatch = false;
 
       $scope.register = function () {
@@ -18,19 +18,25 @@ angular.module('bankingApp')
 
         $scope.loading = true;
 
+        // ⚠ Field names must match RegisterRequest exactly.
+        // contactNumber is required by the BE — missing it → 400 MissingFieldsException.
         var data = {
-          firstName:  $scope.form.firstName,
-          middleName: $scope.form.middleName  || '',
-          lastName:   $scope.form.lastName,
-          suffix:     $scope.form.suffix      || '',
-          username:   $scope.form.username,
-          email:      $scope.form.email,
-          password:   $scope.form.password
+          firstName:     $scope.form.firstName,
+          middleName:    $scope.form.middleName    || '',
+          lastName:      $scope.form.lastName,
+          suffix:        $scope.form.suffix        || '',
+          username:      $scope.form.username,
+          email:         $scope.form.email,
+          password:      $scope.form.password,
+          contactNumber: $scope.form.contactNumber        // ← required, not phone / phoneNumber
         };
 
         AuthService.register(data)
-          .then(function () {
-            ToastService.show('Registration successful. You may now log in.', 'success');
+          .then(function (res) {
+            var message = (res && res.data && res.data.message)
+              ? res.data.message
+              : 'Registration successful. You may now log in.';
+            ToastService.show(message, 'success');
             $location.path('/login');
           })
           .catch(function (err) {

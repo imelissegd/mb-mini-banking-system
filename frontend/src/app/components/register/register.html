@@ -91,6 +91,20 @@
         </div>
       </div>
 
+      <!-- Contact Number -->
+      <!-- ⚠ ng-model must be form.contactNumber — matches BE RegisterRequest exactly -->
+      <div class="field-group">
+        <label for="contactNumber">Contact Number</label>
+        <div class="input-wrap">
+          <input id="contactNumber"
+                 name="contactNumber"
+                 type="tel"
+                 ng-model="form.contactNumber"
+                 placeholder="09171234567"
+                 required />
+        </div>
+      </div>
+
       <!-- Password -->
       <div class="field-group">
         <label for="password">Password</label>
