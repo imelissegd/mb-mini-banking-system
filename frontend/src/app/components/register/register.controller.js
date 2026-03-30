@@ -2,24 +2,44 @@ angular.module('bankingApp')
   .controller('RegisterController', ['$scope', '$location', 'AuthService', 'ToastService',
     function ($scope, $location, AuthService, ToastService) {
 
-      $scope.form             = {};
-      $scope.loading          = false;
-      $scope.passwordMismatch = false;
+      $scope.form      = {};
+      $scope.loading   = false;
+      $scope.submitted = false;   // flips to true on first submit attempt
+                                  // — shows inline errors AND grays out the button
 
       $scope.register = function () {
 
-        // ─── Client-side validation ────────────────────────────────────
+        // ─── First submit attempt ─────────────────────────────────────
+        // Toast fires once here to tell the user something is wrong.
+        // After this, $scope.submitted = true grays out the button so
+        // the user can't keep clicking — they must fix the fields first.
+        if (!$scope.submitted) {
+          $scope.submitted = true;
+
+          if ($scope.form.password !== $scope.form.confirmPassword) {
+            ToastService.show('Passwords do not match.', 'warning');
+            return;
+          }
+
+          if ($scope.registerForm.$invalid) {
+            ToastService.show('Please fix the errors before submitting.', 'warning');
+            return;
+          }
+        }
+
+        // ─── Guard for subsequent calls (e.g. form re-enables) ────────
         if ($scope.form.password !== $scope.form.confirmPassword) {
-          $scope.passwordMismatch = true;
           ToastService.show('Passwords do not match.', 'warning');
           return;
         }
-        $scope.passwordMismatch = false;
+
+        if ($scope.registerForm.$invalid) {
+          return;  // button is grayed out at this point — this is a safety net only
+        }
 
         $scope.loading = true;
 
         // ⚠ Field names must match RegisterRequest exactly.
-        // contactNumber is required by the BE — missing it → 400 MissingFieldsException.
         var data = {
           firstName:     $scope.form.firstName,
           middleName:    $scope.form.middleName    || '',
@@ -28,7 +48,7 @@ angular.module('bankingApp')
           username:      $scope.form.username,
           email:         $scope.form.email,
           password:      $scope.form.password,
-          contactNumber: $scope.form.contactNumber        // ← required, not phone / phoneNumber
+          contactNumber: $scope.form.contactNumber  // required — not phone / phoneNumber
         };
 
         AuthService.register(data)

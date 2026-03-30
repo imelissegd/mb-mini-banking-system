@@ -9,6 +9,12 @@
 
     <h1>Register</h1>
 
+    <!--
+      novalidate — disables native browser validation bubbles.
+      AngularJS handles all validation via ng-model + registerForm state.
+      Inline errors only appear after $scope.submitted = true (first submit attempt).
+      This prevents errors from showing on a fresh/untouched form.
+    -->
     <form name="registerForm" ng-submit="register()" novalidate>
 
       <!-- Name row: First + Middle -->
@@ -20,9 +26,13 @@
                    name="firstName"
                    type="text"
                    ng-model="form.firstName"
+                   ng-class="{'input-error': submitted && registerForm.firstName.$invalid}"
                    placeholder="Juan"
                    required />
           </div>
+          <p class="field-error" ng-if="submitted && registerForm.firstName.$error.required">
+            First name is required.
+          </p>
         </div>
 
         <div class="field-group">
@@ -46,9 +56,13 @@
                    name="lastName"
                    type="text"
                    ng-model="form.lastName"
+                   ng-class="{'input-error': submitted && registerForm.lastName.$invalid}"
                    placeholder="dela Cruz"
                    required />
           </div>
+          <p class="field-error" ng-if="submitted && registerForm.lastName.$error.required">
+            Last name is required.
+          </p>
         </div>
 
         <div class="field-group field-group--narrow">
@@ -71,10 +85,14 @@
                  name="username"
                  type="text"
                  ng-model="form.username"
+                 ng-class="{'input-error': submitted && registerForm.username.$invalid}"
                  placeholder="your_username"
                  autocomplete="username"
                  required />
         </div>
+        <p class="field-error" ng-if="submitted && registerForm.username.$error.required">
+          Username is required.
+        </p>
       </div>
 
       <!-- Email -->
@@ -85,14 +103,26 @@
                  name="email"
                  type="email"
                  ng-model="form.email"
+                 ng-class="{'input-error': submitted && registerForm.email.$invalid}"
                  placeholder="juan@email.com"
                  autocomplete="email"
                  required />
         </div>
+        <!-- Two separate errors: empty vs bad format -->
+        <p class="field-error" ng-if="submitted && registerForm.email.$error.required">
+          Email is required.
+        </p>
+        <p class="field-error" ng-if="submitted && registerForm.email.$error.email">
+          Please enter a valid email address.
+        </p>
       </div>
 
       <!-- Contact Number -->
-      <!-- ⚠ ng-model must be form.contactNumber — matches BE RegisterRequest exactly -->
+      <!--
+        ng-pattern validates Philippine mobile format: 09XXXXXXXXX (11 digits).
+        The BE also validates this — the pattern here prevents a round-trip for
+        obvious format errors.
+      -->
       <div class="field-group">
         <label for="contactNumber">Contact Number</label>
         <div class="input-wrap">
@@ -100,12 +130,24 @@
                  name="contactNumber"
                  type="tel"
                  ng-model="form.contactNumber"
+                 ng-class="{'input-error': submitted && registerForm.contactNumber.$invalid}"
+                 ng-pattern="/^09\d{9}$/"
                  placeholder="09171234567"
                  required />
         </div>
+        <p class="field-error" ng-if="submitted && registerForm.contactNumber.$error.required">
+          Contact number is required.
+        </p>
+        <p class="field-error" ng-if="submitted && registerForm.contactNumber.$error.pattern">
+          Enter a valid PH mobile number (e.g. 09171234567).
+        </p>
       </div>
 
       <!-- Password -->
+      <!--
+        ng-minlength="8" — rejects passwords shorter than 8 characters.
+        Aligns with typical BE password policy. Adjust if BE enforces a different minimum.
+      -->
       <div class="field-group">
         <label for="password">Password</label>
         <div class="input-wrap">
@@ -113,10 +155,18 @@
                  name="password"
                  type="password"
                  ng-model="form.password"
+                 ng-class="{'input-error': submitted && registerForm.password.$invalid}"
+                 ng-minlength="8"
                  placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
                  autocomplete="new-password"
                  required />
         </div>
+        <p class="field-error" ng-if="submitted && registerForm.password.$error.required">
+          Password is required.
+        </p>
+        <p class="field-error" ng-if="submitted && registerForm.password.$error.minlength">
+          Password must be at least 8 characters.
+        </p>
       </div>
 
       <!-- Confirm Password -->
@@ -127,14 +177,29 @@
                  name="confirmPassword"
                  type="password"
                  ng-model="form.confirmPassword"
+                 ng-class="{'input-error': submitted && registerForm.confirmPassword.$invalid}"
                  placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
                  autocomplete="new-password"
                  required />
         </div>
-        <p class="field-error" ng-if="passwordMismatch">Passwords do not match.</p>
+        <p class="field-error" ng-if="submitted && registerForm.confirmPassword.$error.required">
+          Please confirm your password.
+        </p>
+        <!-- Mismatch check: shown when both fields are filled but don't match -->
+        <p class="field-error"
+           ng-if="submitted && !registerForm.confirmPassword.$error.required && form.password !== form.confirmPassword">
+          Passwords do not match.
+        </p>
       </div>
 
-      <button class="btn-primary" type="submit" ng-disabled="loading">
+      <!--
+        Disabled when:
+        - loading (request in flight), OR
+        - submitted + form is invalid (prevents re-submitting a broken form)
+        NOT disabled on initial load — user should always be able to attempt once.
+      -->
+      <button class="btn-primary" type="submit"
+              ng-disabled="loading || (submitted && registerForm.$invalid)">
         <span ng-if="!loading">Create Account</span>
         <span ng-if="loading">Creating Account&hellip;</span>
       </button>
