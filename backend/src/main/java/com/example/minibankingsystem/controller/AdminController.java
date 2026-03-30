@@ -1,19 +1,17 @@
 package com.example.minibankingsystem.controller;
 
+import com.example.minibankingsystem.component.MessageHelper;
 import com.example.minibankingsystem.dto.admin.request.CreateUserAdmin;
+import com.example.minibankingsystem.dto.admin.request.ResolveRequest;
 import com.example.minibankingsystem.dto.request.CreateBankAccountRequest;
 import com.example.minibankingsystem.dto.request.RegisterRequest;
 import com.example.minibankingsystem.dto.request.TransferRequest;
-import com.example.minibankingsystem.dto.response.ApiResponse;
-import com.example.minibankingsystem.dto.response.BankAccountResponse;
-import com.example.minibankingsystem.dto.response.TransactionResponse;
-import com.example.minibankingsystem.dto.response.UserResponse;
+import com.example.minibankingsystem.dto.response.*;
 import com.example.minibankingsystem.model.enums.AccountStatus;
 import com.example.minibankingsystem.model.enums.AccountType;
-import com.example.minibankingsystem.service.AuthServiceImpl;
-import com.example.minibankingsystem.service.BankAccountServiceImpl;
-import com.example.minibankingsystem.service.TransactionServiceImpl;
-import com.example.minibankingsystem.service.UserServiceImpl;
+import com.example.minibankingsystem.model.enums.RequestStatus;
+import com.example.minibankingsystem.repository.RequestRepository;
+import com.example.minibankingsystem.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +21,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,20 +39,22 @@ public class AdminController {
     BankAccountServiceImpl bankAccountService;
     @Autowired
     TransactionServiceImpl transactionService;
+    @Autowired
+    RequestServiceImpl requestService;
 
     // Users
     @PostMapping("/users")
     public ResponseEntity<ApiResponse<UserResponse>> register(
             @Valid @RequestBody CreateUserAdmin createUserAdmin) {
         UserResponse response = authService.addUser(createUserAdmin);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("User added successfully", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(MessageHelper.get("success.user.added"), response));
     }
 
     @GetMapping("/users/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> getUser(
             @Valid @PathVariable("userId") Long userId) {
         UserResponse response = userService.getUserDetails(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User retrieved successfully", response));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(MessageHelper.get("success.user.retrieved"), response));
     }
 
     @GetMapping("/users")
@@ -74,13 +76,13 @@ public class AdminController {
         Page<UserResponse> result = userService.getUsers(
                 username, firstName, lastName, pageable);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Users retrieved successfully", result));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(MessageHelper.get("success.user.list.retrieved"), result));
     }
 
     @PatchMapping("/users/{userId}/toggle-active")
     public ResponseEntity<ApiResponse<UserResponse>> toggleActive(@Valid @PathVariable("userId") Long userId) {
         UserResponse response = userService.toggleUserActive(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("User toggle active successfully", response));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(MessageHelper.get("success.user.updated"), response));
     }
 
     // Bank accounts
@@ -104,35 +106,77 @@ public class AdminController {
         Page<BankAccountResponse> result = bankAccountService.getBankAccountsAdmin(
                 username, accountNumber, accountType, status, pageable);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Bank accounts retrieved successfully", result));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(MessageHelper.get("success.bank.account.list.retrieved"), result));
     }
 
     @PostMapping("/accounts")
     public ResponseEntity<ApiResponse<BankAccountResponse>> addBankAccount(
-            @Valid @RequestBody CreateBankAccountRequest createBankAccountRequest
-    ) {
+            @Valid @RequestBody CreateBankAccountRequest createBankAccountRequest) {
         BankAccountResponse response = bankAccountService.addBankAccount(createBankAccountRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Bank account added successfully", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(MessageHelper.get("success.bank.account.created"), response));
     }
 
-    // Transaction
     @GetMapping("/transactions")
     public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getTransactions(Pageable pageable) {
         Page<TransactionResponse> response = transactionService.getAllTransactions(pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Transactions retrieved successfully", response));
+        return ResponseEntity.ok(
+                ApiResponse.success(MessageHelper.get("success.transaction.list.retrieved"), response));
     }
 
     @GetMapping("/transactions/{transactionId}")
-    public ResponseEntity<ApiResponse<TransactionResponse>> getTransactionById(@Valid @PathVariable Long transactionId, Pageable pageable) {
+    public ResponseEntity<ApiResponse<TransactionResponse>> getTransactionById(
+            @PathVariable Long transactionId) {
         TransactionResponse response = transactionService.getTransactionById(transactionId);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Transaction retrieved successfully", response));
+        return ResponseEntity.ok(
+                ApiResponse.success(MessageHelper.get("success.transaction.retrieved"), response));
     }
 
     @PostMapping("/transactions/deposit")
-    public ResponseEntity<ApiResponse<TransactionResponse>> deposit(@Valid @RequestBody TransferRequest request) {
-        TransactionResponse response =
-                transactionService.depositAdmin(request);
+    public ResponseEntity<ApiResponse<TransactionResponse>> deposit(
+            @Valid @RequestBody TransferRequest request) {
+        TransactionResponse response = transactionService.depositAdmin(request);
+        return ResponseEntity.ok(
+                ApiResponse.success(MessageHelper.get("success.transaction.deposit"), response));
+    }
 
-        return ResponseEntity.ok(ApiResponse.success("Deposit successful", response));
+
+    // Requests
+    @GetMapping("/requests")
+    public ResponseEntity<ApiResponse<Page<RequestResponse>>> getAllRequests(
+            @RequestParam(required = false) RequestStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        return ResponseEntity.ok(ApiResponse.success(
+                MessageHelper.get("success.request.list.retrieved"),
+                requestService.getAllRequests(
+                        status,
+                        PageRequest.of(page, size, sort))));
+    }
+
+    @GetMapping("/requests/{requestId}")
+    public ResponseEntity<ApiResponse<RequestResponse>> getRequestById(
+            @PathVariable Long requestId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                MessageHelper.get("success.request.retrieved"),
+                requestService.getRequestById(requestId)));
+    }
+
+    @PatchMapping("/requests/{requestId}/resolve")
+    public ResponseEntity<ApiResponse<RequestResponse>> resolveRequest(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long requestId,
+            @Valid @RequestBody ResolveRequest dto) {
+        return ResponseEntity.ok(ApiResponse.success(
+                MessageHelper.get("success.request.resolved"),
+                requestService.resolveRequest(
+                        userDetails.getUsername(), requestId, dto)));
     }
 }

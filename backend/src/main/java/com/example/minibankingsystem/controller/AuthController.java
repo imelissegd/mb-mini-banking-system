@@ -1,6 +1,7 @@
 package com.example.minibankingsystem.controller;
 
 import com.example.minibankingsystem.component.CookieUtil;
+import com.example.minibankingsystem.component.MessageHelper;
 import com.example.minibankingsystem.dto.request.CreateBankAccountRequest;
 import com.example.minibankingsystem.dto.request.LoginRequest;
 import com.example.minibankingsystem.dto.request.RegisterRequest;
@@ -50,7 +51,7 @@ public class AuthController {
                 bankAccountService.addBankAccount(createBankAccountRequest);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(ApiResponse.success("Register successful", response));
+                                .body(ApiResponse.success(MessageHelper.get("success.auth.register"), response));
         }
 
         // ─── Login ───────────────────────────────────────────────────────────────
@@ -74,7 +75,7 @@ public class AuthController {
                                 .header(HttpHeaders.SET_COOKIE,
                                                 cookieUtil.createRefreshTokenCookie(response.getRefreshToken())
                                                                 .toString())
-                                .body(ApiResponse.success("Login successful.", response.getUser()));
+                                .body(ApiResponse.success(MessageHelper.get("success.auth.login"), response.getUser()));
         }
 
         // ─── Me ──────────────────────────────────────────────────────────────────
@@ -101,7 +102,7 @@ public class AuthController {
                 }
 
                 UserResponse user = authService.getUserByUsername(userDetails.getUsername());
-                return ResponseEntity.ok(ApiResponse.success("Authenticated", user));
+                return ResponseEntity.ok(ApiResponse.success(MessageHelper.get("success.user.retrieved"), user));
         }
 
         // ─── Logout ──────────────────────────────────────────────────────────────
@@ -117,6 +118,6 @@ public class AuthController {
                                                 cookieUtil.deleteAccessTokenCookie().toString())
                                 .header(HttpHeaders.SET_COOKIE,
                                                 cookieUtil.deleteRefreshTokenCookie().toString())
-                                .body(ApiResponse.success("Logged out successfully.", null));
+                                .body(ApiResponse.success(MessageHelper.get("success.auth.logout"), null));
         }
 }

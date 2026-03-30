@@ -1,5 +1,6 @@
 package com.example.minibankingsystem.controller;
 
+import com.example.minibankingsystem.component.MessageHelper;
 import com.example.minibankingsystem.dto.request.TransactionTokenRequest;
 import com.example.minibankingsystem.dto.request.TransferRequest;
 import com.example.minibankingsystem.dto.response.*;
@@ -29,30 +30,33 @@ public class BankAccountController {
     public ResponseEntity<ApiResponse<BankAccountResponse>> getAccount(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable String accountNumber) {
-        BankAccountResponse account = bankAccountService.getBankAccountByAccountNumber(userDetails.getUsername(), accountNumber);
-        return ResponseEntity.ok(ApiResponse.success("Bank Account fetched successfully", account));
+        BankAccountResponse account = bankAccountService
+                .getBankAccountByAccountNumber(userDetails.getUsername(), accountNumber);
+        return ResponseEntity.ok(ApiResponse.success(
+                MessageHelper.get("success.bank.account.retrieved"), account));
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<BankAccountResponse>>> getBankAccount(
             @AuthenticationPrincipal UserDetails userDetails,
             Pageable pageable) {
-        Page<BankAccountResponse> response = bankAccountService.getBankAccountsByUsername(userDetails.getUsername(), pageable);
-        return ResponseEntity.ok(ApiResponse.success("Bank Accounts fetched successfully", response));
+        Page<BankAccountResponse> response = bankAccountService
+                .getBankAccountsByUsername(userDetails.getUsername(), pageable);
+        return ResponseEntity.ok(ApiResponse.success(
+                MessageHelper.get("success.bank.account.list.retrieved"), response));
     }
 
     @PostMapping("/transaction-token")
     public ResponseEntity<ApiResponse<TransactionTokenResponse>> issueTransactionToken(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody TransactionTokenRequest request
-    ) {
+            @Valid @RequestBody TransactionTokenRequest request) {
 
         TransactionTokenResult result =
                 bankAccountService.issueTransactionToken(userDetails.getUsername(), request);
 
         return ResponseEntity.ok()
                 .header("X-Transaction-Token", result.getToken())
-                .body(ApiResponse.success("Transaction token issued", result.getMeta()));
+                .body(ApiResponse.success(
+                        MessageHelper.get("success.transaction.token.issued"), result.getMeta()));
     }
-
 }

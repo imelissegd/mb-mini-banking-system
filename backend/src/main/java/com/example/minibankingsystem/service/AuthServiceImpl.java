@@ -152,9 +152,6 @@ public class AuthServiceImpl {
             }
         }
 
-        // if (ruleSet.contains(CHECK_ID) && registerRequest.getUserId() == null) {
-        // throw new MissingFieldsException(MissingFieldsException.USER_ID);
-        // }
 
         if (ruleSet.contains(CHECK_EMAIL)) {
             if (registerRequest.getEmail() == null || registerRequest.getEmail().isBlank()) {
@@ -180,15 +177,6 @@ public class AuthServiceImpl {
             throw new MissingFieldsException(MissingFieldsException.USER_PASSWORD);
         }
 
-        // if (ruleSet.contains(CHECK_ROLE) &&
-        // (registerRequest.getRole() == null || registerRequest.getRole().isBlank())) {
-        // throw new MissingFieldsException(MissingFieldsException.USER_ROLE);
-        // }
-
-        // if (ruleSet.contains(CHECK_EXISTS)) {
-        // userRepository.findById(registerRequest.getUserId())
-        // .orElseThrow(() -> new UserNotFoundException(registerRequest.getUserId()));
-        // }
     }
 
 }
