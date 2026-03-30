@@ -4,10 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class CreateBankAccountRequest {
-    @NotNull(message = "{error.user.id.missing}")
     private Long userId;
     @NotBlank(message = "{error.account.type.missing}")
     private String accountType; //CHECKING, SAVINGS
+    private BigDecimal initialBalance;
 }

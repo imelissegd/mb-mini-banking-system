@@ -248,7 +248,11 @@ public class BankAccountServiceImpl {
         account.setAccountNumber(accountNumber);
         account.setUser(user);
         account.setAccountType(AccountType.valueOf(request.getAccountType()));
-        account.setBalance(BigDecimal.ZERO);
+        if (request.getInitialBalance() == null) {
+            account.setBalance(BigDecimal.ZERO);
+        } else {
+            account.setBalance(request.getInitialBalance());
+        }
         account.setStatus(AccountStatus.OPEN);
         account.setCreatedAt(LocalDateTime.now());
         return account;
