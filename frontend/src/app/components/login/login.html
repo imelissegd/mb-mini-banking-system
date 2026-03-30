@@ -1,0 +1,51 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="logo">MB<span>Bank</span></div>
+      <div class="tagline">Mini Banking System</div>
+    </div>
+
+    <div class="auth-divider"></div>
+
+    <h1>Login</h1>
+
+    <form name="loginForm" ng-submit="login()" novalidate>
+
+      <div class="field-group">
+        <label for="username">Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">&#128100;</span>
+          <input id="username"
+                 name="username"
+                 type="text"
+                 ng-model="credentials.username"
+                 placeholder="your_username"
+                 autocomplete="username"
+                 required />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">&#128274;</span>
+          <input id="password"
+                 name="password"
+                 type="password"
+                 ng-model="credentials.password"
+                 placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                 autocomplete="current-password"
+                 required />
+        </div>
+      </div>
+
+      <button class="btn-primary" type="submit" ng-disabled="loading">
+        <span ng-if="!loading">Login</span>
+        <span ng-if="loading">Logging in&hellip;</span>
+      </button>
+
+    </form>
+
+    <p class="auth-footer">Don't have an account? <a href="#!/register">Register</a></p>
+  </div>
+</div>

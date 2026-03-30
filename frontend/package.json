@@ -1,10 +1,10 @@
 {
-  "name": "mini-banking-frontend",
+  "name": "mb-mini-banking-frontend",
   "version": "1.0.0",
-  "description": "Mini Banking System AngularJS Frontend",
+  "description": "MB Mini Banking System - Frontend",
   "scripts": {
     "start": "live-server --port=3000 --open=index.html"
-  },    
+  },
   "dependencies": {
     "angular": "^1.8.3",
     "angular-route": "^1.8.3"

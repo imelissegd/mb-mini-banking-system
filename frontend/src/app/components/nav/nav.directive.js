@@ -1,12 +1,3 @@
-/**
- * nav.directive.js
- *
- * Usage: <bank-nav></bank-nav> in index.html (already placed in S-11)
- *
- * Hides itself on /login and /register.
- * Shows admin links if user role is ADMIN.
- * Decodes JWT using AuthService to display the user's name.
- */
 angular.module('bankingApp')
   .directive('bankNav', ['AuthService', '$location',
     function (AuthService, $location) {
@@ -14,65 +5,131 @@ angular.module('bankingApp')
         restrict: 'E',
         template: `
           <nav class="navbar" ng-if="showNav">
-            <div class="navbar-brand">
-              🏦 Mini Bank
+
+            <!-- Brand -->
+            <a class="navbar-brand" href="#!/">
+              <span class="navbar-logo">MB<span class="navbar-logo-accent">Bank</span></span>
+              <span class="navbar-tagline">Mini Banking System</span>
+            </a>
+
+            <!-- Nav Links + User -->
+            <div class="navbar-actions" ng-class="{ 'navbar-actions--open': menuOpen }">
+
+              <!-- ── Customer Links ── -->
+              <a class="nav-btn nav-btn--ghost" href="#!/dashboard"
+                 ng-if="!isAdmin"
+                 ng-class="{ active: currentPath() === '/dashboard' }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="3" width="7" height="7"/>
+                  <rect x="14" y="3" width="7" height="7"/>
+                  <rect x="14" y="14" width="7" height="7"/>
+                  <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Dashboard
+              </a>
+
+              <a class="nav-btn nav-btn--ghost" href="#!/history"
+                 ng-if="!isAdmin"
+                 ng-class="{ active: currentPath() === '/history' }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                History
+              </a>
+
+              <a class="nav-btn nav-btn--ghost" href="#!/profile"
+                 ng-if="!isAdmin"
+                 ng-class="{ active: currentPath() === '/profile' }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                </svg>
+                Profile
+              </a>
+
+              <!-- ── Admin Links ── -->
+              <a class="nav-btn nav-btn--ghost" href="#!/admin"
+                 ng-if="isAdmin"
+                 ng-class="{ active: currentPath() === '/admin' }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="3" y="3" width="7" height="7"/>
+                  <rect x="14" y="3" width="7" height="7"/>
+                  <rect x="14" y="14" width="7" height="7"/>
+                  <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Dashboard
+              </a>
+
+              <a class="nav-btn nav-btn--ghost" href="#!/admin/customers"
+                 ng-if="isAdmin"
+                 ng-class="{ active: currentPath() === '/admin/customers' }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+                  <line x1="19" y1="8" x2="19" y2="14"/>
+                  <line x1="16" y1="11" x2="22" y2="11"/>
+                </svg>
+                Customers
+              </a>
+
+              <a class="nav-btn nav-btn--ghost" href="#!/admin/transactions"
+                 ng-if="isAdmin"
+                 ng-class="{ active: currentPath() === '/admin/transactions' }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Transactions
+              </a>
+
+              <!-- ── User Info + Logout ── -->
+              <div class="navbar-user">
+                <span class="navbar-user-info">
+                  <span class="navbar-username">{{ displayName }}</span>
+                  <span class="navbar-role">{{ role }}</span>
+                </span>
+                <button class="nav-btn nav-btn--logout" ng-click="logout()">Logout</button>
+              </div>
+
             </div>
 
-            <ul class="navbar-links">
-              <!-- Customer links -->
-              <li ng-if="!isAdmin">
-                <a href="#!/dashboard"
-                   ng-class="{ active: currentPath() === '/dashboard' }">Dashboard</a>
-              </li>
-              <li ng-if="!isAdmin">
-                <a href="#!/transfer"
-                   ng-class="{ active: currentPath() === '/transfer' }">Transfer</a>
-              </li>
-              <li ng-if="!isAdmin">
-                <a href="#!/history"
-                   ng-class="{ active: currentPath() === '/history' }">History</a>
-              </li>
+            <!-- Hamburger -->
+            <button class="navbar-hamburger"
+                    ng-click="toggleMenu()"
+                    ng-class="{ 'is-open': menuOpen }"
+                    aria-label="Toggle menu">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
 
-              <!-- Admin links -->
-              <li ng-if="isAdmin">
-                <a href="#!/admin"
-                   ng-class="{ active: currentPath() === '/admin' }">Dashboard</a>
-              </li>
-              <li ng-if="isAdmin">
-                <a href="#!/admin/customers"
-                   ng-class="{ active: currentPath() === '/admin/customers' }">Customers</a>
-              </li>
-            </ul>
-
-            <div class="navbar-user">
-              <span style="margin-right:12px;">👤 {{ displayName }}</span>
-              <button class="btn btn-danger" style="padding:6px 14px;font-size:13px;"
-                      ng-click="logout()">Logout</button>
-            </div>
           </nav>
         `,
         link: function (scope) {
 
-          // ─── Reactive properties ─────────────────────────────────────────
-
           var hiddenRoutes = ['/login', '/register'];
+
+          scope.menuOpen = false;
 
           scope.currentPath = function () {
             return $location.path();
           };
 
-          // Show navbar only when authenticated and not on public routes
+          scope.toggleMenu = function () {
+            scope.menuOpen = !scope.menuOpen;
+          };
+
           scope.$watch(
             function () { return $location.path(); },
             function (path) {
-              var onPublicRoute = hiddenRoutes.indexOf(path) !== -1;
-              scope.showNav    = !onPublicRoute && AuthService.isAuthenticated();
-              scope.isAdmin    = AuthService.isAdmin();
-              scope.displayName = AuthService.getDisplayName();
+              scope.menuOpen    = false;
+              scope.showNav     = hiddenRoutes.indexOf(path) === -1 && AuthService.isAuthenticated();
+              scope.isAdmin     = AuthService.isAdmin();
+              scope.displayName = AuthService.getDisplayName() || 'Guest';
+              scope.role        = AuthService.getRole() || 'GUEST';
             }
           );
-
-          // ─── Actions ─────────────────────────────────────────────────────
 
           scope.logout = function () {
             AuthService.logout();

@@ -1,23 +1,20 @@
 angular.module('bankingApp')
-  .controller('AdminDashboardController', ['AdminService', 'ToastService',
-    function (AdminService, ToastService) {
+  .controller('AdminDashboardController', ['$scope', 'AdminService', 'ToastService',
+    function ($scope, AdminService, ToastService) {
 
-      var vm = this;
+      $scope.loading = true;
+      $scope.summary = null;
 
-      vm.loading = true;
-      vm.summary = null;  // { totalCustomers, totalTransactions, totalBalance }
-
-      // ─── Init ───────────────────────────────────────────────────────────
+      // ─── Load summary on init ──────────────────────────────────────────
       AdminService.getDashboardSummary()
-        .then(function (response) {
-          vm.summary = response.data;
+        .then(function (data) {
+          $scope.summary = data;
         })
-        .catch(function (error) {
+        .catch(function () {
           ToastService.show('Failed to load dashboard summary.', 'error');
-          console.error('AdminDashboard: summary load failed', error);
         })
         .finally(function () {
-          vm.loading = false;
+          $scope.loading = false;
         });
 
     }

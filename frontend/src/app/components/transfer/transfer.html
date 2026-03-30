@@ -1,0 +1,176 @@
+<div class="page">
+
+  <!-- ─── Page Header ──────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Send Money</p>
+      <h1 class="page-title">Transfer Funds</h1>
+    </div>
+    <a class="btn-action btn-action--ghost" href="#!/dashboard">&#8592; Back</a>
+  </div>
+
+  <!-- ─── Loading accounts ─────────────────────────────────────────────── -->
+  <div class="state-loading" ng-show="loadingAccounts">
+    <div class="spinner"></div>
+    <p>Loading your accounts&hellip;</p>
+  </div>
+
+  <!-- ─── No active accounts ───────────────────────────────────────────── -->
+  <div class="state-empty" ng-show="!loadingAccounts && accounts.length === 0">
+    <p class="state-empty-icon">&#128683;</p>
+    <p class="state-empty-title">No active accounts</p>
+    <p class="state-empty-sub">You need at least one active account to make a transfer.</p>
+    <a class="btn-action" href="#!/open-account">Open Account</a>
+  </div>
+
+  <!-- ─── Main form area ───────────────────────────────────────────────── -->
+  <div ng-show="!loadingAccounts && accounts.length > 0">
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         STEP 1 — Transfer Form
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="form-card" ng-show="!showConfirm">
+
+      <div class="form-card-header">
+        <span class="form-step-badge">Step 1 of 2</span>
+        <h2 class="form-card-title">Transfer Details</h2>
+        <p class="form-card-sub">Fill in the details below to send money to another account.</p>
+      </div>
+
+      <!-- From Account -->
+      <div class="field-group">
+        <label>From Account <span class="field-required">*</span></label>
+        <div class="input-wrap input-wrap--select">
+          <span class="input-icon">&#8651;</span>
+          <select ng-model="form.fromAccountId"
+                  ng-change="onFromAccountChange()"
+                  ng-options="a.id as (a.accountType + '  ·  ' + a.accountNumber + '  —  ₱ ' + (a.balance | number:2)) for a in accounts"
+                  required>
+            <option value="" disabled selected>Select source account</option>
+          </select>
+        </div>
+
+        <!-- Balance pill shown after selection -->
+        <div class="account-balance-pill" ng-show="selectedAccount">
+          <span class="balance-pill-label">Available balance:</span>
+          <span class="balance-pill-amount">&#8369; {{ selectedAccount.balance | number:2 }}</span>
+        </div>
+      </div>
+
+      <!-- To Account Number -->
+      <div class="field-group">
+        <label>Recipient Account Number <span class="field-required">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">&#8594;</span>
+          <input type="text"
+                 ng-model="form.toAccountNumber"
+                 placeholder="e.g. 2000-0001"
+                 autocomplete="off"
+                 required />
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div class="field-group">
+        <label>Amount <span class="field-required">*</span></label>
+        <div class="input-wrap input-wrap--amount">
+          <span class="input-icon input-currency">&#8369;</span>
+          <input type="number"
+                 ng-model="form.amount"
+                 placeholder="0.00"
+                 min="1"
+                 step="0.01"
+                 required />
+        </div>
+      </div>
+
+      <!-- Description (optional) -->
+      <div class="field-group">
+        <label>
+          Description
+          <span class="field-optional">(optional)</span>
+        </label>
+        <div class="input-wrap">
+          <span class="input-icon">&#9998;</span>
+          <input type="text"
+                 ng-model="form.description"
+                 placeholder="e.g. Rent payment, shared expenses…"
+                 maxlength="120" />
+        </div>
+      </div>
+
+      <button class="btn-primary" ng-click="reviewTransfer()">
+        Review Transfer &#8594;
+      </button>
+
+    </div><!-- /.form-card step 1 -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         STEP 2 — Confirm Summary
+    ════════════════════════════════════════════════════════════════════ -->
+    <div class="form-card" ng-show="showConfirm">
+
+      <div class="form-card-header">
+        <span class="form-step-badge">Step 2 of 2</span>
+        <h2 class="form-card-title">Confirm Transfer</h2>
+        <p class="form-card-sub">Please review the details before sending.</p>
+      </div>
+
+      <!-- Summary rows -->
+      <div class="confirm-summary">
+
+        <div class="confirm-row">
+          <span class="confirm-label">From</span>
+          <span class="confirm-value">
+            {{ selectedAccount.accountType }} &middot; {{ selectedAccount.accountNumber }}
+          </span>
+        </div>
+
+        <div class="confirm-row">
+          <span class="confirm-label">To</span>
+          <span class="confirm-value confirm-value--mono">{{ form.toAccountNumber }}</span>
+        </div>
+
+        <div class="confirm-divider"></div>
+
+        <div class="confirm-row confirm-row--amount">
+          <span class="confirm-label">Amount</span>
+          <span class="confirm-value confirm-value--amount">
+            &#8369; {{ form.amount | number:2 }}
+          </span>
+        </div>
+
+        <div class="confirm-row" ng-show="form.description">
+          <span class="confirm-label">Note</span>
+          <span class="confirm-value">{{ form.description }}</span>
+        </div>
+
+      </div><!-- /.confirm-summary -->
+
+      <!-- Warning notice -->
+      <div class="confirm-notice">
+        <span class="confirm-notice-icon">&#9888;</span>
+        Transfers are processed immediately and cannot be reversed once confirmed.
+      </div>
+
+      <!-- Action buttons -->
+      <div class="confirm-actions">
+        <button class="btn-ghost" ng-click="cancelConfirm()" ng-disabled="submitting">
+          &#8592; Edit Details
+        </button>
+        <button class="btn-primary btn-primary--confirm"
+                ng-click="confirmTransfer()"
+                ng-disabled="submitting">
+          <span ng-show="!submitting">Confirm &amp; Send</span>
+          <span ng-show="submitting" class="btn-spinner">
+            <span class="spinner spinner--btn"></span> Sending&hellip;
+          </span>
+        </button>
+      </div>
+
+    </div><!-- /.form-card step 2 -->
+
+  </div><!-- /ng-show accounts -->
+
+</div><!-- /.page -->

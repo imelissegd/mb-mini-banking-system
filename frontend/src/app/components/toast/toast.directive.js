@@ -1,22 +1,26 @@
-/**
- * toast.directive.js
- *
- * Usage: Place <bank-toast></bank-toast> once in index.html (already added in S-11).
- * The directive reads from $rootScope.toast (set by ToastService).
- */
 angular.module('bankingApp')
-  .directive('bankToast', ['ToastService',
-    function (ToastService) {
+  .directive('bankToast', ['$rootScope', 'ToastService',
+    function ($rootScope, ToastService) {
       return {
-        restrict: 'E',       // element: <bank-toast>
+        restrict: 'E',
         template: `
-          <div class="toast-container" ng-if="toast.visible" ng-class="'toast-' + toast.type">
-            <span class="toast-message">{{ toast.message }}</span>
-            <button class="toast-close" ng-click="dismissToast()">✕</button>
+          <div ng-show="$root.toast.visible"
+               style="position:fixed;bottom:28px;right:28px;z-index:9999;
+                      padding:14px 20px;border-radius:8px;color:#fff;
+                      font-size:14px;min-width:280px;max-width:420px;
+                      display:flex;align-items:center;gap:12px;
+                      box-shadow:0 6px 16px rgba(0,0,0,0.2);"
+               ng-style="{ background: $root.toast.type === 'success' ? '#28a745' :
+                                        $root.toast.type === 'error'   ? '#dc3545' :
+                                        $root.toast.type === 'warning' ? '#ffc107' : '#1a237e' }">
+            <span style="flex:1;">{{ $root.toast.message }}</span>
+            <button ng-click="dismiss()"
+                    style="background:transparent;border:none;color:inherit;
+                           cursor:pointer;font-size:18px;">✕</button>
           </div>
         `,
         link: function (scope) {
-          scope.dismissToast = function () {
+          scope.dismiss = function () {
             ToastService.hide();
           };
         }
