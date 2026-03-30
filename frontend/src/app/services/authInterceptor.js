@@ -4,18 +4,13 @@ angular.module('bankingApp')
       return {
 
         request: function (config) {
-          var token = localStorage.getItem(APP_CONFIG.tokenKey);
-          if (token) {
-            config.headers = config.headers || {};
-            config.headers['Authorization'] = 'Bearer ' + token;
-          }
+          config.withCredentials = true; 
           return config;
         },
 
         responseError: function (rejection) {
           var $location = $injector.get('$location');
           if (rejection.status === 401) {
-            localStorage.removeItem(APP_CONFIG.tokenKey);
             $location.path('/login');
           } else if (rejection.status === 403) {
             $location.path('/dashboard');

@@ -1,11 +1,9 @@
 package com.example.minibankingsystem.config.security;
 
-import com.example.minibankingsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -13,8 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,13 +36,28 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        // Admin only
+
+                        // ── Fully public: no token required ─────────────────
+                        // These are also excluded from JwtAuthFilter via shouldNotFilter.
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/logout" // logout works even with an expired token
+                        ).permitAll()
+
+                        // ── Protected auth endpoint ──────────────────────────
+                        // /auth/me is NOT in shouldNotFilter — JwtAuthFilter runs for it.
+                        // If the access_token cookie is valid, @AuthenticationPrincipal
+                        // is populated and the endpoint returns the current user.
+                        // If the cookie is absent or expired, Spring returns 401
+                        // which the frontend interceptor catches and redirects to /login.
+                        .requestMatchers("/api/auth/me").authenticated()
+
+                        // ── Admin only ───────────────────────────────────────
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // Everything else requires authentication
-                        .anyRequest().authenticated()
-                )
+
+                        // ── Everything else requires authentication ───────────
+                        .anyRequest().authenticated())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -61,7 +72,6 @@ public class SecurityConfig {
         return provider;
     }
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -72,6 +82,11 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    // ── CORS ─────────────────────────────────────────────────────────────────
+    // allowCredentials(true) is required for the browser to send HttpOnly cookies
+    // on cross-origin requests (frontend on :4200, backend on :8080).
+    // When allowCredentials is true, allowedOrigins MUST be explicit — "*" is not
+    // allowed by the browser's CORS spec and will cause all requests to fail.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
