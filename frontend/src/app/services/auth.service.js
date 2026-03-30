@@ -4,13 +4,16 @@ angular.module('bankingApp')
 
       var self = this;
 
-      // ─── MOCK FLAG ───────────────────────────────────────────────────────
-      // Set to false when the backend is ready.
-      var MOCK = true;
+      // ─── MOCK FLAGS ──────────────────────────────────────────────────────
+      // One flag per method so each can be wired independently.
+      // Set to false as each backend endpoint becomes ready.
+      var MOCK_LOAD_USER = true;   // GET  /auth/me
+      var MOCK_LOGIN     = true;   // POST /auth/login
+      var MOCK_REGISTER  = false;  // POST /auth/register  ← C-01: wired
+      var MOCK_LOGOUT    = true;   // POST /auth/logout
 
       // ─── Mock users ──────────────────────────────────────────────────────
       // Simulates what GET /api/auth/me returns from the server.
-      // Switch MOCK_ACTIVE_USER to test different roles.
       var MOCK_USERS = {
         admin: {
           id:        0,
@@ -43,14 +46,13 @@ angular.module('bankingApp')
       // Call this on app start and immediately after login.
       //
       // MOCK:  resolves immediately with a hardcoded user object.
-      //        Change credentials.username prefix to 'admin' to get ADMIN role.
+      //        Pass 'admin' as mockUsername to get ADMIN role.
       //
       // REAL:  GET /api/auth/me — browser sends the HttpOnly access_token
       //        cookie automatically (withCredentials is set by authInterceptor).
-      //        Server validates the cookie and returns the current user.
       //        Returns 401 if cookie is absent or expired → currentUser stays null.
       self.loadCurrentUser = function (mockUsername) {
-        if (MOCK) {
+        if (MOCK_LOAD_USER) {
           var isAdmin      = mockUsername && mockUsername.toLowerCase().startsWith('admin');
           self.currentUser = isAdmin ? MOCK_USERS.admin : MOCK_USERS.customer;
           return $q.resolve(self.currentUser);
@@ -58,7 +60,7 @@ angular.module('bankingApp')
 
         return $http.get(APP_CONFIG.apiBaseUrl + '/auth/me')
           .then(function (res) {
-            // res.data shape: ApiResponse<UserResponse>
+            // res.data → ApiResponse<UserResponse>
             // { success, message, data: { id, username, firstName, lastName, email, role, isActive } }
             self.currentUser = res.data.data;
             return self.currentUser;
@@ -93,14 +95,11 @@ angular.module('bankingApp')
 
       // ─── Login ───────────────────────────────────────────────────────────
       // MOCK:  immediately sets currentUser based on username prefix.
-      //        Username starting with 'admin' → ADMIN role, anything else → CUSTOMER.
       //
-      // REAL:  POST /api/auth/login → server authenticates credentials and
-      //        sets two HttpOnly cookies (access_token, refresh_token) in the
-      //        response headers. No token is returned in the body.
+      // REAL:  POST /api/auth/login → server sets HttpOnly cookies.
       //        We then call loadCurrentUser() to populate currentUser from /auth/me.
       self.login = function (credentials) {
-        if (MOCK) {
+        if (MOCK_LOGIN) {
           var isAdmin      = credentials.username &&
                              credentials.username.toLowerCase().startsWith('admin');
           self.currentUser = isAdmin ? MOCK_USERS.admin : MOCK_USERS.customer;
@@ -120,11 +119,16 @@ angular.module('bankingApp')
       };
 
       // ─── Register ────────────────────────────────────────────────────────
-      // MOCK:  resolves immediately with a success message.
       // REAL:  POST /api/auth/register → returns ApiResponse<UserResponse> (201).
-      //        Does not log the user in — redirect to /login after success.
+      //        Does not log the user in — controller redirects to /login on success.
+      //
+      // Request body must match RegisterRequest exactly:
+      //   { username, firstName, middleName, lastName, suffix,
+      //     email, password, contactNumber }
+      //
+      // ⚠  contactNumber — not phone, not phoneNumber.
       self.register = function (data) {
-        if (MOCK) {
+        if (MOCK_REGISTER) {
           return $q.resolve({
             data: {
               success: true,
@@ -134,17 +138,22 @@ angular.module('bankingApp')
         }
 
         return $http.post(APP_CONFIG.apiBaseUrl + '/auth/register', data)
-          .then(function (res) { return res; });
+          .then(function (res) {
+            // res.data → ApiResponse<UserResponse>
+            // { success, message, data: UserResponse }
+            // Controller reads res.data.message for the toast, then redirects.
+            return res;
+          });
       };
 
       // ─── Logout ──────────────────────────────────────────────────────────
       // MOCK:  clears currentUser and redirects immediately.
-      // REAL:  POST /api/auth/logout → server sets both cookies with maxAge=0,
-      //        which tells the browser to delete them immediately.
-      //        We clear currentUser and redirect regardless of response status
-      //        (use .finally) so the user is always sent to /login.
+      //
+      // REAL:  POST /api/auth/logout → server clears both HttpOnly cookies.
+      //        We clear currentUser and redirect in .finally() regardless of
+      //        response status so the user is always sent to /login.
       self.logout = function () {
-        if (MOCK) {
+        if (MOCK_LOGOUT) {
           self.currentUser = null;
           $location.path('/login');
           return;
