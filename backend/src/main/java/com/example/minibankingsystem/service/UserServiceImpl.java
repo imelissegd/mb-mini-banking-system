@@ -1,5 +1,6 @@
 package com.example.minibankingsystem.service;
 
+import com.example.minibankingsystem.component.UserSpecification;
 import com.example.minibankingsystem.dto.response.UserResponse;
 import com.example.minibankingsystem.exception.MissingFieldsException;
 import com.example.minibankingsystem.exception.ResourceNotFoundException;
@@ -8,6 +9,7 @@ import com.example.minibankingsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -49,9 +51,17 @@ public class UserServiceImpl {
     }
 
 
-    public Page<UserResponse> getUsers(Pageable pageable) {
-        Page<User> users = userRepository.findAll(pageable);
-        return users.map(this::mapToUserResponse);
+    public Page<UserResponse> getUsers(
+            String username,
+            String firstName,
+            String lastName,
+            Pageable pageable) {
+
+        Specification<User> spec = UserSpecification.withFilters(
+                username, firstName, lastName);
+
+        return userRepository.findAll(spec, pageable)
+                .map(this::mapToUserResponse);
     }
 
     public UserResponse toggleUserActive(Long userId) {
@@ -78,6 +88,7 @@ public class UserServiceImpl {
                 .contactNumber(user.getContactNumber())
                 .role(user.getRole())
                 .isActive(user.isActive())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }
