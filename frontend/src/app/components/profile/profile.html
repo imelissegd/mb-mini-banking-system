@@ -1,0 +1,195 @@
+<div class="page">
+
+  <!-- ─── Page Header ──────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Account Settings</p>
+      <h1 class="page-title">My Profile</h1>
+    </div>
+    <a class="btn-action btn-action--ghost" href="#!/dashboard">&#8592; Back</a>
+  </div>
+
+  <!-- ─── Loading ─────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-show="loading">
+    <div class="spinner"></div>
+    <p>Loading your profile&hellip;</p>
+  </div>
+
+  <!-- ─── Profile content ──────────────────────────────────────────────── -->
+  <div ng-show="!loading && profile" class="profile-layout">
+
+    <!-- ── Left: Identity card ────────────────────────────────────────── -->
+    <div class="profile-identity-card">
+      <div class="profile-avatar">
+        {{ profile.firstName.charAt(0) }}{{ profile.lastName.charAt(0) }}
+      </div>
+      <div class="profile-identity-name">{{ fullName() }}</div>
+      <div class="profile-identity-username">@{{ profile.username }}</div>
+      <span class="profile-role-badge">{{ profile.role }}</span>
+
+      <div class="profile-status-row">
+        <span class="account-status-badge"
+              ng-class="profile.isActive ? 'badge--active' : 'badge--inactive'">
+          {{ profile.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ── Right: Detail / Edit panel ───────────────────────────────────── -->
+    <div class="profile-detail-panel">
+
+      <!-- ════════════════════════════════════════════════
+           READ-ONLY VIEW
+      ═════════════════════════════════════════════════ -->
+      <div ng-show="!editMode">
+
+        <div class="form-card-header">
+          <h2 class="form-card-title">Personal Information</h2>
+          <p class="form-card-sub">Your details as registered with MB Bank.</p>
+        </div>
+
+        <div class="profile-fields">
+
+          <div class="profile-field-row">
+            <div class="profile-field">
+              <span class="profile-field-label">First Name</span>
+              <span class="profile-field-value">{{ profile.firstName }}</span>
+            </div>
+            <div class="profile-field">
+              <span class="profile-field-label">Middle Name</span>
+              <span class="profile-field-value">{{ profile.middleName || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="profile-field-row">
+            <div class="profile-field">
+              <span class="profile-field-label">Last Name</span>
+              <span class="profile-field-value">{{ profile.lastName }}</span>
+            </div>
+            <div class="profile-field">
+              <span class="profile-field-label">Suffix</span>
+              <span class="profile-field-value">{{ profile.suffix || '—' }}</span>
+            </div>
+          </div>
+
+          <div class="profile-field-row">
+            <div class="profile-field profile-field--full">
+              <span class="profile-field-label">Email Address</span>
+              <span class="profile-field-value">{{ profile.email }}</span>
+            </div>
+          </div>
+
+          <div class="profile-field-row">
+            <div class="profile-field profile-field--full">
+              <span class="profile-field-label">Username</span>
+              <span class="profile-field-value profile-field-value--mono">
+                {{ profile.username }}
+                <span class="profile-field-readonly-note">(cannot be changed)</span>
+              </span>
+            </div>
+          </div>
+
+        </div><!-- /.profile-fields -->
+
+        <button class="btn-primary profile-edit-btn" ng-click="startEdit()">
+          &#9998;&nbsp; Edit Profile
+        </button>
+
+      </div><!-- /read-only -->
+
+
+      <!-- ════════════════════════════════════════════════
+           EDIT MODE
+      ═════════════════════════════════════════════════ -->
+      <div ng-show="editMode">
+
+        <div class="form-card-header">
+          <span class="form-step-badge">Editing</span>
+          <h2 class="form-card-title">Update Your Information</h2>
+          <p class="form-card-sub">Changes will be reviewed by an admin before taking effect.</p>
+        </div>
+
+        <!-- Approval notice -->
+        <div class="profile-approval-notice">
+          <span class="confirm-notice-icon">&#8987;</span>
+          <span>
+            Profile updates are <strong>not applied immediately</strong>. Your request will be
+            reviewed and approved by an administrator.
+          </span>
+        </div>
+
+        <!-- Edit fields -->
+        <div class="field-row">
+          <div class="field-group">
+            <label>First Name <span class="field-required">*</span></label>
+            <div class="input-wrap">
+              <span class="input-icon">&#128100;</span>
+              <input type="text" ng-model="form.firstName" placeholder="First name" required />
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Middle Name <span class="field-optional">(optional)</span></label>
+            <div class="input-wrap">
+              <span class="input-icon">&#128100;</span>
+              <input type="text" ng-model="form.middleName" placeholder="Middle name" />
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>Last Name <span class="field-required">*</span></label>
+            <div class="input-wrap">
+              <span class="input-icon">&#128100;</span>
+              <input type="text" ng-model="form.lastName" placeholder="Last name" required />
+            </div>
+          </div>
+          <div class="field-group field-group--narrow">
+            <label>Suffix <span class="field-optional">(optional)</span></label>
+            <div class="input-wrap">
+              <span class="input-icon">&#128100;</span>
+              <input type="text" ng-model="form.suffix" placeholder="Jr., Sr.…" maxlength="10" />
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Email Address <span class="field-required">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">&#9993;</span>
+            <input type="email" ng-model="form.email" placeholder="you@example.com" required />
+          </div>
+        </div>
+
+        <!-- Username — shown but locked -->
+        <div class="field-group">
+          <label>Username</label>
+          <div class="input-wrap">
+            <span class="input-icon">&#64;</span>
+            <input type="text" value="{{ profile.username }}" disabled class="input--disabled" />
+          </div>
+          <p class="field-error" style="color: var(--muted); font-style: italic;">
+            Username cannot be changed.
+          </p>
+        </div>
+
+        <div class="confirm-actions">
+          <button class="btn-ghost" ng-click="cancelEdit()" ng-disabled="submitting">
+            Cancel
+          </button>
+          <button class="btn-primary btn-primary--confirm"
+                  ng-click="submitUpdate()"
+                  ng-disabled="submitting">
+            <span ng-show="!submitting">Submit Update Request</span>
+            <span ng-show="submitting" class="btn-spinner">
+              <span class="spinner spinner--btn"></span> Submitting&hellip;
+            </span>
+          </button>
+        </div>
+
+      </div><!-- /edit mode -->
+
+    </div><!-- /.profile-detail-panel -->
+  </div><!-- /.profile-layout -->
+
+</div><!-- /.page -->

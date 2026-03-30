@@ -1,21 +1,80 @@
-<h2>Customer List</h2>
+<div class="page page--wide">
 
-<p>You are in Customer List page</p>
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Admin Panel</p>
+      <h1 class="page-title">Customers</h1>
+    </div>
+    <button class="btn-action" ng-click="goToCreate()">
+    ＋ New Customer
+    </button>
+  </div>
 
-<ul>
+  <!-- ─── Loading ────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-if="loading">
+    <div class="spinner"></div>
+    <span>Loading customers…</span>
+  </div>
 
-<li>
-<a href="#!/admin/customers/1">
-Customer 1
-</a>
-</li>
+  <!-- ─── Content ────────────────────────────────────────────────────── -->
+  <div ng-if="!loading">
 
-<li>
-<a href="#!/admin/customers/2">
-Customer 2
-</a>
-</li>
+    <!-- Search bar -->
+    <div class="admin-search-bar">
+      <div class="input-wrap">
+        <span class="input-icon">🔍</span>
+        <input
+          type="text"
+          ng-model="searchQuery"
+          placeholder="Search by name or email…"
+        />
+      </div>
+    </div>
 
-</ul>
+    <!-- Empty state — no results after filter -->
+    <div class="state-empty" ng-if="(customers | filter:filterCustomer).length === 0">
+      <p class="state-empty-icon">👤</p>
+      <h3 class="state-empty-title">No customers found</h3>
+      <p class="state-empty-sub">Try a different name or email.</p>
+    </div>
 
-<a href="#!/admin"> Back to Admin Dashboard </a>
+    <!-- Table -->
+    <div class="admin-table-wrap" ng-if="(customers | filter:filterCustomer).length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Accounts</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="c in customers | filter:filterCustomer">
+            <td class="admin-table-name">{{ c.firstName }} {{ c.lastName }}</td>
+            <td class="admin-table-mono">{{ c.username }}</td>
+            <td>{{ c.email }}</td>
+            <td>
+              <span
+                class="account-status-badge"
+                ng-class="c.isActive ? 'badge--active' : 'badge--inactive'"
+              >{{ c.isActive ? 'Active' : 'Inactive' }}</span>
+            </td>
+            <td class="admin-table-center">{{ c.accounts.length }}</td>
+            <td class="admin-table-action">
+              <button
+                class="btn-action btn-action--sm"
+                ng-click="viewCustomer(c.id)"
+              >View</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>

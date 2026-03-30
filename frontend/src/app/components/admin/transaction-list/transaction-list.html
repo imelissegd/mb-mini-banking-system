@@ -1,10 +1,10 @@
-<div class="page">
+<div class="page page--wide">
 
   <!-- ─── Header ─────────────────────────────────────────────────────── -->
   <div class="page-header">
     <div>
-      <p class="page-greeting">My Banking</p>
-      <h1 class="page-title">Transaction History</h1>
+      <p class="page-greeting">Admin Panel</p>
+      <h1 class="page-title">Transactions</h1>
     </div>
   </div>
 
@@ -17,15 +17,28 @@
   <!-- ─── Content ────────────────────────────────────────────────────── -->
   <div ng-if="!loading">
 
+    <!-- Type filter -->
+    <div class="admin-filter-bar">
+      <div class="input-wrap input-wrap--select admin-filter-select">
+        <span class="input-icon">🔽</span>
+        <select ng-model="typeFilter">
+          <option value="">All Types</option>
+          <option value="TRANSFER">Transfer</option>
+          <option value="DEPOSIT">Deposit</option>
+          <option value="WITHDRAWAL">Withdrawal</option>
+        </select>
+      </div>
+    </div>
+
     <!-- Empty state -->
-    <div class="state-empty" ng-if="transactions.length === 0">
+    <div class="state-empty" ng-if="(transactions | filter:filterByType).length === 0">
       <p class="state-empty-icon">📋</p>
-      <h3 class="state-empty-title">No transactions yet</h3>
-      <p class="state-empty-sub">Your transaction history will appear here.</p>
+      <h3 class="state-empty-title">No transactions found</h3>
+      <p class="state-empty-sub">Try a different filter.</p>
     </div>
 
     <!-- Table -->
-    <div class="admin-table-wrap" ng-if="transactions.length > 0">
+    <div class="admin-table-wrap" ng-if="(transactions | filter:filterByType).length > 0">
       <table class="admin-table">
         <thead>
           <tr>
@@ -35,11 +48,12 @@
             <th>To Account</th>
             <th>Amount</th>
             <th>Description</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           <tr
-            ng-repeat="tx in transactions"
+            ng-repeat="tx in transactions | filter:filterByType"
             ng-class="txRowClass(tx.type)"
           >
             <td class="admin-table-mono tx-date">{{ formatDate(tx.timestamp) }}</td>
@@ -52,6 +66,12 @@
               {{ tx.amount | currency:'₱' }}
             </td>
             <td class="tx-description">{{ tx.description || '—' }}</td>
+            <td class="admin-table-action">
+              <button
+                class="btn-action btn-action--sm"
+                ng-click="viewTransaction(tx.id)"
+              >View</button>
+            </td>
           </tr>
         </tbody>
       </table>

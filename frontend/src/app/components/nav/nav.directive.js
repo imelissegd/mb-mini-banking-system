@@ -15,7 +15,7 @@ angular.module('bankingApp')
             <!-- Nav Links + User -->
             <div class="navbar-actions" ng-class="{ 'navbar-actions--open': menuOpen }">
 
-              <!-- Customer Links -->
+              <!-- ── Customer Links ── -->
               <a class="nav-btn nav-btn--ghost" href="#!/dashboard"
                  ng-if="!isAdmin"
                  ng-class="{ active: currentPath() === '/dashboard' }">
@@ -28,15 +28,6 @@ angular.module('bankingApp')
                 Dashboard
               </a>
 
-              <a class="nav-btn nav-btn--ghost" href="#!/transfer"
-                 ng-if="!isAdmin"
-                 ng-class="{ active: currentPath() === '/transfer' }">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M5 12h14M13 6l6 6-6 6"/>
-                </svg>
-                Transfer
-              </a>
-
               <a class="nav-btn nav-btn--ghost" href="#!/history"
                  ng-if="!isAdmin"
                  ng-class="{ active: currentPath() === '/history' }">
@@ -47,7 +38,17 @@ angular.module('bankingApp')
                 History
               </a>
 
-              <!-- Admin Links -->
+              <a class="nav-btn nav-btn--ghost" href="#!/profile"
+                 ng-if="!isAdmin"
+                 ng-class="{ active: currentPath() === '/profile' }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                </svg>
+                Profile
+              </a>
+
+              <!-- ── Admin Links ── -->
               <a class="nav-btn nav-btn--ghost" href="#!/admin"
                  ng-if="isAdmin"
                  ng-class="{ active: currentPath() === '/admin' }">
@@ -72,20 +73,23 @@ angular.module('bankingApp')
                 Customers
               </a>
 
-              <!-- User Info + Logout -->
+              <a class="nav-btn nav-btn--ghost" href="#!/admin/transactions"
+                 ng-if="isAdmin"
+                 ng-class="{ active: currentPath() === '/admin/transactions' }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Transactions
+              </a>
+
+              <!-- ── User Info + Logout ── -->
               <div class="navbar-user">
                 <span class="navbar-user-info">
                   <span class="navbar-username">{{ displayName }}</span>
                   <span class="navbar-role">{{ role }}</span>
                 </span>
-
-                <!-- Logout disabled — wire up in C-04 -->
-                <button class="nav-btn nav-btn--logout" disabled title="Implement in C-04">
-                  Logout
-                </button>
-
-                <!-- REAL — uncomment in C-04 -->
-                <!-- <button class="nav-btn nav-btn--logout" ng-click="logout()">Logout</button> -->
+                <button class="nav-btn nav-btn--logout" ng-click="logout()">Logout</button>
               </div>
 
             </div>
@@ -119,22 +123,17 @@ angular.module('bankingApp')
           scope.$watch(
             function () { return $location.path(); },
             function (path) {
-              scope.menuOpen = false; // close menu on navigation
-
-              // TEMP: always show navbar for independent testing
-              // REAL: replace with line below when backend is ready
-              scope.showNav     = true;
-              // scope.showNav  = hiddenRoutes.indexOf(path) === -1 && AuthService.isAuthenticated();
-
+              scope.menuOpen    = false;
+              scope.showNav     = hiddenRoutes.indexOf(path) === -1 && AuthService.isAuthenticated();
               scope.isAdmin     = AuthService.isAdmin();
               scope.displayName = AuthService.getDisplayName() || 'Guest';
               scope.role        = AuthService.getRole() || 'GUEST';
             }
           );
 
-          // scope.logout = function () {
-          //   AuthService.logout();
-          // };
+          scope.logout = function () {
+            AuthService.logout();
+          };
 
         }
       };

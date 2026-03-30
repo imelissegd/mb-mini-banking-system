@@ -13,11 +13,10 @@
   <!-- App Styles -->
   <link rel="stylesheet" href="src/app/styles/main.css" />
 </head>
-  <!-- NAVBAR -->
-  <bank-nav></bank-nav>
 <body>
 
-
+  <!-- NAVBAR -->
+  <bank-nav></bank-nav>
 
   <!-- TOAST -->
   <bank-toast></bank-toast>
@@ -39,6 +38,10 @@
   <script src="src/app/services/authInterceptor.js"></script>
   <script src="src/app/services/auth.service.js"></script>
   <script src="src/app/services/toast.service.js"></script>
+  <script src="src/app/services/account.service.js"></script>
+  <script src="src/app/services/transaction.service.js"></script>
+  <script src="src/app/services/profile.service.js"></script>
+  <script src="src/app/services/admin.service.js"></script>
 
   <!-- ROUTES -->
   <script src="src/app/routes/app.routes.js"></script>
@@ -47,15 +50,23 @@
   <script src="src/app/components/toast/toast.directive.js"></script>
   <script src="src/app/components/nav/nav.directive.js"></script>
 
-  <!-- CONTROLLERS -->
+  <!-- CONTROLLERS — Customer -->
   <script src="src/app/components/login/login.controller.js"></script>
   <script src="src/app/components/register/register.controller.js"></script>
   <script src="src/app/components/dashboard/dashboard.controller.js"></script>
   <script src="src/app/components/transfer/transfer.controller.js"></script>
+  <script src="src/app/components/transfer/deposit-withdraw.controller.js"></script>
   <script src="src/app/components/history/history.controller.js"></script>
+  <script src="src/app/components/profile/profile.controller.js"></script>
+  <script src="src/app/components/open-account/open-account.controller.js"></script>
+
+  <!-- CONTROLLERS — Admin -->
   <script src="src/app/components/admin/admin-dashboard/admin-dashboard.controller.js"></script>
   <script src="src/app/components/admin/customer-list/customer-list.controller.js"></script>
   <script src="src/app/components/admin/customer-detail/customer-detail.controller.js"></script>
+  <script src="src/app/components/admin/create-customer/create-customer.controller.js"></script>
+  <script src="src/app/components/admin/transaction-list/transaction-list.controller.js"></script>
+  <script src="src/app/components/admin/transaction-detail/transaction-detail.controller.js"></script>
 
 </body>
 </html>

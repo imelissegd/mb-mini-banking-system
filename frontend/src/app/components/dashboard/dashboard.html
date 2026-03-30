@@ -1,3 +1,133 @@
-<h2>Dashboard</h2>
+<div class="page">
 
-<p>You are in Dashboard page</p>
+  <!-- ─── Page Header ──────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Good day,</p>
+      <h1 class="page-title">{{ displayName }}</h1>
+    </div>
+    <a class="btn-action" href="#!/open-account">+ Open Account</a>
+  </div>
+
+  <!-- ─── Total Balance Summary Card ──────────────────────────────────── -->
+  <div class="balance-summary" ng-show="!loading">
+    <div class="balance-summary-label">Total Balance Across All Accounts</div>
+    <div class="balance-summary-amount">{{ totalBalance | currency : '&#8369; ' : 2 }}</div>
+    <div class="balance-summary-sub">
+      {{ accounts.length }} account{{ accounts.length !== 1 ? 's' : '' }} linked
+    </div>
+  </div>
+
+  <!-- ─── Quick Actions ────────────────────────────────────────────────── -->
+  <div class="quick-actions" ng-show="!loading">
+    <a class="quick-action-card" href="#!/transfer">
+      <span class="quick-action-icon">&#8651;</span>
+      <span class="quick-action-label">Transfer</span>
+    </a>
+    <a class="quick-action-card" href="#!/deposit-withdraw?mode=deposit">
+      <span class="quick-action-icon">&#8595;</span>
+      <span class="quick-action-label">Deposit</span>
+    </a>
+    <a class="quick-action-card" href="#!/deposit-withdraw?mode=withdraw">
+      <span class="quick-action-icon">&#8593;</span>
+      <span class="quick-action-label">Withdraw</span>
+    </a>
+    <a class="quick-action-card" href="#!/history">
+      <span class="quick-action-icon">&#9776;</span>
+      <span class="quick-action-label">History</span>
+    </a>
+  </div>
+
+  <!-- ─── Loading ─────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-show="loading">
+    <div class="spinner"></div>
+    <p>Loading your accounts&hellip;</p>
+  </div>
+
+  <!-- ─── Main content (two-column on wide screens) ────────────────────── -->
+  <div class="dashboard-body" ng-show="!loading">
+
+    <!-- LEFT: My Accounts ──────────────────────────────────────────────── -->
+    <div class="dashboard-col dashboard-col--accounts">
+
+      <h2 class="section-title">My Accounts</h2>
+
+      <!-- Empty State -->
+      <div class="state-empty" ng-show="accounts.length === 0">
+        <p class="state-empty-icon">&#128674;</p>
+        <p class="state-empty-title">No accounts yet</p>
+        <p class="state-empty-sub">Open your first account to get started.</p>
+        <a class="btn-action" href="#!/open-account">Open Account</a>
+      </div>
+
+      <!-- Account Cards -->
+      <div class="account-grid" ng-show="accounts.length > 0">
+        <div class="account-card"
+             ng-repeat="account in accounts"
+             ng-class="'account-card--' + account.accountType.toLowerCase()">
+
+          <div class="account-card-header">
+            <span class="account-type-label">{{ account.accountType }}</span>
+            <span class="account-status-badge"
+                  ng-class="account.status === 'ACTIVE' ? 'badge--active' : 'badge--inactive'">
+              {{ account.status }}
+            </span>
+          </div>
+
+          <div class="account-card-number">{{ account.accountNumber }}</div>
+
+          <div class="account-card-balance">
+            <span class="account-balance-label">Available Balance</span>
+            <span class="account-balance-amount">{{ account.balance | currency : '&#8369; ' : 2 }}</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Recent Transactions ─────────────────────────────────────── -->
+    <div class="dashboard-col dashboard-col--recent">
+
+      <div class="section-header-row">
+        <h2 class="section-title">Recent Transactions</h2>
+        <a class="section-link" href="#!/history">View all</a>
+      </div>
+
+      <!-- TX Loading -->
+      <div class="state-loading state-loading--sm" ng-show="txLoading">
+        <div class="spinner spinner--sm"></div>
+      </div>
+
+      <!-- TX Empty -->
+      <div class="state-empty state-empty--sm" ng-show="!txLoading && recentTx.length === 0">
+        <p class="state-empty-icon">&#128203;</p>
+        <p class="state-empty-title">No transactions yet</p>
+        <p class="state-empty-sub">Your activity will appear here.</p>
+      </div>
+
+      <!-- TX List -->
+      <ul class="tx-list" ng-show="!txLoading && recentTx.length > 0">
+        <li class="tx-item" ng-repeat="tx in recentTx">
+          <div class="tx-icon" ng-class="txTypeClass(tx.type)">
+            <span ng-if="tx.type === 'DEPOSIT'">&#8595;</span>
+            <span ng-if="tx.type === 'WITHDRAWAL'">&#8593;</span>
+            <span ng-if="tx.type === 'TRANSFER'">&#8651;</span>
+          </div>
+          <div class="tx-details">
+            <span class="tx-description">{{ tx.description || tx.type }}</span>
+            <span class="tx-meta">
+              {{ tx.timestamp | date : 'MMM d, y · h:mm a' }}
+            </span>
+          </div>
+          <div class="tx-amount" ng-class="txTypeClass(tx.type)">
+            {{ txSign(tx.type) }}{{ tx.amount | currency : '&#8369; ' : 2 }}
+          </div>
+        </li>
+      </ul>
+
+    </div>
+
+  </div><!-- /.dashboard-body -->
+
+</div><!-- /.page -->

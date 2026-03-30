@@ -1,5 +1,257 @@
-<h2>Customer Detail</h2>
+<div class="page page--wide">
 
-<p>You are viewing customer {{vm.customerId}}</p>
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Admin Panel › Customers</p>
+      <h1 class="page-title">Customer Detail</h1>
+    </div>
+    <button class="btn-action btn-action--ghost" ng-click="goBack()">← Back</button>
+  </div>
 
-<a href="#!/admin/customers"> Back to list </a>
+  <!-- ─── Loading ────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-if="loading">
+    <div class="spinner"></div>
+    <span>Loading customer…</span>
+  </div>
+
+  <!-- ─── Content ────────────────────────────────────────────────────── -->
+  <div ng-if="!loading && customer">
+
+    <div class="customer-detail-layout">
+
+      <!-- ════════════════════════════════════════════════════════════════
+           LEFT COLUMN — Identity + Status
+           ════════════════════════════════════════════════════════════════ -->
+      <div class="customer-detail-sidebar">
+
+        <!-- Identity card -->
+        <div class="profile-identity-card">
+          <div class="profile-avatar">
+            {{ customer.firstName.charAt(0) }}{{ customer.lastName.charAt(0) }}
+          </div>
+          <div class="profile-identity-name">
+            {{ customer.firstName }}
+            <span ng-if="customer.middleName"> {{ customer.middleName }}</span>
+            {{ customer.lastName }}
+            <span ng-if="customer.suffix"> {{ customer.suffix }}</span>
+          </div>
+          <div class="profile-identity-username">@{{ customer.username }}</div>
+          <span class="profile-role-badge">Customer</span>
+          <div class="profile-status-row">
+            <span
+              class="account-status-badge"
+              ng-class="customer.isActive ? 'badge--active' : 'badge--inactive'"
+            >{{ customer.isActive ? 'Active' : 'Inactive' }}</span>
+          </div>
+        </div>
+
+        <!-- Status toggle -->
+        <div class="admin-status-card">
+          <p class="admin-status-card-label">Account Status</p>
+          <p class="admin-status-card-sub">
+            {{ customer.isActive
+              ? 'This customer is currently active and can log in.'
+              : 'This customer is deactivated and cannot log in.' }}
+          </p>
+          <button
+            class="btn-primary"
+            ng-class="{ 'btn-primary--danger': customer.isActive }"
+            ng-click="toggleStatus()"
+            ng-disabled="statusBusy"
+          >
+            <span ng-if="!statusBusy">{{ customer.isActive ? 'Deactivate' : 'Activate' }}</span>
+            <span ng-if="statusBusy" class="btn-spinner">
+              <span class="spinner spinner--btn"></span> Working…
+            </span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════════════
+           RIGHT COLUMN — Info panels
+           ════════════════════════════════════════════════════════════════ -->
+      <div class="customer-detail-main">
+
+        <!-- ── 1. Personal Info ──────────────────────────────────────── -->
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h2 class="admin-panel-title">Personal Information</h2>
+            <button
+              class="btn-action btn-action--sm btn-action--ghost"
+              ng-click="toggleEdit()"
+            >{{ showEdit ? 'Cancel' : '✏ Edit' }}</button>
+          </div>
+
+          <!-- Read-only view -->
+          <div ng-if="!showEdit">
+            <div class="profile-fields">
+              <div class="profile-field-row">
+                <div class="profile-field">
+                  <span class="profile-field-label">First Name</span>
+                  <span class="profile-field-value">{{ customer.firstName }}</span>
+                </div>
+                <div class="profile-field">
+                  <span class="profile-field-label">Middle Name</span>
+                  <span class="profile-field-value">{{ customer.middleName || '—' }}</span>
+                </div>
+              </div>
+              <div class="profile-field-row">
+                <div class="profile-field">
+                  <span class="profile-field-label">Last Name</span>
+                  <span class="profile-field-value">{{ customer.lastName }}</span>
+                </div>
+                <div class="profile-field">
+                  <span class="profile-field-label">Suffix</span>
+                  <span class="profile-field-value">{{ customer.suffix || '—' }}</span>
+                </div>
+              </div>
+              <div class="profile-field-row">
+                <div class="profile-field">
+                  <span class="profile-field-label">Username</span>
+                  <span class="profile-field-value profile-field-value--mono">{{ customer.username }}</span>
+                </div>
+                <div class="profile-field">
+                  <span class="profile-field-label">Email</span>
+                  <span class="profile-field-value">{{ customer.email }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit form (toggled) -->
+          <div ng-if="showEdit">
+            <div class="field-row">
+              <div class="field-group">
+                <label>First Name <span class="field-required">*</span></label>
+                <div class="input-wrap">
+                  <input type="text" ng-model="editForm.firstName" placeholder="First name" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label>Middle Name <span class="field-optional">(optional)</span></label>
+                <div class="input-wrap">
+                  <input type="text" ng-model="editForm.middleName" placeholder="Middle name" />
+                </div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group">
+                <label>Last Name <span class="field-required">*</span></label>
+                <div class="input-wrap">
+                  <input type="text" ng-model="editForm.lastName" placeholder="Last name" />
+                </div>
+              </div>
+              <div class="field-group field-group--narrow">
+                <label>Suffix <span class="field-optional">(optional)</span></label>
+                <div class="input-wrap">
+                  <input type="text" ng-model="editForm.suffix" placeholder="Jr." />
+                </div>
+              </div>
+            </div>
+            <div class="field-group">
+              <label>Email <span class="field-required">*</span></label>
+              <div class="input-wrap">
+                <input type="email" ng-model="editForm.email" placeholder="email@example.com" />
+              </div>
+            </div>
+            <div class="confirm-actions" style="margin-top: 1.4rem;">
+              <button
+                class="btn-primary btn-primary--confirm"
+                ng-click="submitEdit()"
+                ng-disabled="editBusy"
+              >
+                <span ng-if="!editBusy">Save Changes</span>
+                <span ng-if="editBusy" class="btn-spinner">
+                  <span class="spinner spinner--btn"></span> Saving…
+                </span>
+              </button>
+              <button class="btn-ghost" ng-click="toggleEdit()">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 2. Bank Accounts ──────────────────────────────────────── -->
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h2 class="admin-panel-title">Bank Accounts</h2>
+            <button
+              class="btn-action btn-action--sm"
+              ng-click="toggleOpenAccount()"
+            >{{ showOpenAccount ? 'Cancel' : '＋ Open Account' }}</button>
+          </div>
+
+          <!-- Inline open-account form -->
+          <div class="admin-inline-form" ng-if="showOpenAccount">
+            <div class="field-group">
+              <label>Account Type <span class="field-required">*</span></label>
+              <div class="input-wrap input-wrap--select">
+                <span class="input-icon">🏦</span>
+                <select ng-model="newAccountType">
+                  <option value="">— Select type —</option>
+                  <option value="CHECKING">Checking</option>
+                  <option value="SAVINGS">Savings</option>
+                </select>
+              </div>
+            </div>
+            <div class="confirm-actions">
+              <button
+                class="btn-primary btn-primary--confirm"
+                ng-click="submitOpenAccount()"
+                ng-disabled="openAccountBusy || !newAccountType"
+              >
+                <span ng-if="!openAccountBusy">Open Account</span>
+                <span ng-if="openAccountBusy" class="btn-spinner">
+                  <span class="spinner spinner--btn"></span> Opening…
+                </span>
+              </button>
+              <button class="btn-ghost" ng-click="toggleOpenAccount()">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Accounts table -->
+          <div class="state-empty state-empty--sm" ng-if="customer.accounts.length === 0">
+            <p class="state-empty-icon">🏦</p>
+            <h3 class="state-empty-title">No accounts yet</h3>
+            <p class="state-empty-sub">Open one using the button above.</p>
+          </div>
+
+          <div class="admin-table-wrap" ng-if="customer.accounts.length > 0">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Account Number</th>
+                  <th>Type</th>
+                  <th>Balance</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="acc in customer.accounts">
+                  <td class="admin-table-mono">{{ acc.accountNumber }}</td>
+                  <td>{{ acc.accountType }}</td>
+                  <td class="admin-table-mono">{{ acc.balance | currency:'₱' }}</td>
+                  <td>
+                    <span
+                      class="account-status-badge"
+                      ng-class="acc.status === 'ACTIVE' ? 'badge--active' : 'badge--inactive'"
+                    >{{ acc.status }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+      <!-- end right column -->
+
+    </div>
+    <!-- end layout -->
+
+  </div>
+  <!-- end content -->
+
+</div>
