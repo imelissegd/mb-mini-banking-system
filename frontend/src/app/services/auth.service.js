@@ -4,54 +4,78 @@ angular.module('bankingApp')
 
       var self = this;
 
-      // ─── MOCK FLAG ──────────────────────────────────────────────────────
+      // ─── MOCK FLAG ───────────────────────────────────────────────────────
       // Set to false when the backend is ready.
       var MOCK = true;
 
-      // ─── Mock JWT builder ────────────────────────────────────────────────
-      // Builds a syntactically valid JWT (unsigned) so atob() decoding works.
-      function buildMockToken(payload) {
-        var header  = btoa(JSON.stringify({ alg: 'none', typ: 'JWT' }));
-        var body    = btoa(JSON.stringify(payload));
-        var sig     = 'mock-signature';
-        // btoa may produce '+' '/' '=' — replace so split('.') stays clean
-        return header.replace(/=/g,'') + '.' + body.replace(/=/g,'') + '.' + sig;
-      }
-
-      // ─── Token Storage ──────────────────────────────────────────────────
-      self.saveToken  = function (token) { localStorage.setItem(APP_CONFIG.tokenKey, token); };
-      self.getToken   = function ()      { return localStorage.getItem(APP_CONFIG.tokenKey); };
-      self.clearToken = function ()      { localStorage.removeItem(APP_CONFIG.tokenKey); };
-
-      // ─── JWT Decode ─────────────────────────────────────────────────────
-      self.decodeToken = function () {
-        var token = self.getToken();
-        if (!token) return null;
-        try {
-          var parts = token.split('.');
-          if (parts.length !== 3) return null;
-          // Restore base64 padding stripped by buildMockToken / real JWTs
-          var base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-          var pad    = base64.length % 4;
-          if (pad) { base64 += '===='.slice(pad); }
-          return JSON.parse(atob(base64));
-        } catch (e) {
-          console.error('AuthService: failed to decode token', e);
-          return null;
+      // ─── Mock users ──────────────────────────────────────────────────────
+      // Simulates what GET /api/auth/me returns from the server.
+      // Switch MOCK_ACTIVE_USER to test different roles.
+      var MOCK_USERS = {
+        admin: {
+          id:        0,
+          username:  'admin',
+          firstName: 'Admin',
+          lastName:  'User',
+          email:     'admin@bank.com',
+          role:      APP_CONFIG.roles.ADMIN,
+          isActive:  true
+        },
+        customer: {
+          id:        1,
+          username:  'customer',
+          firstName: 'Juan',
+          lastName:  'dela Cruz',
+          email:     'juan@bank.com',
+          role:      APP_CONFIG.roles.CUSTOMER,
+          isActive:  true
         }
       };
 
-      // ─── Auth State ─────────────────────────────────────────────────────
+      // ─── In-memory user state (Option A) ────────────────────────────────
+      // This is the ONLY place user info lives on the frontend.
+      // No localStorage. No JWT decoding.
+      // Populated by loadCurrentUser(). Cleared on logout.
+      // Lost on page refresh — loadCurrentUser() silently restores it.
+      self.currentUser = null;
+
+      // ─── Load current user ───────────────────────────────────────────────
+      // Call this on app start and immediately after login.
+      //
+      // MOCK:  resolves immediately with a hardcoded user object.
+      //        Change credentials.username prefix to 'admin' to get ADMIN role.
+      //
+      // REAL:  GET /api/auth/me — browser sends the HttpOnly access_token
+      //        cookie automatically (withCredentials is set by authInterceptor).
+      //        Server validates the cookie and returns the current user.
+      //        Returns 401 if cookie is absent or expired → currentUser stays null.
+      self.loadCurrentUser = function (mockUsername) {
+        if (MOCK) {
+          var isAdmin      = mockUsername && mockUsername.toLowerCase().startsWith('admin');
+          self.currentUser = isAdmin ? MOCK_USERS.admin : MOCK_USERS.customer;
+          return $q.resolve(self.currentUser);
+        }
+
+        return $http.get(APP_CONFIG.apiBaseUrl + '/auth/me')
+          .then(function (res) {
+            // res.data shape: ApiResponse<UserResponse>
+            // { success, message, data: { id, username, firstName, lastName, email, role, isActive } }
+            self.currentUser = res.data.data;
+            return self.currentUser;
+          })
+          .catch(function () {
+            self.currentUser = null;
+            return $q.reject('Not authenticated');
+          });
+      };
+
+      // ─── Auth state helpers ──────────────────────────────────────────────
       self.isAuthenticated = function () {
-        var payload    = self.decodeToken();
-        if (!payload)  return false;
-        var nowSeconds = Math.floor(Date.now() / 1000);
-        return payload.exp && payload.exp > nowSeconds;
+        return !!self.currentUser;
       };
 
       self.getRole = function () {
-        var payload = self.decodeToken();
-        return payload ? payload.role : null;
+        return self.currentUser ? self.currentUser.role : null;
       };
 
       self.isAdmin = function () {
@@ -59,74 +83,78 @@ angular.module('bankingApp')
       };
 
       self.getDisplayName = function () {
-        var payload = self.decodeToken();
-        if (!payload) return 'User';
-        // Use firstName from token, fall back to username (sub), then generic
-        return payload.firstName || payload.sub || 'User';
+        if (!self.currentUser) return 'User';
+        return self.currentUser.firstName || self.currentUser.username || 'User';
       };
 
-      // Returns the raw username stored in the token (sub claim)
       self.getUsername = function () {
-        var payload = self.decodeToken();
-        return payload ? payload.sub : '';
+        return self.currentUser ? self.currentUser.username : '';
       };
 
-      // ─── Login ──────────────────────────────────────────────────────────
+      // ─── Login ───────────────────────────────────────────────────────────
+      // MOCK:  immediately sets currentUser based on username prefix.
+      //        Username starting with 'admin' → ADMIN role, anything else → CUSTOMER.
+      //
+      // REAL:  POST /api/auth/login → server authenticates credentials and
+      //        sets two HttpOnly cookies (access_token, refresh_token) in the
+      //        response headers. No token is returned in the body.
+      //        We then call loadCurrentUser() to populate currentUser from /auth/me.
       self.login = function (credentials) {
         if (MOCK) {
-          // Accept any credentials; role is driven by username prefix 'admin'
-          var isAdmin   = credentials.username && credentials.username.toLowerCase().startsWith('admin');
-          var role      = isAdmin ? APP_CONFIG.roles.ADMIN : APP_CONFIG.roles.CUSTOMER;
-          var firstName = isAdmin ? 'Admin' : 'Juan';
-          var exp       = Math.floor(Date.now() / 1000) + (60 * 60 * 8); // 8 hours
-
-          var payload = {
-            sub:       credentials.username || 'mockuser',
-            role:      role,
-            firstName: firstName,
-            exp:       exp
-          };
-
-          var token = buildMockToken(payload);
-          self.saveToken(token);
-
+          var isAdmin      = credentials.username &&
+                             credentials.username.toLowerCase().startsWith('admin');
+          self.currentUser = isAdmin ? MOCK_USERS.admin : MOCK_USERS.customer;
           return $q.resolve({
-            data: {
-              success: true,
-              message: 'Login successful.',
-              data:    { token: token }
-            }
+            data: { success: true, message: 'Login successful.' }
           });
         }
 
-        // REAL
         return $http.post(APP_CONFIG.apiBaseUrl + '/auth/login', credentials)
-          .then(function (response) {
-            if (response.data && response.data.data && response.data.data.token) {
-              self.saveToken(response.data.data.token);
-            }
-            return response;
+          .then(function (res) {
+            // Cookies are set by the server — nothing to store here.
+            // Populate currentUser by calling /auth/me.
+            return self.loadCurrentUser().then(function () {
+              return res;
+            });
           });
       };
 
       // ─── Register ────────────────────────────────────────────────────────
+      // MOCK:  resolves immediately with a success message.
+      // REAL:  POST /api/auth/register → returns ApiResponse<UserResponse> (201).
+      //        Does not log the user in — redirect to /login after success.
       self.register = function (data) {
         if (MOCK) {
           return $q.resolve({
-            success: true,
-            message: 'Registration successful. You may now log in.'
+            data: {
+              success: true,
+              message: 'Registration successful. You may now log in.'
+            }
           });
         }
 
-        // REAL
         return $http.post(APP_CONFIG.apiBaseUrl + '/auth/register', data)
-          .then(function (res) { return res.data; });
+          .then(function (res) { return res; });
       };
 
       // ─── Logout ──────────────────────────────────────────────────────────
+      // MOCK:  clears currentUser and redirects immediately.
+      // REAL:  POST /api/auth/logout → server sets both cookies with maxAge=0,
+      //        which tells the browser to delete them immediately.
+      //        We clear currentUser and redirect regardless of response status
+      //        (use .finally) so the user is always sent to /login.
       self.logout = function () {
-        self.clearToken();
-        $location.path('/login');
+        if (MOCK) {
+          self.currentUser = null;
+          $location.path('/login');
+          return;
+        }
+
+        $http.post(APP_CONFIG.apiBaseUrl + '/auth/logout')
+          .finally(function () {
+            self.currentUser = null;
+            $location.path('/login');
+          });
       };
 
     }

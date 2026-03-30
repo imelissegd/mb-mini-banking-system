@@ -65,16 +65,16 @@ public class AuthServiceImpl {
 
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.USER_NAME,  request.getUsername()));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.USER_NAME,
+                        request.getUsername()));
         if (!user.isActive()) {
             throw new AccountNotActiveException(AccountNotActiveException.USER, user.getUsername());
         }
 
-        String accessToken  = jwtUtil.generateAccessToken(user);
+        String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
         return AuthResponse.builder()
@@ -82,6 +82,13 @@ public class AuthServiceImpl {
                 .refreshToken(refreshToken)
                 .user(mapToUserResponse(user))
                 .build();
+    }
+
+    public UserResponse getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ResourceNotFoundException.USER_NAME, username));
+        return mapToUserResponse(user);
     }
 
     // for admin: includes role
@@ -123,7 +130,6 @@ public class AuthServiceImpl {
                 .build();
     }
 
-
     private void validateUser(RegisterRequest registerRequest, ValidationRule... rules) {
         Set<ValidationRule> ruleSet = Set.of(rules);
 
@@ -132,7 +138,8 @@ public class AuthServiceImpl {
                 throw new MissingFieldsException(MissingFieldsException.USER_USERNAME);
             }
             if (userRepository.existsByUsername(registerRequest.getUsername())) {
-                throw new ResourceDuplicateException(ResourceDuplicateException.USER_USERNAME, registerRequest.getUsername());
+                throw new ResourceDuplicateException(ResourceDuplicateException.USER_USERNAME,
+                        registerRequest.getUsername());
             }
         }
 
@@ -145,26 +152,26 @@ public class AuthServiceImpl {
             }
         }
 
-//        if (ruleSet.contains(CHECK_ID) && registerRequest.getUserId() == null) {
-//            throw new MissingFieldsException(MissingFieldsException.USER_ID);
-//        }
+        // if (ruleSet.contains(CHECK_ID) && registerRequest.getUserId() == null) {
+        // throw new MissingFieldsException(MissingFieldsException.USER_ID);
+        // }
 
         if (ruleSet.contains(CHECK_EMAIL)) {
             if (registerRequest.getEmail() == null || registerRequest.getEmail().isBlank()) {
                 throw new MissingFieldsException(MissingFieldsException.USER_EMAIL);
             }
             if (userRepository.existsByEmail(registerRequest.getEmail())) {
-                throw new ResourceDuplicateException(ResourceDuplicateException.USER_EMAIl,  registerRequest.getEmail());
+                throw new ResourceDuplicateException(ResourceDuplicateException.USER_EMAIl, registerRequest.getEmail());
             }
         }
-
 
         if (ruleSet.contains(CHECK_CONTACTNUMBER)) {
             if (registerRequest.getContactNumber() == null || registerRequest.getContactNumber().isBlank()) {
                 throw new MissingFieldsException(MissingFieldsException.USER_CONTACTNUMBER);
             }
             if (userRepository.existsByContactNumber(registerRequest.getContactNumber())) {
-                throw new ResourceDuplicateException(ResourceDuplicateException.USER_CONTACTNUMBER,  registerRequest.getContactNumber());
+                throw new ResourceDuplicateException(ResourceDuplicateException.USER_CONTACTNUMBER,
+                        registerRequest.getContactNumber());
             }
         }
 
@@ -173,15 +180,15 @@ public class AuthServiceImpl {
             throw new MissingFieldsException(MissingFieldsException.USER_PASSWORD);
         }
 
-//        if (ruleSet.contains(CHECK_ROLE) &&
-//                (registerRequest.getRole() == null || registerRequest.getRole().isBlank())) {
-//            throw new MissingFieldsException(MissingFieldsException.USER_ROLE);
-//        }
+        // if (ruleSet.contains(CHECK_ROLE) &&
+        // (registerRequest.getRole() == null || registerRequest.getRole().isBlank())) {
+        // throw new MissingFieldsException(MissingFieldsException.USER_ROLE);
+        // }
 
-//        if (ruleSet.contains(CHECK_EXISTS)) {
-//            userRepository.findById(registerRequest.getUserId())
-//                    .orElseThrow(() -> new UserNotFoundException(registerRequest.getUserId()));
-//        }
+        // if (ruleSet.contains(CHECK_EXISTS)) {
+        // userRepository.findById(registerRequest.getUserId())
+        // .orElseThrow(() -> new UserNotFoundException(registerRequest.getUserId()));
+        // }
     }
 
 }
