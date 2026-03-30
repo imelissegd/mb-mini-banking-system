@@ -9,6 +9,7 @@ import com.example.minibankingsystem.dto.response.TransactionTokenResponse;
 import com.example.minibankingsystem.dto.response.TransactionTokenResult;
 import com.example.minibankingsystem.exception.AccountNotActiveException;
 import com.example.minibankingsystem.exception.InsufficientFundsException;
+import com.example.minibankingsystem.exception.MissingFieldsException;
 import com.example.minibankingsystem.exception.ResourceNotFoundException;
 import com.example.minibankingsystem.model.BankAccount;
 import com.example.minibankingsystem.model.User;
@@ -214,6 +215,9 @@ public class BankAccountServiceImpl {
         Set<CreateAccountValidationRule> ruleSet = Set.of(rules);
 
         if (ruleSet.contains(CHECK_USER_ID)) {
+            if (request.getUserId() == null) {
+                throw new MissingFieldsException(MissingFieldsException.USER_ID);
+            }
             if (!userService.userExistsById(request.getUserId())) {
                 throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID, String.valueOf(request.getUserId()));
             }

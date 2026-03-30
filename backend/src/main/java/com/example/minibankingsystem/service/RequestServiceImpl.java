@@ -42,7 +42,9 @@ public class RequestServiceImpl {
             String username, CreateBankAccountRequest dto) {
 
         User user = userService.getUserByUsername(username);
-
+        if (dto.getUserId() == null) {
+            dto.setUserId(user.getId());
+        }
         if (requestRepository.existsByUserIdAndTypeAndStatus(
                 user.getId(), RequestType.OPEN_ACCOUNT, RequestStatus.PENDING)) {
             throw new IllegalStateException(
@@ -177,7 +179,6 @@ public class RequestServiceImpl {
         EditProfileRequest dto = fromJson(
                 request.getPayload(), EditProfileRequest.class);
 
-        // Delegates to UserService — no direct repo access
         userService.updateProfile(request.getUser().getUsername(), dto);
 
         log.info("Profile updated for user {} via approved request id {}",

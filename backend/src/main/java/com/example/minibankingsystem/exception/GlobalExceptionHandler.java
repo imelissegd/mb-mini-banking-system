@@ -79,6 +79,7 @@ public class GlobalExceptionHandler {
             IllegalArgumentException.class,
             ResourceDuplicateException.class,
             MissingFieldsException.class,
+            IllegalStateException.class,
     })
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
