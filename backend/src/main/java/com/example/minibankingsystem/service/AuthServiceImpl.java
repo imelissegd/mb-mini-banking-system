@@ -86,6 +86,8 @@ public class AuthServiceImpl {
 
     // for admin: includes role
     public UserResponse addUser(CreateUserAdmin createUserAdmin) {
+        validateUser(createUserAdmin, CHECK_USERNAME, CHECK_NAME, CHECK_EMAIL, CHECK_CONTACTNUMBER,
+                CHECK_PASSWORD);
         User newUser = createUserFromRequest(createUserAdmin);
         newUser.setRole(Role.valueOf(createUserAdmin.getRole()));
         newUser = userRepository.save(newUser);
