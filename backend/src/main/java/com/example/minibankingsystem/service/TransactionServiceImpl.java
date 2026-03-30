@@ -132,7 +132,7 @@ public class TransactionServiceImpl {
         Transaction transaction = buildTransaction(
                 source, null, // no destination for withdrawal
                 request.getAmount(),
-                TransactionType.TRANSFER,
+                TransactionType.WITHDRAWAL,
                 request.getDescription()
         );
 
@@ -172,7 +172,7 @@ public class TransactionServiceImpl {
         Transaction transaction = buildTransaction(
                 null, destination, // no source for deposit
                 request.getAmount(),
-                TransactionType.TRANSFER,
+                TransactionType.DEPOSIT,
                 request.getDescription()
         );
 
