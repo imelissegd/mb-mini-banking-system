@@ -256,14 +256,8 @@ public class BankAccountServiceImpl {
     }
 
     public String generateAccountNumber(Long userId, AccountType accountType) {
-        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String userSegment = String.format("%06d", userId);
-        String typeCode = switch (accountType) {
-            case SAVINGS  -> "SAV";
-            case CHECKING -> "CHK";
-        };
-        String random = String.format("%04d", new Random().nextInt(10000));
-        return date + "-" + userSegment + "-" + typeCode + "-" + random;
+        long number = (long) (Math.random() * 900_000_000_000L) + 100_000_000_000L;
+        return String.valueOf(number);
     }
 
     private String formatOwnerName(User user) {
