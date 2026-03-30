@@ -6,8 +6,8 @@ import lombok.Data;
 
 @Data
 public class LoginRequest {
-    @NotBlank
+    @NotBlank(message="{error.user.username.missing}")
     private String username;
-    @NotBlank
+    @NotBlank(message="{error.user.password.missing}")
     private String password;
 }

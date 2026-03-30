@@ -15,7 +15,7 @@ public class TransferRequest {
 
     private String toAccountNumber;
 
-    @NotNull
+    @NotNull(message = "{error.transaction.amount.missing}")
     @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     private BigDecimal amount;
 

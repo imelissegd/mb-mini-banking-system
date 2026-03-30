@@ -249,7 +249,7 @@ public class TransactionServiceImpl {
     public TransactionResponse getTransactionById(long id) {
         Transaction transaction = transactionRepository.findById(id).orElse(null);
         if (transaction == null) {
-            throw new ResourceNotFoundException(ResourceNotFoundException.TRANSACTION_ID);
+            throw new ResourceNotFoundException(ResourceNotFoundException.TRANSACTION_ID, String.valueOf(id));
         }
         return mapToResponse(transaction);
     }

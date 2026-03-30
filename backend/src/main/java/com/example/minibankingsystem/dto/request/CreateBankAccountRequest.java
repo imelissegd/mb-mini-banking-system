@@ -6,8 +6,8 @@ import lombok.Data;
 
 @Data
 public class CreateBankAccountRequest {
-    @NotNull(message = "error.user.id.missing")
+    @NotNull(message = "{error.user.id.missing}")
     private Long userId;
-    @NotBlank(message = "error.account.type.missing")
-    private String accountType;
+    @NotBlank(message = "{error.account.type.missing}")
+    private String accountType; //CHECKING, SAVINGS
 }

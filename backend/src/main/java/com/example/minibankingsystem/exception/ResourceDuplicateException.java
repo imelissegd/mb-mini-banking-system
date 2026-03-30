@@ -1,5 +1,7 @@
 package com.example.minibankingsystem.exception;
 
+import com.example.minibankingsystem.component.MessageHelper;
+
 public class ResourceDuplicateException extends RuntimeException {
     // User
     public static final String USER_USERNAME = "error.user.username.duplicate";
@@ -7,7 +9,7 @@ public class ResourceDuplicateException extends RuntimeException {
     public static final String USER_CONTACTNUMBER = "error.user.contactnumber.duplicate";
 
 
-    public ResourceDuplicateException(String key) {
-        super(key);
+    public ResourceDuplicateException(String key, String value) {
+        super(MessageHelper.get(key, value));
     }
 }

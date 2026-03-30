@@ -61,34 +61,30 @@ public class BankAccountServiceImpl {
 
     public BankAccount getAccountByAccountNumber(String accountNumber) {
         return bankAccountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Account not found: " + accountNumber));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_NUMBER, accountNumber));
     }
 
 
     public BankAccount getAccountOwnedByUser(String accountNumber, String username) {
         User user = userService.getUserByUsername(username);
         if (user == null) {
-            throw new ResourceNotFoundException("User not found: " + username);
+            throw new ResourceNotFoundException(ResourceNotFoundException.USER_NAME, username);
         }
         return bankAccountRepository.findByAccountNumberAndUserId(accountNumber, user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Account not found: " + accountNumber));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_NUMBER, accountNumber));
     }
 
 
     public void checkAccountOpen(BankAccount account) {
         if (account.getStatus() != AccountStatus.OPEN) {
-            throw new AccountNotActiveException(
-                    "Account " + account.getAccountNumber() + " is not active");
+            throw new AccountNotActiveException(AccountNotActiveException.ACCOUNT,  account.getAccountNumber());
         }
     }
 
 
     public void checkSufficientFunds(BankAccount account, BigDecimal amount) {
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException(
-                    "Insufficient funds");
+            throw new InsufficientFundsException();
         }
     }
 
@@ -104,20 +100,19 @@ public class BankAccountServiceImpl {
 
         if (ruleSet.contains(CHECK_EXISTS)) {
             if (account == null) {
-                throw new ResourceNotFoundException("Account not found");
+                throw new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_DEFAULT);
             }
         }
 
         if (ruleSet.contains(CHECK_OWNED_BY_USER)) {
             User user = userService.getUserByUsername(username);
             if (user == null) {
-                throw new ResourceNotFoundException("User not found: " + username);
+                throw new ResourceNotFoundException(ResourceNotFoundException.USER_NAME, username);
             }
             // re-verify ownership at validation time
             bankAccountRepository
                     .findByAccountNumberAndUserId(account.getAccountNumber(), user.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Account not found:" +  account.getAccountNumber()));
+                    .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_NUMBER, account.getAccountNumber()));
         }
 
         if (ruleSet.contains(CHECK_OPEN)) {
@@ -154,7 +149,7 @@ public class BankAccountServiceImpl {
     public Page<BankAccountResponse> getBankAccountsByUsername(String username, Pageable pageable) {
         User user = userService.getUserByUsername(username);
         if (user == null) {
-            throw new ResourceNotFoundException("User not found: " + username);
+            throw new ResourceNotFoundException(ResourceNotFoundException.USER_NAME, username);
         }
         Page<BankAccount> bankAccounts = bankAccountRepository.findByUserId(user.getId(), pageable);
         return bankAccounts.map(this::createResponseBankAccount);
@@ -203,13 +198,13 @@ public class BankAccountServiceImpl {
 
         if (ruleSet.contains(CHECK_USER_ID)) {
             if (!userService.userExistsById(request.getUserId())) {
-                throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID);
+                throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID, String.valueOf(request.getUserId()));
             }
         }
 
         if (ruleSet.contains(CHECK_USER_ACTIVE)) {
             if (!userService.isUserActive(request.getUserId())) {
-                throw new AccountNotActiveException("User account is not active.");
+                throw new AccountNotActiveException(AccountNotActiveException.USER_DEFAULT);
             }
         }
 

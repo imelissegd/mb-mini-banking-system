@@ -1,5 +1,6 @@
 package com.example.minibankingsystem.service;
 
+import com.example.minibankingsystem.component.MessageHelper;
 import com.example.minibankingsystem.config.security.CustomUserDetailsService;
 import com.example.minibankingsystem.config.security.JwtUtil;
 import com.example.minibankingsystem.dto.admin.request.CreateUserAdmin;
@@ -68,9 +69,9 @@ public class AuthServiceImpl {
         );
 
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User "  + request.getUsername() + " not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.USER_NAME,  request.getUsername()));
         if (!user.isActive()) {
-            throw new AccountNotActiveException("error.account.not.active");
+            throw new AccountNotActiveException(AccountNotActiveException.USER, user.getUsername());
         }
 
         String accessToken  = jwtUtil.generateAccessToken(user);
@@ -129,7 +130,7 @@ public class AuthServiceImpl {
                 throw new MissingFieldsException(MissingFieldsException.USER_USERNAME);
             }
             if (userRepository.existsByUsername(registerRequest.getUsername())) {
-                throw new ResourceDuplicateException(ResourceDuplicateException.USER_USERNAME);
+                throw new ResourceDuplicateException(ResourceDuplicateException.USER_USERNAME, registerRequest.getUsername());
             }
         }
 
@@ -151,7 +152,7 @@ public class AuthServiceImpl {
                 throw new MissingFieldsException(MissingFieldsException.USER_EMAIL);
             }
             if (userRepository.existsByEmail(registerRequest.getEmail())) {
-                throw new ResourceDuplicateException(ResourceDuplicateException.USER_EMAIl);
+                throw new ResourceDuplicateException(ResourceDuplicateException.USER_EMAIl,  registerRequest.getEmail());
             }
         }
 
@@ -161,7 +162,7 @@ public class AuthServiceImpl {
                 throw new MissingFieldsException(MissingFieldsException.USER_CONTACTNUMBER);
             }
             if (userRepository.existsByContactNumber(registerRequest.getContactNumber())) {
-                throw new ResourceDuplicateException(ResourceDuplicateException.USER_CONTACTNUMBER);
+                throw new ResourceDuplicateException(ResourceDuplicateException.USER_CONTACTNUMBER,  registerRequest.getContactNumber());
             }
         }
 

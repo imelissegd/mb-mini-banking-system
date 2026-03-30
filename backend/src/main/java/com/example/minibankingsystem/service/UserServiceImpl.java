@@ -43,7 +43,7 @@ public class UserServiceImpl {
     public UserResponse getUserDetails(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
-            throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID);
+            throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID, String.valueOf(userId));
         };
         return mapToUserResponse(user);
     }
@@ -57,7 +57,7 @@ public class UserServiceImpl {
     public UserResponse toggleUserActive(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         if  (user == null) {
-            throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID);
+            throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID, String.valueOf(userId));
         }
         user.setActive(!user.isActive());
         userRepository.save(user);
