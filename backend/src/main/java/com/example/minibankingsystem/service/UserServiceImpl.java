@@ -25,6 +25,30 @@ public class UserServiceImpl {
         return userRepository.existsById(id);
     }
 
+    public void usernameExists(Long userId, String username) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && !user.getId().equals(userId)) {
+            throw new ResourceDuplicateException(
+                    ResourceDuplicateException.USER_USERNAME, username);
+        }
+    }
+
+    public void emailExists(Long userId, String email) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && !user.getEmail().equals(email)) {
+            throw new ResourceDuplicateException(
+                    ResourceDuplicateException.USER_EMAIl, email);
+        }
+    }
+
+    public void contactExists(Long userId, String contact) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && !user.getContactNumber().equals(contact)) {
+            throw new ResourceDuplicateException(
+                    ResourceDuplicateException.USER_CONTACTNUMBER, contact);
+        }
+    }
+
     public boolean isUserActive(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
@@ -74,10 +98,10 @@ public class UserServiceImpl {
     }
 
     @Transactional
-    public void updateProfile(String username, EditProfileRequest dto) {
+    public void updateProfile(Long userId, String username, EditProfileRequest dto) {
         User user = getUserByUsername(username);
         if (dto.getUsername() != null) {
-            checkUsername(dto.getUsername());
+            checkUsername(userId, dto.getUsername());
             user.setUsername(dto.getUsername());
         }
         if (dto.getFirstName() != null) user.setFirstName(dto.getFirstName());
@@ -85,11 +109,11 @@ public class UserServiceImpl {
         if (dto.getLastName() != null)  user.setLastName(dto.getLastName());
         if (dto.getSuffix() != null)    user.setSuffix(dto.getSuffix());
         if (dto.getEmail() != null) {
-            checkEmail(dto.getEmail());
+            checkEmail(userId, dto.getEmail());
             user.setEmail(dto.getEmail());
         }
         if (dto.getContactNumber() != null) {
-            checkContactNumber(dto.getContactNumber());
+            checkContactNumber(userId, dto.getContactNumber());
             user.setContactNumber(dto.getContactNumber());
         }
 
@@ -106,31 +130,34 @@ public class UserServiceImpl {
         return mapToUserResponse(user);
     }
 
-    private void checkUsername(String username) {
+    private void checkUsername(Long userId, String username) {
         if (username == null || username.isBlank()) {
             throw new MissingFieldsException(MissingFieldsException.USER_USERNAME);
         }
-        if (userRepository.existsByUsername(username)) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && !user.getId().equals(userId)) {
             throw new ResourceDuplicateException(
                     ResourceDuplicateException.USER_USERNAME, username);
         }
     }
 
-    private void checkEmail(String email) {
+    private void checkEmail(Long userId, String email) {
         if (email == null || email.isBlank()) {
             throw new MissingFieldsException(MissingFieldsException.USER_EMAIL);
         }
-        if (userRepository.existsByEmail(email)) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && !user.getEmail().equals(email)) {
             throw new ResourceDuplicateException(
                     ResourceDuplicateException.USER_EMAIl, email);
         }
     }
 
-    private void checkContactNumber(String contactNumber) {
+    private void checkContactNumber(Long userId, String contactNumber) {
         if (contactNumber == null || contactNumber.isBlank()) {
             throw new MissingFieldsException(MissingFieldsException.USER_CONTACTNUMBER);
         }
-        if (userRepository.existsByContactNumber(contactNumber)) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null && !user.getContactNumber().equals(contactNumber)) {
             throw new ResourceDuplicateException(
                     ResourceDuplicateException.USER_CONTACTNUMBER, contactNumber);
         }

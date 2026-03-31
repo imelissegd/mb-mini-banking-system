@@ -7,6 +7,7 @@ import com.example.minibankingsystem.dto.request.CreateBankAccountRequest;
 import com.example.minibankingsystem.dto.request.EditProfileRequest;
 import com.example.minibankingsystem.dto.response.RequestResponse;
 import com.example.minibankingsystem.dto.response.UserResponse;
+import com.example.minibankingsystem.exception.ResourceDuplicateException;
 import com.example.minibankingsystem.exception.ResourceNotFoundException;
 import com.example.minibankingsystem.model.Request;
 import com.example.minibankingsystem.model.User;
@@ -74,6 +75,10 @@ public class RequestServiceImpl {
             throw new IllegalStateException(
                     MessageHelper.get("error.request.duplicate.pending"));
         }
+
+        userService.usernameExists(user.getId(), dto.getUsername());
+        userService.emailExists(user.getId(), dto.getEmail());
+        userService.contactExists(user.getId(), dto.getContactNumber());
 
         Request request = Request.builder()
                 .user(user)
@@ -179,7 +184,9 @@ public class RequestServiceImpl {
         EditProfileRequest dto = fromJson(
                 request.getPayload(), EditProfileRequest.class);
 
-        userService.updateProfile(request.getUser().getUsername(), dto);
+        User user = request.getUser();
+
+        userService.updateProfile(user.getId(), user.getUsername(), dto);
 
         log.info("Profile updated for user {} via approved request id {}",
                 request.getUser().getUsername(), request.getId());
