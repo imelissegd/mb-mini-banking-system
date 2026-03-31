@@ -26,6 +26,9 @@ public class UserServiceImpl {
     }
 
     public void usernameExists(Long userId, String username) {
+        if(username == null) {
+            return;
+        }
         User user = userRepository.findById(userId).orElse(null);
         if (user != null && !user.getId().equals(userId)) {
             throw new ResourceDuplicateException(
@@ -34,6 +37,9 @@ public class UserServiceImpl {
     }
 
     public void emailExists(Long userId, String email) {
+        if (email == null) {
+            return;
+        }
         User user = userRepository.findById(userId).orElse(null);
         if (user != null && !user.getEmail().equals(email)) {
             throw new ResourceDuplicateException(
@@ -42,6 +48,9 @@ public class UserServiceImpl {
     }
 
     public void contactExists(Long userId, String contact) {
+        if (contact == null) {
+            return;
+        }
         User user = userRepository.findById(userId).orElse(null);
         if (user != null && !user.getContactNumber().equals(contact)) {
             throw new ResourceDuplicateException(
