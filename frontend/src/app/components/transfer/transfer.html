@@ -42,9 +42,9 @@
         <label>From Account <span class="field-required">*</span></label>
         <div class="input-wrap input-wrap--select">
           <span class="input-icon">&#8651;</span>
-          <select ng-model="form.fromAccountId"
+          <select ng-model="form.fromAccountNumber"
                   ng-change="onFromAccountChange()"
-                  ng-options="a.id as (a.accountType + '  ·  ' + a.accountNumber + '  —  ₱ ' + (a.balance | number:2)) for a in accounts"
+                  ng-options="a.accountNumber as (a.accountType + '  ·  ' + a.accountNumber + '  —  ₱ ' + (a.balance | number:2)) for a in accounts"
                   required>
             <option value="" disabled selected>Select source account</option>
           </select>

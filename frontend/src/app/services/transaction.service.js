@@ -5,14 +5,13 @@ angular.module('bankingApp')
       var self = this;
 
       // ─── MOCK FLAG ──────────────────────────────────────────────────────
-      // Set to false when the backend is ready.
-      var MOCK = true;
+      var MOCK = false;
 
       // ─── getMyTransactions ───────────────────────────────────────────────
-      // Returns the logged-in customer's full transaction history.
+      // GET /api/transactions
+      // Returns List<TransactionResponse> at res.data.data
       self.getMyTransactions = function () {
         if (MOCK) {
-          // MOCK
           return $q.resolve([
             {
               id:                1,
@@ -51,65 +50,99 @@ angular.module('bankingApp')
               description:       'Bills'
             }
           ]);
-          // END MOCK
         }
 
         // REAL
-        return $http.get(APP_CONFIG.apiBaseUrl + '/customer/transactions')
-          .then(function (res) { return res.data; });
+        // C-06: was /customer/transactions  → /transactions
+        //       was res.data               → res.data.data
+        return $http.get(APP_CONFIG.apiBaseUrl + '/transactions')
+          .then(function (res) { return res.data.data; });
       };
 
       // ─── transfer ────────────────────────────────────────────────────────
-      // Transfers funds from one of the customer's accounts to another account.
-      // data: { fromAccountId, toAccountNumber, amount, description }
+      // POST /api/transactions/transfer
+      // Body: { fromAccountNumber, toAccountNumber, amount, description }
+      // Header: X-Transaction-Token  (required by BE even though validation
+      //         is commented out — omitting it causes Spring to return 400)
+      // Resolves: res.data (ApiResponse) so controller can read .message
       self.transfer = function (data) {
         if (MOCK) {
-          // MOCK
           return $q.resolve({ message: 'Transfer successful.', success: true });
-          // END MOCK
         }
 
         // REAL
-        return $http.post(APP_CONFIG.apiBaseUrl + '/customer/transfer', {
-          fromAccountId:   data.fromAccountId,
-          toAccountNumber: data.toAccountNumber,
-          amount:          data.amount,
-          description:     data.description
-        }).then(function (res) { return res.data; });
+        // C-04 fixes:
+        //   URL was /customer/transfer        → /transactions/transfer
+        //   field was fromAccountId (integer) → fromAccountNumber (string)
+        //   added X-Transaction-Token header
+        return $http.post(
+          APP_CONFIG.apiBaseUrl + '/transactions/transfer',
+          {
+            fromAccountNumber: data.fromAccountNumber,
+            toAccountNumber:   data.toAccountNumber,
+            amount:            data.amount,
+            description:       data.description
+          },
+          {
+            headers: { 'X-Transaction-Token': 'placeholder' }
+          }
+        ).then(function (res) { return res.data; });
       };
 
       // ─── deposit ─────────────────────────────────────────────────────────
-      // Deposits funds into one of the customer's accounts.
-      // data: { accountId, amount }
+      // POST /api/transactions/deposit
+      // Body: { toAccountNumber, amount, description }
+      // Header: X-Transaction-Token
+      // Resolves: res.data (ApiResponse) so controller can read .message
       self.deposit = function (data) {
         if (MOCK) {
-          // MOCK
           return $q.resolve({ message: 'Deposit successful.', success: true });
-          // END MOCK
         }
 
         // REAL
-        return $http.post(APP_CONFIG.apiBaseUrl + '/customer/deposit', {
-          accountId: data.accountId,
-          amount:    data.amount
-        }).then(function (res) { return res.data; });
+        // C-05 fixes:
+        //   URL was /customer/deposit       → /transactions/deposit
+        //   field was accountId (integer)   → toAccountNumber (string)
+        //   added X-Transaction-Token header
+        return $http.post(
+          APP_CONFIG.apiBaseUrl + '/transactions/deposit',
+          {
+            toAccountNumber: data.toAccountNumber,
+            amount:          data.amount,
+            description:     data.description || ''
+          },
+          {
+            headers: { 'X-Transaction-Token': 'placeholder' }
+          }
+        ).then(function (res) { return res.data; });
       };
 
       // ─── withdraw ────────────────────────────────────────────────────────
-      // Withdraws funds from one of the customer's accounts.
-      // data: { accountId, amount }
+      // POST /api/transactions/withdraw
+      // Body: { fromAccountNumber, amount, description }
+      // Header: X-Transaction-Token
+      // Resolves: res.data (ApiResponse) so controller can read .message
       self.withdraw = function (data) {
         if (MOCK) {
-          // MOCK
           return $q.resolve({ message: 'Withdrawal successful.', success: true });
-          // END MOCK
         }
 
         // REAL
-        return $http.post(APP_CONFIG.apiBaseUrl + '/customer/withdraw', {
-          accountId: data.accountId,
-          amount:    data.amount
-        }).then(function (res) { return res.data; });
+        // C-05 fixes:
+        //   URL was /customer/withdraw      → /transactions/withdraw
+        //   field was accountId (integer)   → fromAccountNumber (string)
+        //   added X-Transaction-Token header
+        return $http.post(
+          APP_CONFIG.apiBaseUrl + '/transactions/withdraw',
+          {
+            fromAccountNumber: data.fromAccountNumber,
+            amount:            data.amount,
+            description:       data.description || ''
+          },
+          {
+            headers: { 'X-Transaction-Token': 'placeholder' }
+          }
+        ).then(function (res) { return res.data; });
       };
 
     }

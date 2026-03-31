@@ -2,9 +2,6 @@ angular.module('bankingApp')
   .controller('DepositWithdrawController', ['$scope', '$location', 'TransactionService', 'AccountService', 'ToastService',
     function ($scope, $location, TransactionService, AccountService, ToastService) {
 
-      // ─── State ────────────────────────────────────────────────────────
-      // Read ?mode=withdraw from the URL so dashboard quick-action links
-      // land on the correct tab automatically.
       var initialMode = ($location.search().mode === 'withdraw') ? 'WITHDRAW' : 'DEPOSIT';
 
       $scope.mode            = initialMode;
@@ -14,12 +11,12 @@ angular.module('bankingApp')
       $scope.selectedAccount = null;
 
       // ─── Form model ───────────────────────────────────────────────────
+      // C-05: accountId (integer) → accountNumber (string)
       $scope.form = {
-        accountId: null,
-        amount:    null
+        accountNumber: null,
+        amount:        null
       };
 
-      // ─── Mode toggle ──────────────────────────────────────────────────
       $scope.setMode = function (mode) {
         $scope.mode = mode;
         $scope.resetForm();
@@ -28,14 +25,15 @@ angular.module('bankingApp')
       $scope.isDeposit  = function () { return $scope.mode === 'DEPOSIT';  };
       $scope.isWithdraw = function () { return $scope.mode === 'WITHDRAW'; };
 
-      // ─── Load active accounts ─────────────────────────────────────────
+      // ─── Load accounts ────────────────────────────────────────────────
       AccountService.getMyAccounts()
         .then(function (data) {
+          // C-05: BE returns status 'OPEN', not 'ACTIVE'
           $scope.accounts = (data || []).filter(function (a) {
-            return a.status === 'ACTIVE';
+            return a.status === 'OPEN';
           });
           if ($scope.accounts.length === 1) {
-            $scope.form.accountId = $scope.accounts[0].id;
+            $scope.form.accountNumber = $scope.accounts[0].accountNumber;
             $scope.onAccountChange();
           }
         })
@@ -46,16 +44,15 @@ angular.module('bankingApp')
           $scope.loadingAccounts = false;
         });
 
-      // ─── Track selected account object ────────────────────────────────
       $scope.onAccountChange = function () {
         $scope.selectedAccount = $scope.accounts.find(function (a) {
-          return a.id === $scope.form.accountId;
+          return a.accountNumber === $scope.form.accountNumber;
         }) || null;
       };
 
       // ─── Submit ───────────────────────────────────────────────────────
       $scope.submit = function () {
-        if (!$scope.form.accountId || !$scope.form.amount) {
+        if (!$scope.form.accountNumber || !$scope.form.amount) {
           ToastService.show('Please fill in all required fields.', 'error');
           return;
         }
@@ -71,17 +68,20 @@ angular.module('bankingApp')
 
         $scope.submitting = true;
 
-        var payload = {
-          accountId: $scope.form.accountId,
-          amount:    $scope.form.amount
-        };
-
+        // C-05: payload fields renamed to match BE TransferRequest DTO
         var action = $scope.isDeposit()
-          ? TransactionService.deposit(payload)
-          : TransactionService.withdraw(payload);
+          ? TransactionService.deposit({
+              toAccountNumber: $scope.form.accountNumber,
+              amount:          $scope.form.amount
+            })
+          : TransactionService.withdraw({
+              fromAccountNumber: $scope.form.accountNumber,
+              amount:            $scope.form.amount
+            });
 
         action
           .then(function (res) {
+            // service resolves res.data (ApiResponse), so .message is available
             var msg = res.message ||
               ($scope.isDeposit() ? 'Deposit successful.' : 'Withdrawal successful.');
             ToastService.show(msg, 'success');
@@ -106,9 +106,8 @@ angular.module('bankingApp')
           });
       };
 
-      // ─── Reset ───────────────────────────────────────────────────────
       $scope.resetForm = function () {
-        $scope.form          = { accountId: null, amount: null };
+        $scope.form          = { accountNumber: null, amount: null };
         $scope.selectedAccount = null;
       };
 

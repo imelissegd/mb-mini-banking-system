@@ -2,38 +2,38 @@ angular.module('bankingApp')
   .controller('TransferController', ['$scope', 'TransactionService', 'AccountService', 'ToastService', '$location',
     function ($scope, TransactionService, AccountService, ToastService, $location) {
 
-      // ─── State ────────────────────────────────────────────────────────
-      $scope.accounts      = [];
+      $scope.accounts        = [];
       $scope.loadingAccounts = true;
-      $scope.submitting    = false;
-      $scope.showConfirm   = false;
+      $scope.submitting      = false;
+      $scope.showConfirm     = false;
 
       // ─── Form model ───────────────────────────────────────────────────
+      // C-04: fromAccountId (integer) → fromAccountNumber (string)
       $scope.form = {
-        fromAccountId:   null,
-        toAccountNumber: '',
-        amount:          null,
-        description:     ''
+        fromAccountNumber: null,
+        toAccountNumber:   '',
+        amount:            null,
+        description:       ''
       };
 
-      // ─── Derived: selected source account object ───────────────────────
       $scope.selectedAccount = null;
 
       $scope.onFromAccountChange = function () {
         $scope.selectedAccount = $scope.accounts.find(function (a) {
-          return a.id === $scope.form.fromAccountId;
+          // C-04: match on accountNumber, not id
+          return a.accountNumber === $scope.form.fromAccountNumber;
         }) || null;
       };
 
-      // ─── Load active accounts for dropdown ────────────────────────────
+      // ─── Load active accounts ─────────────────────────────────────────
       AccountService.getMyAccounts()
         .then(function (data) {
+          // C-04: BE returns status 'OPEN', not 'ACTIVE'
           $scope.accounts = (data || []).filter(function (a) {
-            return a.status === 'ACTIVE';
+            return a.status === 'OPEN';
           });
           if ($scope.accounts.length === 1) {
-            // Auto-select if only one account
-            $scope.form.fromAccountId = $scope.accounts[0].id;
+            $scope.form.fromAccountNumber = $scope.accounts[0].accountNumber;
             $scope.onFromAccountChange();
           }
         })
@@ -44,9 +44,9 @@ angular.module('bankingApp')
           $scope.loadingAccounts = false;
         });
 
-      // ─── Step 1 → Show confirm summary ───────────────────────────────
+      // ─── Step 1 → Review ──────────────────────────────────────────────
       $scope.reviewTransfer = function () {
-        if (!$scope.form.fromAccountId || !$scope.form.toAccountNumber || !$scope.form.amount) {
+        if (!$scope.form.fromAccountNumber || !$scope.form.toAccountNumber || !$scope.form.amount) {
           ToastService.show('Please fill in all required fields.', 'error');
           return;
         }
@@ -61,24 +61,25 @@ angular.module('bankingApp')
         $scope.showConfirm = true;
       };
 
-      // ─── Go back to edit form ─────────────────────────────────────────
       $scope.cancelConfirm = function () {
         $scope.showConfirm = false;
       };
 
-      // ─── Step 2 → Submit transfer ─────────────────────────────────────
+      // ─── Step 2 → Confirm ─────────────────────────────────────────────
       $scope.confirmTransfer = function () {
         $scope.submitting = true;
 
         var payload = {
-          fromAccountId:   $scope.form.fromAccountId,
-          toAccountNumber: $scope.form.toAccountNumber.trim(),
-          amount:          $scope.form.amount,
-          description:     $scope.form.description.trim() || 'Transfer'
+          // C-04: was fromAccountId (integer) — now fromAccountNumber (string)
+          fromAccountNumber: $scope.form.fromAccountNumber,
+          toAccountNumber:   $scope.form.toAccountNumber.trim(),
+          amount:            $scope.form.amount,
+          description:       $scope.form.description.trim() || 'Transfer'
         };
 
         TransactionService.transfer(payload)
           .then(function (res) {
+            // service resolves res.data (ApiResponse), so .message is available
             ToastService.show(res.message || 'Transfer successful.', 'success');
             $location.path('/dashboard');
           })
@@ -87,7 +88,6 @@ angular.module('bankingApp')
               ? err.data.message
               : 'Transfer failed. Please try again.';
 
-            // Explicit 400 insufficient funds handling
             if (err && err.status === 400 && msg.toLowerCase().includes('insufficient')) {
               msg = 'Insufficient funds. Please check your balance and try again.';
             }
@@ -100,13 +100,12 @@ angular.module('bankingApp')
           });
       };
 
-      // ─── Reset form ───────────────────────────────────────────────────
       $scope.resetForm = function () {
         $scope.form = {
-          fromAccountId:   null,
-          toAccountNumber: '',
-          amount:          null,
-          description:     ''
+          fromAccountNumber: null,
+          toAccountNumber:   '',
+          amount:            null,
+          description:       ''
         };
         $scope.selectedAccount = null;
         $scope.showConfirm     = false;

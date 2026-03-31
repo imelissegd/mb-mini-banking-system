@@ -67,13 +67,14 @@
         <label>Account <span class="field-required">*</span></label>
         <div class="input-wrap input-wrap--select">
           <span class="input-icon">&#9654;</span>
-          <select ng-model="form.accountId"
+          <!-- Account selector — replace ng-model and ng-options -->
+          <select ng-model="form.accountNumber"
                   ng-change="onAccountChange()"
-                  ng-options="a.id as (a.accountType + '  ·  ' + a.accountNumber + '  —  ₱ ' + (a.balance | number:2)) for a in accounts"
+                  ng-options="a.accountNumber as (a.accountType + '  ·  ' + a.accountNumber + '  —  ₱ ' + (a.balance | number:2)) for a in accounts"
                   required>
             <option value="" disabled selected>Select account</option>
           </select>
-        </div>
+        </div>  
 
         <!-- Balance pill -->
         <div class="account-balance-pill" ng-show="selectedAccount">
