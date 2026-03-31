@@ -41,7 +41,7 @@ public class CookieUtil {
                 .secure(secure)
                 .path("/")
                 .maxAge(maxAgeSeconds)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
     }
 }

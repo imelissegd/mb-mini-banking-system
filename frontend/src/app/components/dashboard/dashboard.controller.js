@@ -2,11 +2,6 @@ angular.module('bankingApp')
   .controller('DashboardController', ['$scope', '$q', 'AccountService', 'TransactionService', 'AuthService', 'ToastService',
     function ($scope, $q, AccountService, TransactionService, AuthService, ToastService) {
 
-      // ─── User info ────────────────────────────────────────────────────
-      // Read from currentUser directly — by the time the dashboard loads,
-      // the route guard has already called loadCurrentUser() and currentUser
-      // is populated. Watching the service property keeps it reactive if
-      // currentUser is ever updated mid-session.
       $scope.displayName  = AuthService.getDisplayName() || 'there';
       $scope.accounts     = [];
       $scope.totalBalance = 0;
@@ -14,21 +9,15 @@ angular.module('bankingApp')
       $scope.loading      = true;
       $scope.txLoading    = true;
 
-      // ─── Ensure currentUser is hydrated before reading display name ───
-      // The route guard calls loadCurrentUser() but its promise resolves
-      // before the controller runs. If currentUser is already set (normal
-      // login flow), this resolves instantly. If for any reason it isn't
-      // (e.g. hard refresh before guard wires up), this recovers it.
+      // ── Single entry point: confirm cookie → then load accounts ─────────
+      // loadCurrentUser() fires GET /auth/me exactly once.
+      // getMyAccounts() is chained inside .then() so it only fires after
+      // the cookie is confirmed valid — no parallel orphan calls.
       AuthService.loadCurrentUser()
         .then(function () {
           $scope.displayName = AuthService.getDisplayName() || 'there';
+          return AccountService.getMyAccounts();
         })
-        .catch(function () {
-          // 401 — interceptor will redirect to /login, nothing to do here
-        });
-
-      // ─── Load accounts ────────────────────────────────────────────────
-      AccountService.getMyAccounts()
         .then(function (data) {
           $scope.accounts = data || [];
           $scope.totalBalance = $scope.accounts.reduce(function (sum, acc) {
@@ -45,7 +34,7 @@ angular.module('bankingApp')
           $scope.loading = false;
         });
 
-      // ─── Load recent transactions (last 5) ────────────────────────────
+      // ── Transactions: parallel is fine, no cookie timing dependency ──────
       TransactionService.getMyTransactions()
         .then(function (data) {
           $scope.recentTx = (data || []).slice(0, 5);
@@ -57,7 +46,6 @@ angular.module('bankingApp')
           $scope.txLoading = false;
         });
 
-      // ─── Helpers ──────────────────────────────────────────────────────
       $scope.txTypeClass = function (type) {
         if (type === 'DEPOSIT')    return 'tx--credit';
         if (type === 'WITHDRAWAL') return 'tx--debit';
