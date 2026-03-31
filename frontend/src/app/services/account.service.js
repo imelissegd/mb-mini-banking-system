@@ -6,7 +6,7 @@ angular.module('bankingApp')
 
       // ─── MOCK FLAGS ──────────────────────────────────────────────────────
       var MOCK_GET_ACCOUNTS  = false;  // GET  /accounts  ← C-03: wired
-      var MOCK_OPEN_ACCOUNT  = true;   // POST /requests/open-account
+      var MOCK_OPEN_ACCOUNT  = false;   // POST /requests/open-account
 
       // ─── getMyAccounts ───────────────────────────────────────────────────
       // GET /api/accounts
@@ -61,8 +61,9 @@ angular.module('bankingApp')
         }
 
         // REAL
-        return $http.post(APP_CONFIG.apiBaseUrl + '/requests/open-account', { accountType: accountType })
-          .then(function (res) { return res.data.data; });
+        return $http.post(APP_CONFIG.apiBaseUrl + '/requests/open-account', {
+          accountType: accountType
+        }).then(function (res) { return res.data.data; });
       };
 
     }

@@ -20,15 +20,21 @@ angular.module('bankingApp')
         $scope.busy = true;
 
         AccountService.openAccount($scope.selectedType)
-          .then(function (account) {
+          .then(function () {
+            // BE returns RequestResponse — account is not created yet,
+            // it is pending admin approval. Cannot show an account number.
             ToastService.show(
-              'Account opened! Your new account number is ' + account.accountNumber + '.',
+              'Your request to open a ' + $scope.selectedType.toLowerCase() +
+              ' account has been submitted and is pending admin approval.',
               'success'
             );
             $location.path('/dashboard');
           })
-          .catch(function () {
-            ToastService.show('Failed to open account. Please try again.', 'error');
+          .catch(function (err) {
+            var msg = (err && err.data && err.data.message)
+              ? err.data.message
+              : 'Failed to submit account request. Please try again.';
+            ToastService.show(msg, 'error');
           })
           .finally(function () {
             $scope.busy = false;
