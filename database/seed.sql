@@ -45,10 +45,10 @@ VALUES
 INSERT IGNORE INTO `bank_accounts`
 (`users_id`, `account_number`, `account_type`, `balance`, `status`, `created_at`)
 VALUES
-    ((SELECT id FROM users WHERE username = 'juan01'),  '1000000001', 'SAVINGS',  50000.00, 'ACTIVE', NOW()),
-    ((SELECT id FROM users WHERE username = 'juan01'),  '1000000002', 'CHECKING', 15000.00, 'ACTIVE', NOW()),
-    ((SELECT id FROM users WHERE username = 'maria01'), '2000000001', 'SAVINGS',  80000.00, 'ACTIVE', NOW()),
-    ((SELECT id FROM users WHERE username = 'maria01'), '2000000002', 'CHECKING',  5000.00, 'ACTIVE', NOW());
+    ((SELECT id FROM users WHERE username = 'juan01'),  '1000000001', 'SAVINGS',  50000.00, 'OPEN', NOW()),
+    ((SELECT id FROM users WHERE username = 'juan01'),  '1000000002', 'CHECKING', 15000.00, 'OPEN', NOW()),
+    ((SELECT id FROM users WHERE username = 'maria01'), '2000000001', 'SAVINGS',  80000.00, 'OPEN', NOW()),
+    ((SELECT id FROM users WHERE username = 'maria01'), '2000000002', 'CHECKING',  5000.00, 'OPEN', NOW());
 
 -- =============================================================================
 -- TRANSACTIONS
