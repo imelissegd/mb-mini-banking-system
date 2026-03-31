@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/accounts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 @Slf4j
 public class BankAccountController {
 
@@ -37,7 +36,7 @@ public class BankAccountController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<BankAccountResponse>>> getBankAccount(
+    public ResponseEntity<ApiResponse<Page<BankAccountResponse>>> getBankAccounts(
             @AuthenticationPrincipal UserDetails userDetails,
             Pageable pageable) {
         Page<BankAccountResponse> response = bankAccountService

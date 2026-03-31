@@ -10,6 +10,7 @@ import com.example.minibankingsystem.dto.response.*;
 import com.example.minibankingsystem.model.enums.AccountStatus;
 import com.example.minibankingsystem.model.enums.AccountType;
 import com.example.minibankingsystem.model.enums.RequestStatus;
+import com.example.minibankingsystem.model.enums.TransactionType;
 import com.example.minibankingsystem.repository.RequestRepository;
 import com.example.minibankingsystem.service.*;
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,9 +27,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
@@ -118,10 +122,31 @@ public class AdminController {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getTransactions(Pageable pageable) {
-        Page<TransactionResponse> response = transactionService.getAllTransactions(pageable);
+    public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getTransactions(
+            @RequestParam(required = false) Long bankAccountId,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String accountNumber,
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "timestamp") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<TransactionResponse> response = transactionService.getAllTransactions(
+                bankAccountId, username, accountNumber, type, startDate, endDate, pageable
+        );
+
         return ResponseEntity.ok(
-                ApiResponse.success(MessageHelper.get("success.transaction.list.retrieved"), response));
+                ApiResponse.success(MessageHelper.get("success.transaction.list.retrieved"), response)
+        );
     }
 
     @GetMapping("/transactions/{transactionId}")

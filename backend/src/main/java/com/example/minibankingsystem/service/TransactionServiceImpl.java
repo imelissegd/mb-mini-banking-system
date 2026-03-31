@@ -1,5 +1,6 @@
 package com.example.minibankingsystem.service;
 
+import com.example.minibankingsystem.component.TransactionSpecification;
 import com.example.minibankingsystem.config.security.JwtUtil;
 import com.example.minibankingsystem.dto.request.TransferRequest;
 import com.example.minibankingsystem.dto.response.TransactionResponse;
@@ -17,10 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -186,13 +189,6 @@ public class TransactionServiceImpl {
     @Transactional
     public TransactionResponse depositAdmin(TransferRequest request) {
 
-//        validateTransactionToken(
-//                request.getTransactionToken(),
-//                username,
-//                request.getFromAccountNumber(),
-//                "DEPOSIT"
-//        );
-
         if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
             throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
         }
@@ -235,13 +231,20 @@ public class TransactionServiceImpl {
     }
 
 
-    public List<TransactionResponse> getMyAccountTransactions(String username, String accountNumber) {
-        BankAccount account = bankAccountService.getAccountOwnedByUser(accountNumber, username);
+    public Page<TransactionResponse> getMyAccountTransactions(
+            String username,
+            String accountNumber,
+            TransactionType type,
+            LocalDate startDate,
+            LocalDate endDate,
+            Pageable pageable) {
 
-        return transactionRepository.findRecentByAccountId(account.getId(), PageRequest.of(0,10))
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+        Specification<Transaction> spec = TransactionSpecification.withFilters(
+                null, username, accountNumber, type, startDate, endDate
+        );
+
+        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
+        return transactions.map(this::mapToResponse);
     }
 
 
@@ -254,8 +257,20 @@ public class TransactionServiceImpl {
         return mapToResponse(transaction);
     }
 
-    public Page<TransactionResponse> getAllTransactions(Pageable pageable) {
-        Page<Transaction> transactions = transactionRepository.findAll(pageable);
+    public Page<TransactionResponse> getAllTransactions(
+            Long bankAccountId,
+            String username,
+            String accountNumber,
+            TransactionType type,
+            LocalDate startDate,
+            LocalDate endDate,
+            Pageable pageable) {
+
+        Specification<Transaction> spec = TransactionSpecification.withFilters(
+                bankAccountId, username, accountNumber, type, startDate, endDate
+        );
+
+        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
         return transactions.map(this::mapToResponse);
     }
 
