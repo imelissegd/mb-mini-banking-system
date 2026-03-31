@@ -4,45 +4,65 @@ angular.module('bankingApp')
 
       var self = this;
 
-      // ─── MOCK FLAG ──────────────────────────────────────────────────────
-      // Set to false when the backend is ready.
-      var MOCK = true;
+      // ─── MOCK FLAGS ──────────────────────────────────────────────────────
+      var MOCK_GET_ACCOUNTS  = false;  // GET  /accounts  ← C-03: wired
+      var MOCK_OPEN_ACCOUNT  = true;   // POST /requests/open-account
 
       // ─── getMyAccounts ───────────────────────────────────────────────────
-      // Returns the logged-in customer's bank accounts.
+      // GET /api/accounts
+      // Returns a Spring Page — actual array is at res.data.data.content.
+      // authInterceptor attaches withCredentials: true automatically.
+      //
+      // BE response shape:
+      // {
+      //   success: true,
+      //   data: {
+      //     content: [ { id, accountNumber, accountType, balance, status, createdAt, ownerName } ],
+      //     totalElements, totalPages, ...
+      //   }
+      // }
+      //
+      // ⚠ status values from BE are 'OPEN' / 'INACTIVE' — not 'ACTIVE'.
+      //   Dashboard badge checks must use 'OPEN', not 'ACTIVE'.
       self.getMyAccounts = function () {
-        if (MOCK) {
+        if (MOCK_GET_ACCOUNTS) {
           // MOCK
           return $q.resolve([
-            { id: 1, accountNumber: '1000-0001', accountType: 'CHECKING', balance: 5000.00,  status: 'ACTIVE' },
-            { id: 2, accountNumber: '1000-0002', accountType: 'SAVINGS',  balance: 12000.00, status: 'ACTIVE' }
+            { id: 1, accountNumber: '1000-0001', accountType: 'CHECKING', balance: 5000.00,  status: 'OPEN' },
+            { id: 2, accountNumber: '1000-0002', accountType: 'SAVINGS',  balance: 12000.00, status: 'OPEN' }
           ]);
           // END MOCK
         }
 
         // REAL
-        return $http.get(APP_CONFIG.apiBaseUrl + '/customer/accounts')
-          .then(function (res) { return res.data; });
+        return $http.get(APP_CONFIG.apiBaseUrl + '/accounts')
+          .then(function (res) {
+            // res.data       → ApiResponse
+            // res.data.data  → Spring Page
+            // res.data.data.content → BankAccountResponse[]
+            return res.data.data.content || [];
+          });
       };
 
       // ─── openAccount ─────────────────────────────────────────────────────
-      // Opens a new account of the given type for the logged-in customer.
+      // POST /api/requests/open-account
+      // Submits an open-account request for admin approval (not instant).
       self.openAccount = function (accountType) {
-        if (MOCK) {
+        if (MOCK_OPEN_ACCOUNT) {
           // MOCK
           return $q.resolve({
             id:            3,
             accountNumber: '1000-0003',
             accountType:   accountType,
             balance:       0,
-            status:        'ACTIVE'
+            status:        'OPEN'
           });
           // END MOCK
         }
 
         // REAL
-        return $http.post(APP_CONFIG.apiBaseUrl + '/customer/accounts', { accountType: accountType })
-          .then(function (res) { return res.data; });
+        return $http.post(APP_CONFIG.apiBaseUrl + '/requests/open-account', { accountType: accountType })
+          .then(function (res) { return res.data.data; });
       };
 
     }

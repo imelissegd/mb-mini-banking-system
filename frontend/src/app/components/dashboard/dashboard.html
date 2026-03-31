@@ -68,8 +68,12 @@
 
           <div class="account-card-header">
             <span class="account-type-label">{{ account.accountType }}</span>
+            <!--
+              BE AccountStatus enum values are OPEN and INACTIVE — not ACTIVE.
+              Badge check must use 'OPEN', not 'ACTIVE'.
+            -->
             <span class="account-status-badge"
-                  ng-class="account.status === 'ACTIVE' ? 'badge--active' : 'badge--inactive'">
+                  ng-class="account.status === 'OPEN' ? 'badge--active' : 'badge--inactive'">
               {{ account.status }}
             </span>
           </div>
