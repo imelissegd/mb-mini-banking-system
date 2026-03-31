@@ -4,21 +4,28 @@ import com.example.minibankingsystem.component.MessageHelper;
 import com.example.minibankingsystem.dto.request.TransferRequest;
 import com.example.minibankingsystem.dto.response.ApiResponse;
 import com.example.minibankingsystem.dto.response.TransactionResponse;
+import com.example.minibankingsystem.model.enums.TransactionType;
 import com.example.minibankingsystem.repository.TransactionRepository;
 import com.example.minibankingsystem.service.TransactionServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class TransactionController {
 
     private final TransactionServiceImpl transactionService;
@@ -63,22 +70,29 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<TransactionResponse>>> getMyTransactions(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        List<TransactionResponse> transactions =
-                transactionService.getMyTransactions(userDetails.getUsername());
-        return ResponseEntity.ok(ApiResponse.success(
-                MessageHelper.get("success.transaction.list.retrieved"), transactions));
-    }
-
-    @GetMapping("/account/{accountNumber}")
-    public ResponseEntity<ApiResponse<List<TransactionResponse>>> getMyAccountTransactions(
+    public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getMyTransactions(
             @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable String accountNumber) {
-        List<TransactionResponse> transactions =
-                transactionService.getMyAccountTransactions(
-                        userDetails.getUsername(), accountNumber);
-        return ResponseEntity.ok(ApiResponse.success(
-                MessageHelper.get("success.transaction.account.list.retrieved"), transactions));
+            @RequestParam(required = false) String accountNumber,
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "timestamp") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<TransactionResponse> response = transactionService.getMyAccountTransactions(
+                userDetails.getUsername(), accountNumber, type, startDate, endDate, pageable
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.success(MessageHelper.get("success.transaction.list.retrieved"), response)
+        );
     }
 }
