@@ -120,16 +120,20 @@ angular.module('bankingApp')
             scope.menuOpen = !scope.menuOpen;
           };
 
-          scope.$watch(
-            function () { return $location.path(); },
-            function (path) {
-              scope.menuOpen    = false;
-              scope.showNav     = hiddenRoutes.indexOf(path) === -1 && AuthService.isAuthenticated();
-              scope.isAdmin     = AuthService.isAdmin();
-              scope.displayName = AuthService.getDisplayName() || 'Guest';
-              scope.role        = AuthService.getRole() || 'GUEST';
-            }
-          );
+          function syncNav() {
+            var path = $location.path();
+            scope.menuOpen    = false;
+            scope.showNav     = hiddenRoutes.indexOf(path) === -1 && AuthService.isAuthenticated();
+            scope.isAdmin     = AuthService.isAdmin();
+            scope.displayName = AuthService.getDisplayName() || 'Guest';
+            scope.role        = AuthService.getRole() || 'GUEST';
+          }
+
+          // Re-sync on route change (mid-session nav)
+          scope.$watch(function () { return $location.path(); }, syncNav);
+
+          // Re-sync when currentUser changes (hard reload session recovery + logout)
+          scope.$watch(function () { return AuthService.currentUser; }, syncNav);
 
           scope.logout = function () {
             AuthService.logout();

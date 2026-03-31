@@ -159,8 +159,14 @@ angular.module('bankingApp')
           return;
         }
 
-        $http.post(APP_CONFIG.apiBaseUrl + '/auth/logout')
-          .finally(function () {
+        return $http.post(APP_CONFIG.apiBaseUrl + '/auth/logout')
+          .then(function () {
+            self.currentUser = null;
+            $location.path('/login');
+          })
+          .catch(function () {
+            // Even on network error, clear local state and redirect.
+            // The server cookie will expire on its own.
             self.currentUser = null;
             $location.path('/login');
           });

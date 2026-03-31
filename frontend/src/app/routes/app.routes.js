@@ -4,7 +4,6 @@ angular.module('bankingApp')
 
       $routeProvider
 
-        // ─── Public ───────────────────────────────────────────────────────
         .when('/login', {
           templateUrl: 'src/app/components/login/login.html',
           controller:  'LoginController'
@@ -15,7 +14,6 @@ angular.module('bankingApp')
           controller:  'RegisterController'
         })
 
-        // ─── Customer ─────────────────────────────────────────────────────
         .when('/dashboard', {
           templateUrl: 'src/app/components/dashboard/dashboard.html',
           controller:  'DashboardController',
@@ -52,7 +50,6 @@ angular.module('bankingApp')
           data: { requiresAuth: true }
         })
 
-        // ─── Admin ────────────────────────────────────────────────────────
         .when('/admin', {
           templateUrl: 'src/app/components/admin/admin-dashboard/admin-dashboard.html',
           controller:  'AdminDashboardController',
@@ -94,27 +91,27 @@ angular.module('bankingApp')
     }
   ])
 
-  // ─── Route Guard ──────────────────────────────────────────────────────────
   .run(['$rootScope', '$location', 'AuthService',
     function ($rootScope, $location, AuthService) {
 
       $rootScope.$on('$routeChangeStart', function (event, next) {
         var routeData = next && next.$$route && next.$$route.data;
 
-        // No data block = public route = allow through
+        // Public route — always allow through
         if (!routeData) return;
 
-        // Not logged in → go to login
-        if (routeData.requiresAuth && !AuthService.isAuthenticated()) {
-          $location.path('/login');
+        // currentUser in memory — synchronous check, no HTTP call
+        if (AuthService.isAuthenticated()) {
+          if (routeData.requiresAdmin && !AuthService.isAdmin()) {
+            $location.path('/dashboard');
+          }
           return;
         }
 
-        // Logged in but not admin → go to dashboard
-        if (routeData.requiresAdmin && !AuthService.isAdmin()) {
-          $location.path('/dashboard');
-          return;
-        }
+        // currentUser is null (hard reload / fresh tab).
+        // Cannot determine cookie validity synchronously — let the route render.
+        // The controller's loadCurrentUser() will recover the session.
+        // authInterceptor handles 401 and redirects to /login automatically.
       });
 
     }
