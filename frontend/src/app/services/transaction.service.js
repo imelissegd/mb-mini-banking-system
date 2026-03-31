@@ -56,7 +56,7 @@ angular.module('bankingApp')
         // C-06: was /customer/transactions  → /transactions
         //       was res.data               → res.data.data
         return $http.get(APP_CONFIG.apiBaseUrl + '/transactions')
-          .then(function (res) { return res.data.data; });
+          .then(function (res) { return res.data.data.content || []; });
       };
 
       // ─── transfer ────────────────────────────────────────────────────────
