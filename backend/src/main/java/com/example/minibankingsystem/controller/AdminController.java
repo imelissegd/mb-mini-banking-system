@@ -121,6 +121,27 @@ public class AdminController {
                 ApiResponse.success(MessageHelper.get("success.bank.account.created"), response));
     }
 
+    @GetMapping("/accounts/{accountNumber}")
+    public ResponseEntity<ApiResponse<BankAccountResponse>> changeBankAccountStatus(
+            @Valid @PathVariable("accountNumber") String accountNumber
+    ) {
+        BankAccountResponse response = bankAccountService.getAccountAdmin(accountNumber);
+        return ResponseEntity.ok(ApiResponse.success(
+                MessageHelper.get("success.bank.account.retrieved"), response));
+    }
+
+
+    @PatchMapping("/accounts/{accountNumber}")
+    public ResponseEntity<ApiResponse<BankAccountResponse>> changeBankAccountStatus(
+            @Valid @PathVariable("accountNumber") String accountNumber,
+            @RequestParam(required = false) @Valid AccountStatus accountStatus
+    ) {
+        BankAccountResponse response = bankAccountService.changeStatus(accountNumber, accountStatus);
+        return ResponseEntity.ok(ApiResponse.success(
+                MessageHelper.get("success.bank.account.status.changed"), response));
+    }
+
+    // Transactions
     @GetMapping("/transactions")
     public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getTransactions(
             @RequestParam(required = false) Long bankAccountId,
@@ -148,6 +169,7 @@ public class AdminController {
                 ApiResponse.success(MessageHelper.get("success.transaction.list.retrieved"), response)
         );
     }
+
 
     @GetMapping("/transactions/{transactionId}")
     public ResponseEntity<ApiResponse<TransactionResponse>> getTransactionById(

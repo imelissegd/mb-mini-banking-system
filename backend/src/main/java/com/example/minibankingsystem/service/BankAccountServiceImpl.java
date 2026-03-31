@@ -184,6 +184,18 @@ public class BankAccountServiceImpl {
         return createResponseBankAccount(newBankAccount);
     }
 
+    public BankAccountResponse getAccountAdmin(String accountNumber) {
+        BankAccount account = getAccountByAccountNumber(accountNumber);
+        return createResponseBankAccount(account);
+    }
+
+    public BankAccountResponse changeStatus(String accountNumber, AccountStatus status) {
+        BankAccount account = getAccountByAccountNumber(accountNumber);
+        account.setStatus(status);
+        bankAccountRepository.save(account);
+        return createResponseBankAccount(account);
+    }
+
     public TransactionTokenResult issueTransactionToken(
             String username, TransactionTokenRequest request) {
 
