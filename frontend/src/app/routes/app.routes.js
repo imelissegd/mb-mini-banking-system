@@ -86,6 +86,18 @@ angular.module('bankingApp')
           data: { requiresAuth: true, requiresAdmin: true }
         })
 
+        .when('/admin/requests', {
+          templateUrl: 'src/app/components/admin/admin-request-list/admin-request-list.html',
+          controller:  'RequestListController',
+          data: { requiresAuth: true, requiresAdmin: true }
+        })
+
+        .when('/admin/requests/:id', {
+          templateUrl: 'src/app/components/admin/admin-request-detail/admin-request-detail.html',
+          controller:  'RequestDetailController',
+          data: { requiresAuth: true, requiresAdmin: true }
+        })
+
         .otherwise({ redirectTo: '/login' });
 
     }

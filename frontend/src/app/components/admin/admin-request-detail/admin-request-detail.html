@@ -1,0 +1,203 @@
+<div class="page">
+
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Admin Panel › Requests</p>
+      <h1 class="page-title">Request Detail</h1>
+    </div>
+    <button class="btn-action btn-action--ghost" ng-click="goBack()">← Back</button>
+  </div>
+
+  <!-- ─── Loading ────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-if="loading">
+    <div class="spinner"></div>
+    <span>Loading request…</span>
+  </div>
+
+  <!-- ─── Error fallback ─────────────────────────────────────────────── -->
+  <div class="state-empty" ng-if="!loading && error">
+    <p class="state-empty-icon">⚠️</p>
+    <h3 class="state-empty-title">Request not found</h3>
+    <p class="state-empty-sub">This request could not be loaded.</p>
+    <button class="btn-action btn-action--ghost" ng-click="goBack()">← Back to Requests</button>
+  </div>
+
+  <!-- ─── Content ────────────────────────────────────────────────────── -->
+  <div ng-if="!loading && !error && request">
+
+    <div class="form-card tx-detail-card">
+
+      <!-- Type badge + ID -->
+      <div class="tx-detail-header">
+        <span class="account-status-badge" ng-class="statusBadgeClass(request.status)">
+          {{ request.status }}
+        </span>
+        <span class="tx-detail-id">Request #{{ request.id }}</span>
+      </div>
+
+      <div class="auth-divider"></div>
+
+      <!-- Core fields -->
+      <div class="profile-fields">
+
+        <div class="profile-field-row">
+          <div class="profile-field">
+            <span class="profile-field-label">Customer</span>
+            <span class="profile-field-value profile-field-value--mono">{{ request.requesterUsername }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="profile-field-label">Request Type</span>
+            <span class="profile-field-value">{{ formatType(request.type) }}</span>
+          </div>
+        </div>
+
+        <div class="profile-field-row">
+          <div class="profile-field">
+            <span class="profile-field-label">Date Submitted</span>
+            <span class="profile-field-value admin-table-mono">{{ formatDate(request.createdAt) }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="profile-field-label">Date Resolved</span>
+            <span class="profile-field-value admin-table-mono">{{ formatDate(request.resolvedAt) }}</span>
+          </div>
+        </div>
+
+        <div class="profile-field-row">
+          <div class="profile-field">
+            <span class="profile-field-label">Resolved By</span>
+            <span class="profile-field-value profile-field-value--mono">{{ request.resolvedBy || '—' }}</span>
+          </div>
+          <div class="profile-field">
+            <span class="profile-field-label">Remarks</span>
+            <span class="profile-field-value">{{ request.remarks || '—' }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Payload panel -->
+      <div class="auth-divider"></div>
+      <h3 class="admin-panel-title" style="margin-bottom: 1rem;">Request Details</h3>
+
+      <!-- OPEN_ACCOUNT payload — uses $scope.payload, not a function call -->
+      <div ng-if="request.type === 'OPEN_ACCOUNT' && payload">
+        <div class="profile-fields">
+          <div class="profile-field-row">
+            <div class="profile-field">
+              <span class="profile-field-label">Account Type</span>
+              <span class="profile-field-value">{{ payload.accountType }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EDIT_PROFILE payload — uses $scope.payload, not a function call -->
+      <div ng-if="request.type === 'EDIT_PROFILE' && payload">
+        <div class="profile-fields">
+          <div class="profile-field-row">
+            <div class="profile-field">
+              <span class="profile-field-label">First Name</span>
+              <span class="profile-field-value">{{ payload.firstName || '—' }}</span>
+            </div>
+            <div class="profile-field">
+              <span class="profile-field-label">Middle Name</span>
+              <span class="profile-field-value">{{ payload.middleName || '—' }}</span>
+            </div>
+          </div>
+          <div class="profile-field-row">
+            <div class="profile-field">
+              <span class="profile-field-label">Last Name</span>
+              <span class="profile-field-value">{{ payload.lastName || '—' }}</span>
+            </div>
+            <div class="profile-field">
+              <span class="profile-field-label">Suffix</span>
+              <span class="profile-field-value">{{ payload.suffix || '—' }}</span>
+            </div>
+          </div>
+          <div class="profile-field-row">
+            <div class="profile-field">
+              <span class="profile-field-label">Email</span>
+              <span class="profile-field-value">{{ payload.email || '—' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fallback: no payload parsed -->
+      <div ng-if="!payload">
+        <p class="profile-field-value" style="font-size: 0.85rem; color: var(--text-muted);">
+          No payload data available.
+        </p>
+      </div>
+
+      <!-- ─── Resolve actions (only when PENDING) ───────────────────── -->
+      <div ng-if="request.status === 'PENDING'">
+        <div class="auth-divider"></div>
+
+        <!-- Action buttons -->
+        <div class="confirm-actions" ng-if="!showResolveForm">
+          <button
+            class="btn-primary btn-primary--confirm"
+            ng-click="openResolve('APPROVED')"
+          >✔ Approve</button>
+          <button
+            class="btn-primary btn-primary--danger"
+            ng-click="openResolve('REJECTED')"
+          >✘ Reject</button>
+        </div>
+
+        <!-- Inline resolve form -->
+        <div ng-if="showResolveForm">
+          <div class="admin-inline-form">
+
+            <p class="form-card-sub" style="margin-bottom: 1rem;">
+              You are about to
+              <strong ng-if="resolveAction === 'APPROVED'">approve</strong>
+              <strong ng-if="resolveAction === 'REJECTED'">reject</strong>
+              this request.
+              <span ng-if="resolveAction === 'REJECTED'"> Remarks are required.</span>
+            </p>
+
+            <div class="field-group">
+              <label>
+                Remarks
+                <span class="field-required" ng-if="resolveAction === 'REJECTED'">*</span>
+                <span class="field-optional" ng-if="resolveAction === 'APPROVED'">(optional)</span>
+              </label>
+              <div class="input-wrap">
+                <textarea
+                  ng-model="resolveRemarks"
+                  rows="3"
+                  placeholder="Add a note for the customer…"
+                  style="resize: vertical;"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="confirm-actions" style="margin-top: 1rem;">
+              <button
+                class="btn-primary"
+                ng-class="{ 'btn-primary--confirm': resolveAction === 'APPROVED', 'btn-primary--danger': resolveAction === 'REJECTED' }"
+                ng-click="submitResolve()"
+                ng-disabled="resolveBusy"
+              >
+                <span ng-if="!resolveBusy">
+                  {{ resolveAction === 'APPROVED' ? 'Confirm Approval' : 'Confirm Rejection' }}
+                </span>
+                <span ng-if="resolveBusy" class="btn-spinner">
+                  <span class="spinner spinner--btn"></span> Processing…
+                </span>
+              </button>
+              <button class="btn-ghost" ng-click="cancelResolve()" ng-disabled="resolveBusy">Cancel</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
