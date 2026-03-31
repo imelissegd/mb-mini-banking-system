@@ -7,19 +7,14 @@ angular.module('bankingApp')
       $scope.loading         = true;
       $scope.customer        = null;
 
-      // ─── UI toggle flags ───────────────────────────────────────────────
       $scope.showEdit        = false;
       $scope.showOpenAccount = false;
 
-      // ─── Busy flags (prevent double-submit) ───────────────────────────
       $scope.statusBusy      = false;
       $scope.editBusy        = false;
       $scope.openAccountBusy = false;
 
-      // ─── Edit form model ──────────────────────────────────────────────
       $scope.editForm        = {};
-
-      // ─── New account type model ───────────────────────────────────────
       $scope.newAccountType  = '';
 
       // ─── Navigation ───────────────────────────────────────────────────
@@ -31,7 +26,6 @@ angular.module('bankingApp')
       $scope.toggleEdit = function () {
         $scope.showEdit = !$scope.showEdit;
         if ($scope.showEdit) {
-          // Pre-populate form from loaded customer
           $scope.editForm = {
             firstName:  $scope.customer.firstName,
             middleName: $scope.customer.middleName || '',
@@ -49,6 +43,7 @@ angular.module('bankingApp')
       };
 
       // ─── Load customer ────────────────────────────────────────────────
+      // getCustomer() now fetches accounts separately and attaches them.
       function loadCustomer() {
         $scope.loading = true;
         AdminService.getCustomer(customerId)
@@ -66,6 +61,10 @@ angular.module('bankingApp')
       loadCustomer();
 
       // ─── Toggle active / inactive status ──────────────────────────────
+      // A-04: BE endpoint is /admin/users/:id/toggle-active — it toggles
+      // blindly. We confirm with the user then call setCustomerStatus().
+      // The service ignores the isActive param and just hits the toggle.
+      // We update the local state optimistically on success.
       $scope.toggleStatus = function () {
         var nextState = !$scope.customer.isActive;
         var label     = nextState ? 'activate' : 'deactivate';
@@ -77,9 +76,15 @@ angular.module('bankingApp')
         $scope.statusBusy = true;
 
         AdminService.setCustomerStatus(customerId, nextState)
-          .then(function () {
-            $scope.customer.isActive = nextState;
-            ToastService.show('Customer ' + (nextState ? 'activated' : 'deactivated') + '.', 'success');
+          .then(function (updated) {
+            // Use the value returned by BE to stay in sync
+            $scope.customer.isActive = updated.isActive !== undefined
+              ? updated.isActive
+              : nextState;
+            ToastService.show(
+              'Customer ' + ($scope.customer.isActive ? 'activated' : 'deactivated') + '.',
+              'success'
+            );
           })
           .catch(function () {
             ToastService.show('Failed to update status.', 'error');
@@ -90,6 +95,9 @@ angular.module('bankingApp')
       };
 
       // ─── Submit edit form ─────────────────────────────────────────────
+      // A-03: Direct admin edit endpoint missing from BE.
+      // updateCustomer() rejects with a descriptive message —
+      // the catch block surfaces it via toast.
       $scope.submitEdit = function () {
         if (!$scope.editForm.firstName || !$scope.editForm.lastName || !$scope.editForm.email) {
           ToastService.show('First name, last name, and email are required.', 'error');
@@ -100,7 +108,6 @@ angular.module('bankingApp')
 
         AdminService.updateCustomer(customerId, $scope.editForm)
           .then(function (updated) {
-            // Patch the in-memory customer so the read-only view reflects changes
             $scope.customer.firstName  = updated.firstName  || $scope.editForm.firstName;
             $scope.customer.middleName = updated.middleName !== undefined ? updated.middleName : $scope.editForm.middleName;
             $scope.customer.lastName   = updated.lastName   || $scope.editForm.lastName;
@@ -109,8 +116,11 @@ angular.module('bankingApp')
             $scope.showEdit = false;
             ToastService.show('Customer updated successfully.', 'success');
           })
-          .catch(function () {
-            ToastService.show('Failed to update customer.', 'error');
+          .catch(function (err) {
+            var msg = (err && err.data && err.data.message)
+              ? err.data.message
+              : 'Failed to update customer.';
+            ToastService.show(msg, 'error');
           })
           .finally(function () {
             $scope.editBusy = false;
@@ -118,6 +128,9 @@ angular.module('bankingApp')
       };
 
       // ─── Open account for customer ────────────────────────────────────
+      // A-02: openAccountForCustomer now posts to /admin/accounts with
+      // { userId, accountType }. Returns BankAccountResponse.
+      // BE returns status 'OPEN' — badge in HTML now checks 'OPEN'. ✅
       $scope.submitOpenAccount = function () {
         if (!$scope.newAccountType) {
           ToastService.show('Please select an account type.', 'error');
@@ -131,10 +144,16 @@ angular.module('bankingApp')
             $scope.customer.accounts.push(newAccount);
             $scope.showOpenAccount = false;
             $scope.newAccountType  = '';
-            ToastService.show('Account opened successfully.', 'success');
+            ToastService.show(
+              'Account opened. Number: ' + newAccount.accountNumber,
+              'success'
+            );
           })
-          .catch(function () {
-            ToastService.show('Failed to open account.', 'error');
+          .catch(function (err) {
+            var msg = (err && err.data && err.data.message)
+              ? err.data.message
+              : 'Failed to open account.';
+            ToastService.show(msg, 'error');
           })
           .finally(function () {
             $scope.openAccountBusy = false;
