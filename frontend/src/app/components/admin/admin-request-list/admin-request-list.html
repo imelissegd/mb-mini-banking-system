@@ -1,0 +1,83 @@
+<div class="page page--wide">
+
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Admin Panel</p>
+      <h1 class="page-title">Requests</h1>
+    </div>
+  </div>
+
+  <!-- ─── Loading ────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-if="loading">
+    <div class="spinner"></div>
+    <span>Loading requests…</span>
+  </div>
+
+  <!-- ─── Content ────────────────────────────────────────────────────── -->
+  <div ng-if="!loading">
+
+    <!-- Status filter -->
+    <div class="admin-filter-bar">
+      <div class="input-wrap input-wrap--select admin-filter-select">
+        <span class="input-icon">🔽</span>
+        <select ng-model="statusFilter">
+          <option value="">All Statuses</option>
+          <option value="PENDING">Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="state-empty" ng-if="(requests | filter:filterByStatus).length === 0">
+      <p class="state-empty-icon">📋</p>
+      <h3 class="state-empty-title">No requests found</h3>
+      <p class="state-empty-sub">Try a different status filter.</p>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-table-wrap" ng-if="(requests | filter:filterByStatus).length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Date Submitted</th>
+            <th>Customer</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Resolved By</th>
+            <th>Resolved At</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="req in requests | filter:filterByStatus">
+            <td class="admin-table-mono tx-date">{{ formatDate(req.createdAt) }}</td>
+            <td class="admin-table-name">{{ req.requesterUsername }}</td>
+            <td>
+              <span class="req-type-badge" ng-class="typeBadgeClass(req.type)">
+                {{ formatType(req.type) }}
+              </span>
+            </td>
+            <td>
+              <span class="account-status-badge" ng-class="statusBadgeClass(req.status)">
+                {{ req.status }}
+              </span>
+            </td>
+            <td class="admin-table-mono">{{ req.resolvedBy || '—' }}</td>
+            <td class="admin-table-mono tx-date">{{ formatDate(req.resolvedAt) }}</td>
+            <td class="admin-table-action">
+              <button
+                class="btn-action btn-action--sm"
+                ng-click="viewRequest(req.id)"
+              >View</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>

@@ -92,6 +92,42 @@ angular.module('bankingApp')
         }
       ];
 
+      var MOCK_REQUESTS = [
+        {
+          id:                 1,
+          requesterUsername:  'customer',
+          type:               'OPEN_ACCOUNT',
+          status:             'PENDING',
+          payload:            '{"accountType":"SAVINGS"}',
+          remarks:            null,
+          createdAt:          '2025-03-20T09:00:00',
+          resolvedAt:         null,
+          resolvedBy:         null
+        },
+        {
+          id:                 2,
+          requesterUsername:  'customer2',
+          type:               'EDIT_PROFILE',
+          status:             'APPROVED',
+          payload:            '{"firstName":"Maria","middleName":"","lastName":"Santos","suffix":"","email":"maria@email.com"}',
+          remarks:            'Approved as requested.',
+          createdAt:          '2025-03-18T14:00:00',
+          resolvedAt:         '2025-03-19T10:30:00',
+          resolvedBy:         'admin'
+        },
+        {
+          id:                 3,
+          requesterUsername:  'customer3',
+          type:               'OPEN_ACCOUNT',
+          status:             'REJECTED',
+          payload:            '{"accountType":"CHECKING"}',
+          remarks:            'Account is deactivated.',
+          createdAt:          '2025-03-17T11:00:00',
+          resolvedAt:         '2025-03-17T15:45:00',
+          resolvedBy:         'admin'
+        }
+      ];
+
       // ─── getDashboardSummary ─────────────────────────────────────────────
       // ⚠ A-07: GET /api/admin/dashboard does not exist in the BE.
       // The AdminController has no dashboard summary endpoint.
@@ -300,6 +336,62 @@ angular.module('bankingApp')
         // A-08: was res.data → res.data.data
         return $http.get(APP_CONFIG.apiBaseUrl + '/admin/transactions/' + transactionId)
           .then(function (res) { return res.data.data; });
+      };
+
+      // ─── getAllRequests ───────────────────────────────────────────────────
+      // GET /api/admin/requests
+      // Returns Page<RequestResponse> — array is at res.data.data.content
+      // Optional ?status= filter handled server-side; we load all and filter
+      // client-side to keep the pattern consistent with transactions/customers.
+      self.getAllRequests = function () {
+        if (MOCK) {
+          return $q.resolve(MOCK_REQUESTS);
+        }
+
+        // REAL
+        return $http.get(APP_CONFIG.apiBaseUrl + '/admin/requests')
+          .then(function (res) { return res.data.data.content || []; });
+      };
+
+      // ─── getRequest ───────────────────────────────────────────────────────
+      // GET /api/admin/requests/:requestId
+      // Returns RequestResponse at res.data.data.
+      self.getRequest = function (requestId) {
+        if (MOCK) {
+          var found = MOCK_REQUESTS.filter(function (r) { return r.id === +requestId; });
+          return $q.resolve(found.length ? found[0] : MOCK_REQUESTS[0]);
+        }
+
+        // REAL
+        return $http.get(APP_CONFIG.apiBaseUrl + '/admin/requests/' + requestId)
+          .then(function (res) { return res.data.data; });
+      };
+
+      // ─── resolveRequest ───────────────────────────────────────────────────
+      // PATCH /api/admin/requests/:requestId/resolve
+      // Body: ResolveRequest — { status: 'APPROVED'|'REJECTED', remarks: string|null }
+      // BE requires remarks when status is REJECTED.
+      // Returns RequestResponse at res.data.data.
+      self.resolveRequest = function (requestId, dto) {
+        if (MOCK) {
+          var mockFound = MOCK_REQUESTS.filter(function (r) { return r.id === +requestId; });
+          var mockReq   = mockFound.length ? angular.copy(mockFound[0]) : angular.copy(MOCK_REQUESTS[0]);
+          mockReq.status     = dto.status;
+          mockReq.remarks    = dto.remarks || null;
+          mockReq.resolvedAt = new Date().toISOString();
+          mockReq.resolvedBy = 'admin';
+          // Update in-place so list reflects the change if navigating back
+          MOCK_REQUESTS.forEach(function (r, i) {
+            if (r.id === +requestId) { MOCK_REQUESTS[i] = mockReq; }
+          });
+          return $q.resolve(mockReq);
+        }
+
+        // REAL
+        return $http.patch(
+          APP_CONFIG.apiBaseUrl + '/admin/requests/' + requestId + '/resolve',
+          { status: dto.status, remarks: dto.remarks }
+        ).then(function (res) { return res.data.data; });
       };
 
     }
