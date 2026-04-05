@@ -44,12 +44,6 @@ public class AuthController {
 
                 UserResponse response = authService.registerUser(request);
 
-                // TODO: replace auto-creation with an admin-approval request (C-07 / A-02)
-                CreateBankAccountRequest createBankAccountRequest = new CreateBankAccountRequest();
-                createBankAccountRequest.setUserId(response.getId());
-                createBankAccountRequest.setAccountType("CHECKING");
-                bankAccountService.addBankAccount(createBankAccountRequest);
-
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(ApiResponse.success(MessageHelper.get("success.auth.register"), response));
         }
