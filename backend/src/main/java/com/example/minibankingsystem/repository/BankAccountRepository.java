@@ -29,4 +29,7 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, Long>,
     @Query("SELECT SUM(b.balance) FROM BankAccount b")
     BigDecimal sumAllBalances();
 
+    @Query("SELECT COUNT(b) FROM BankAccount b")
+    Long countAllAccounts();
+
 }

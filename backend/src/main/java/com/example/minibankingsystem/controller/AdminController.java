@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -142,10 +144,13 @@ public class AdminController {
                 MessageHelper.get("success.bank.account.status.changed"), response));
     }
 
-    @GetMapping("/accounts/total-balance")
-    public ResponseEntity<ApiResponse<BigDecimal>> getBankAccountsTotalBalance() {
-        BigDecimal totalBalance = bankAccountService.getTotalBalance();
-        return ResponseEntity.ok(ApiResponse.success(totalBalance));
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getBankAccountsTotalBalance() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalCustomers", userService.countAllCustomers());
+        stats.put("totalAccounts", bankAccountService.countAllAccounts());
+        stats.put("totalBalance", bankAccountService.getTotalBalance());
+        return ResponseEntity.ok(ApiResponse.success(stats));
     }
 
     // Transactions

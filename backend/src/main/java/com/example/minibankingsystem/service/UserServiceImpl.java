@@ -7,6 +7,7 @@ import com.example.minibankingsystem.exception.MissingFieldsException;
 import com.example.minibankingsystem.exception.ResourceDuplicateException;
 import com.example.minibankingsystem.exception.ResourceNotFoundException;
 import com.example.minibankingsystem.model.User;
+import com.example.minibankingsystem.model.enums.Role;
 import com.example.minibankingsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -137,6 +138,14 @@ public class UserServiceImpl {
         user.setActive(!user.isActive());
         userRepository.save(user);
         return mapToUserResponse(user);
+    }
+
+    public Long countAllUsers() {
+        return userRepository.countAllUsers();
+    }
+
+    public Long countAllCustomers() {
+        return userRepository.countByRole(Role.CUSTOMER);
     }
 
     private void checkUsername(Long userId, String username) {

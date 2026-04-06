@@ -201,6 +201,10 @@ public class BankAccountServiceImpl {
         return total != null ? total : BigDecimal.ZERO;
     }
 
+    public Long countAllAccounts() {
+        return bankAccountRepository.countAllAccounts();
+    }
+
     public TransactionTokenResult issueTransactionToken(
             String username, TransactionTokenRequest request) {
 
