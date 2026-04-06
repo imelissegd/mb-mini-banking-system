@@ -1728,6 +1728,21 @@ body.auth-body {
     font-size: 0.72rem;
 }
 
+/* ─── Fixed-width action button — prevents cell resize on label change ── */
+.btn-action--fixed {
+    width: 90px;
+    justify-content: center;
+}
+
+/* Disabled action button (e.g. Freeze when CLOSED) */
+.btn-action--disabled,
+.btn-action:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
+
 /* ============================================================
    Admin — User Detail Layout
    ============================================================ */

@@ -85,6 +85,20 @@ angular.module('bankingApp')
           });
       };
 
+      // ─── Toggle freeze / unfreeze ─────────────────────────────────────
+      // FROZEN → OPEN, anything else → FROZEN
+      $scope.toggleFreeze = function (account) {
+        var next = account.status === 'FROZEN' ? 'OPEN' : 'FROZEN';
+        $scope.changeStatus(account, next);
+      };
+
+      // ─── Toggle open / close ──────────────────────────────────────────
+      // CLOSED → OPEN, anything else → CLOSED
+      $scope.toggleClose = function (account) {
+        var next = account.status === 'CLOSED' ? 'OPEN' : 'CLOSED';
+        $scope.changeStatus(account, next);
+      };
+
       // ─── Load ─────────────────────────────────────────────────────────
       function load() {
         $scope.loading = true;

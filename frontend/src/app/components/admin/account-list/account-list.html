@@ -101,23 +101,28 @@
             </td>
             <td class="admin-table-mono tx-date">{{ formatDate(acc.createdAt) }}</td>
             <td class="admin-table-action">
-              <div style="display:flex; gap:0.35rem; justify-content:flex-end; flex-wrap:wrap;">
-                <button class="btn-action btn-action--sm"
-                  style="background:var(--success);"
-                  ng-if="acc.status !== 'OPEN'"
-                  ng-click="changeStatus(acc, 'OPEN')"
-                  ng-disabled="busy[acc.id]">Open</button>
-                <button class="btn-action btn-action--sm"
-                  style="background:var(--brand-orange);"
-                  ng-if="acc.status !== 'FROZEN'"
-                  ng-click="changeStatus(acc, 'FROZEN')"
-                  ng-disabled="busy[acc.id]">Freeze</button>
-                <button class="btn-action btn-action--sm"
-                  style="background:var(--error);"
-                  ng-if="acc.status !== 'CLOSED'"
-                  ng-click="changeStatus(acc, 'CLOSED')"
-                  ng-disabled="busy[acc.id]">Close</button>
-                <span ng-if="busy[acc.id]" style="font-size:0.75rem; color:var(--muted); align-self:center;">…</span>
+              <div style="display:flex; gap:0.35rem; justify-content:flex-end;">
+                <!-- Freeze / Unfreeze — always visible, label + color toggle -->
+                <button class="btn-action btn-action--sm btn-action--fixed"                  
+                  ng-class="{ 'btn-action--disabled': acc.status === 'CLOSED' }"
+                    ng-style="{
+                      background: acc.status === 'CLOSED'
+                        ? 'var(--border)'
+                        : (acc.status === 'FROZEN' ? 'var(--success)' : 'var(--brand-orange)')
+                    }"
+                  ng-click="toggleFreeze(acc)"
+                  ng-disabled="busy[acc.id] || acc.status === 'CLOSED'">
+                  <span ng-if="!busy[acc.id]">{{ acc.status === 'FROZEN' ? 'Unfreeze' : 'Freeze' }}</span>
+                  <span ng-if="busy[acc.id]">…</span>
+                </button>
+                <!-- Close / Reopen — always visible, label + color toggle -->
+                <button class="btn-action btn-action--sm btn-action--fixed"
+                  ng-style="{ background: acc.status === 'CLOSED' ? 'var(--success)' : 'var(--error)' }"
+                  ng-click="toggleClose(acc)"
+                  ng-disabled="busy[acc.id]">
+                  <span ng-if="!busy[acc.id]">{{ acc.status === 'CLOSED' ? 'Reopen' : 'Close' }}</span>
+                  <span ng-if="busy[acc.id]">…</span>
+                </button>
               </div>
             </td>
           </tr>
