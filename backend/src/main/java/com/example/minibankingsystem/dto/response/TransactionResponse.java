@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TransactionResponse {
     private Long id;
+    private String username;
     private String fromAccountNumber;
     private String toAccountNumber;
     private BigDecimal amount;
