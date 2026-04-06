@@ -310,8 +310,16 @@ public class TransactionServiceImpl {
     }
 
     private TransactionResponse mapToResponse(Transaction t) {
+        String username = "";
+        if (t.getType().equals(TransactionType.DEPOSIT)) {
+            username = t.getToAccount().getUser().getUsername();
+        } else {
+            username = t.getFromAccount().getUser().getUsername();
+        }
+
         return TransactionResponse.builder()
                 .id(t.getId())
+                .username(username)
                 .fromAccountNumber(t.getFromAccount() != null
                         ? t.getFromAccount().getAccountNumber() : null)
                 .toAccountNumber(t.getToAccount() != null
