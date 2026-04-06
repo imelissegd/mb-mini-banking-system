@@ -159,7 +159,7 @@ public class BankAccountServiceImpl {
 
     }
 
-    // Admin Bank account getter
+    // Admin functions
     public Page<BankAccountResponse> getBankAccountsAdmin(
             String username,
             String accountNumber,
@@ -194,6 +194,11 @@ public class BankAccountServiceImpl {
         account.setStatus(status);
         bankAccountRepository.save(account);
         return createResponseBankAccount(account);
+    }
+
+    public BigDecimal getTotalBalance() {
+        BigDecimal total = bankAccountRepository.sumAllBalances();
+        return total != null ? total : BigDecimal.ZERO;
     }
 
     public TransactionTokenResult issueTransactionToken(

@@ -27,6 +27,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -139,6 +140,12 @@ public class AdminController {
         BankAccountResponse response = bankAccountService.changeStatus(accountNumber, accountStatus);
         return ResponseEntity.ok(ApiResponse.success(
                 MessageHelper.get("success.bank.account.status.changed"), response));
+    }
+
+    @GetMapping("/accounts/total-balance")
+    public ResponseEntity<ApiResponse<BigDecimal>> getBankAccountsTotalBalance() {
+        BigDecimal totalBalance = bankAccountService.getTotalBalance();
+        return ResponseEntity.ok(ApiResponse.success(totalBalance));
     }
 
     // Transactions
