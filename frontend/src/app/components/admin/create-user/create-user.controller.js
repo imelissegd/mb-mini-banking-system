@@ -1,50 +1,50 @@
 angular.module('bankingApp')
-  .controller('CreateCustomerController', ['$scope', '$location', 'AdminService', 'ToastService',
+  .controller('CreateUserController', ['$scope', '$location', 'AdminService', 'ToastService',
     function ($scope, $location, AdminService, ToastService) {
 
       $scope.busy = false;
 
       // ─── Form model ───────────────────────────────────────────────────
       $scope.form = {
-        firstName:  '',
-        middleName: '',
-        lastName:   '',
-        suffix:     '',
-        username:   '',
-        email:      '',
-        password:   ''
+        firstName:     '',
+        middleName:    '',
+        lastName:      '',
+        suffix:        '',
+        username:      '',
+        email:         '',
+        password:      '',
+        contactNumber: '',
+        role:          'CUSTOMER'
       };
 
       // ─── Navigation ───────────────────────────────────────────────────
       $scope.cancel = function () {
-        $location.path('/admin/customers');
+        $location.path('/admin/users');
       };
 
       // ─── Submit ───────────────────────────────────────────────────────
       $scope.submit = function () {
-        // Basic required-field guard
         if (!$scope.form.firstName || !$scope.form.lastName ||
             !$scope.form.username  || !$scope.form.email    ||
-            !$scope.form.password) {
+            !$scope.form.password  || !$scope.form.contactNumber) {
           ToastService.show('Please fill in all required fields.', 'error');
           return;
         }
 
         $scope.busy = true;
 
-        AdminService.createCustomer($scope.form)
+        AdminService.createUser($scope.form)
           .then(function (created) {
             ToastService.show(
-              'Customer created successfully (ID: ' + created.id + ').',
+              'User created successfully (ID: ' + created.id + ').',
               'success'
             );
-            $location.path('/admin/customers');
+            $location.path('/admin/users');
           })
           .catch(function (err) {
-            // Surface server message if available, otherwise generic fallback
             var msg = (err && err.data && err.data.message)
               ? err.data.message
-              : 'Failed to create customer.';
+              : 'Failed to create user.';
             ToastService.show(msg, 'error');
           })
           .finally(function () {

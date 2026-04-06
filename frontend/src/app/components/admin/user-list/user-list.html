@@ -1,0 +1,115 @@
+<div class="page page--wide">
+
+  <!-- ─── Header ─────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <p class="page-greeting">Admin Panel</p>
+      <h1 class="page-title">Users</h1>
+    </div>
+    <button class="btn-action" ng-click="goToCreate()">＋ New User</button>
+  </div>
+
+  <!-- ─── Filters ─────────────────────────────────────────────────────── -->
+  <div class="admin-filter-bar">
+    <div class="input-wrap">
+      <span class="input-icon">👤</span>
+      <input type="text" ng-model="filters.username" placeholder="Username…" ng-keyup="$event.keyCode === 13 && applyFilters()" />
+    </div>
+    <div class="input-wrap">
+      <span class="input-icon">🔍</span>
+      <input type="text" ng-model="filters.firstName" placeholder="First name…" ng-keyup="$event.keyCode === 13 && applyFilters()" />
+    </div>
+    <div class="input-wrap">
+      <span class="input-icon">🔍</span>
+      <input type="text" ng-model="filters.lastName" placeholder="Last name…" ng-keyup="$event.keyCode === 13 && applyFilters()" />
+    </div>
+    <button class="btn-action btn-action--sm" ng-click="applyFilters()">Search</button>
+    <button class="btn-ghost" style="padding: 0.38rem 0.85rem; font-size: 0.72rem;" ng-click="clearFilters()">Clear</button>
+  </div>
+
+  <!-- ─── Loading ────────────────────────────────────────────────────── -->
+  <div class="state-loading" ng-if="loading">
+    <div class="spinner"></div>
+    <span>Loading users…</span>
+  </div>
+
+  <!-- ─── Content ────────────────────────────────────────────────────── -->
+  <div ng-if="!loading">
+
+    <!-- Result count -->
+    <p class="admin-result-count" ng-if="totalElements > 0" style="font-size:0.8rem; color:var(--muted); margin-bottom:1rem;">
+      {{ totalElements }} user(s) found
+    </p>
+
+    <!-- Empty state -->
+    <div class="state-empty" ng-if="users.length === 0">
+      <p class="state-empty-icon">👤</p>
+      <h3 class="state-empty-title">No users found</h3>
+      <p class="state-empty-sub">Try different filters or create a new user.</p>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-table-wrap" ng-if="users.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="u in users">
+            <td class="admin-table-mono">{{ u.username }}</td>
+            <td>{{ u.firstName }}</td>
+            <td>{{ u.lastName }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+              <span class="account-status-badge"
+                ng-class="u.active ? 'badge--active' : 'badge--inactive'">
+                {{ u.active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <span class="account-role-badge"
+                ng-class="u.role === 'ADMIN' ? 'badge--admin' : 'badge--customer'">
+                {{ u.role === 'ADMIN' ? 'Admin' : 'Customer' }}
+              </span>
+            </td>
+            <td class="admin-table-action">
+              <button class="btn-action btn-action--sm"
+                style="margin-right:0.4rem;"
+                ng-click="viewUser(u.id)">View</button>
+              <button class="btn-action btn-action--sm"
+                ng-class="u.active ? 'btn-action--danger' : ''"
+                ng-style="{ background: u.active ? 'var(--error)' : 'var(--success)' }"
+                ng-click="toggleActive(u)"
+                ng-disabled="busy[u.id]">
+                <span ng-if="!busy[u.id]">{{ u.active ? 'Deactivate' : 'Activate' }}</span>
+                <span ng-if="busy[u.id]">…</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-bar" ng-if="totalPages > 1" style="display:flex; align-items:center; gap:0.4rem; margin-top:1.25rem; flex-wrap:wrap;">
+      <button class="btn-ghost" style="padding:0.38rem 0.75rem; font-size:0.78rem;"
+        ng-click="goToPage(page - 1)" ng-disabled="page === 0">‹ Prev</button>
+      <button class="btn-ghost" style="padding:0.38rem 0.75rem; font-size:0.78rem;"
+        ng-repeat="p in pages()"
+        ng-class="{ 'btn-action': p === page }"
+        ng-click="goToPage(p)">{{ p + 1 }}</button>
+      <button class="btn-ghost" style="padding:0.38rem 0.75rem; font-size:0.78rem;"
+        ng-click="goToPage(page + 1)" ng-disabled="page >= totalPages - 1">Next ›</button>
+    </div>
+
+  </div>
+
+</div>

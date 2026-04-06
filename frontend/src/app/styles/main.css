@@ -595,6 +595,73 @@ body.auth-body {
     color: var(--error);
 }
 
+.request-status-badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 20px;
+}
+
+.badge--pending {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--brand-orange-dark);
+}
+
+.badge--frozen {
+    background: rgba(120, 120, 120, 0.12);
+    color: #606060;
+}
+
+.badge--approved {
+    background: rgba(46, 125, 82, 0.1);
+    color: var(--success);
+}
+
+.badge--rejected {
+    background: rgba(192, 57, 43, 0.1);
+    color: var(--error);
+}
+/* ─── Request type badges ─────────────────────────────────── */
+.req-type-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.65rem;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.req-type-badge--account {
+    background: rgba(26, 35, 126, 0.1);
+    color: var(--brand-blue);
+}
+
+.req-type-badge--profile {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--brand-orange-dark);
+}
+
+.account-role-badge {
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.badge--customer {
+    background: rgba(255, 150, 58, 0.1);
+    color: #f59e0b;
+}
+
+.badge--admin {
+    background: rgba(122, 146, 195, 0.1);
+    color: #1a237e;
+}
+
 .account-card-number {
     font-family: 'DM Mono', 'Courier New', monospace;
     font-size: 1rem;
@@ -736,7 +803,10 @@ body.auth-body {
 }
 
 .quick-action-icon {
-    font-size: 1.4rem;
+    color: #0f172a;
+    width: 22px;
+    height: 22px;
+    font-size: 1.5rem;
     line-height: 1;
 }
 
@@ -1659,9 +1729,9 @@ body.auth-body {
 }
 
 /* ============================================================
-   Admin — Customer Detail Layout
+   Admin — User Detail Layout
    ============================================================ */
-.customer-detail-layout {
+.user-detail-layout {
     display: grid;
     grid-template-columns: 260px 1fr;
     gap: 2rem;
@@ -1669,18 +1739,18 @@ body.auth-body {
 }
 
 @media (max-width: 780px) {
-    .customer-detail-layout {
+    .user-detail-layout {
         grid-template-columns: 1fr;
     }
 }
 
-.customer-detail-sidebar {
+.user-detail-sidebar {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
 }
 
-.customer-detail-main {
+.user-detail-main {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -1951,4 +2021,3 @@ body.auth-body {
     color: var(--muted);
     line-height: 1.5;
 }
-

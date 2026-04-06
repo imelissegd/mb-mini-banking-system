@@ -1,10 +1,10 @@
-<div class="page page--wide">
+<div class="page">
 
   <!-- ─── Header ─────────────────────────────────────────────────────── -->
   <div class="page-header">
     <div>
-      <p class="page-greeting">Admin Panel</p>
-      <h1 class="page-title">Requests</h1>
+      <p class="page-greeting">My Banking</p>
+      <h1 class="page-title">My Requests</h1>
     </div>
   </div>
 
@@ -24,21 +24,21 @@
   <!-- ─── Loading ────────────────────────────────────────────────────── -->
   <div class="state-loading" ng-if="loading">
     <div class="spinner"></div>
-    <span>Loading requests…</span>
+    <span>Loading your requests…</span>
   </div>
 
   <!-- ─── Content ────────────────────────────────────────────────────── -->
   <div ng-if="!loading">
 
     <p style="font-size:0.8rem; color:var(--muted); margin-bottom:1rem;" ng-if="totalElements > 0">
-      {{ totalElements }} request(s) found
+      {{ totalElements }} request(s) total
     </p>
 
     <!-- Empty state -->
     <div class="state-empty" ng-if="requests.length === 0">
       <p class="state-empty-icon">📋</p>
       <h3 class="state-empty-title">No requests found</h3>
-      <p class="state-empty-sub">Try a different status filter.</p>
+      <p class="state-empty-sub">Submit a request to open an account or edit your profile.</p>
     </div>
 
     <!-- Table -->
@@ -47,48 +47,34 @@
         <thead>
           <tr>
             <th>Date Submitted</th>
-            <th>Customer</th>
             <th>Type</th>
             <th>Status</th>
-            <th>Resolved By</th>
             <th>Resolved At</th>
-            <th></th>
+            <th>Remarks</th>
           </tr>
         </thead>
         <tbody>
           <tr ng-repeat="req in requests">
             <td class="admin-table-mono tx-date">{{ formatDate(req.createdAt) }}</td>
-            <td class="admin-table-name">{{ req.requesterUsername }}</td>
             <td>
               <span class="req-type-badge" ng-class="typeBadgeClass(req.type)">
                 {{ formatType(req.type) }}
               </span>
             </td>
             <td>
-              <span class="request-status-badge"
-                    ng-class="{
-                      'badge--approved': req.status === 'APPROVED',
-                      'badge--rejected': req.status === 'REJECTED',
-                      'badge--pending': req.status === 'PENDING'
-                    }">
-                {{ req.status === 'APPROVED' ? 'Approved' :
-                  req.status === 'REJECTED' ? 'Rejected' :
-                  'Pending' }}
+              <span class="account-status-badge" ng-class="statusBadgeClass(req.status)">
+                {{ req.status }}
               </span>
             </td>
-            <td class="admin-table-mono">{{ req.resolvedBy || '—' }}</td>
             <td class="admin-table-mono tx-date">{{ formatDate(req.resolvedAt) }}</td>
-            <td class="admin-table-action">
-              <button class="btn-action btn-action--sm"
-                ng-click="viewRequest(req.id)">View</button>
-            </td>
+            <td class="tx-description">{{ req.remarks || '—' }}</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <!-- Pagination -->
-    <div ng-if="totalPages > 1"
+    <div class="pagination-bar" ng-if="totalPages > 1"
       style="display:flex; align-items:center; gap:0.4rem; margin-top:1.25rem; flex-wrap:wrap;">
       <button class="btn-ghost" style="padding:0.38rem 0.75rem; font-size:0.78rem;"
         ng-click="goToPage(page - 1)" ng-disabled="page === 0">‹ Prev</button>

@@ -4,7 +4,7 @@
   <div class="page-header">
     <div>
       <p class="page-greeting">Admin Panel › Customers</p>
-      <h1 class="page-title">New Customer</h1>
+      <h1 class="page-title">New User</h1>
     </div>
     <button class="btn-action btn-action--ghost" ng-click="cancel()">← Back</button>
   </div>
@@ -14,8 +14,8 @@
 
     <div class="form-card-header">
       <span class="form-step-badge">Admin Action</span>
-      <h2 class="form-card-title">Create Customer Account</h2>
-      <p class="form-card-sub">Fill in the customer's details. They can update their profile later.</p>
+      <h2 class="form-card-title">Create User Account</h2>
+      <p class="form-card-sub">Fill in the user's details. They can update their profile later.</p>
     </div>
 
     <!-- Name row -->
@@ -23,21 +23,13 @@
       <div class="field-group">
         <label>First Name <span class="field-required">*</span></label>
         <div class="input-wrap">
-          <input
-            type="text"
-            ng-model="form.firstName"
-            placeholder="Juan"
-          />
+          <input type="text" ng-model="form.firstName" placeholder="Juan" />
         </div>
       </div>
       <div class="field-group">
         <label>Middle Name <span class="field-optional">(optional)</span></label>
         <div class="input-wrap">
-          <input
-            type="text"
-            ng-model="form.middleName"
-            placeholder="Santos"
-          />
+          <input type="text" ng-model="form.middleName" placeholder="Santos" />
         </div>
       </div>
     </div>
@@ -46,21 +38,13 @@
       <div class="field-group">
         <label>Last Name <span class="field-required">*</span></label>
         <div class="input-wrap">
-          <input
-            type="text"
-            ng-model="form.lastName"
-            placeholder="dela Cruz"
-          />
+          <input type="text" ng-model="form.lastName" placeholder="dela Cruz" />
         </div>
       </div>
       <div class="field-group field-group--narrow">
         <label>Suffix <span class="field-optional">(optional)</span></label>
         <div class="input-wrap">
-          <input
-            type="text"
-            ng-model="form.suffix"
-            placeholder="Jr."
-          />
+          <input type="text" ng-model="form.suffix" placeholder="Jr." />
         </div>
       </div>
     </div>
@@ -70,11 +54,7 @@
       <label>Username <span class="field-required">*</span></label>
       <div class="input-wrap">
         <span class="input-icon">👤</span>
-        <input
-          type="text"
-          ng-model="form.username"
-          placeholder="juandelacruz"
-        />
+        <input type="text" ng-model="form.username" placeholder="juandelacruz" />
       </div>
     </div>
 
@@ -82,11 +62,15 @@
       <label>Email <span class="field-required">*</span></label>
       <div class="input-wrap">
         <span class="input-icon">✉</span>
-        <input
-          type="email"
-          ng-model="form.email"
-          placeholder="juan@email.com"
-        />
+        <input type="email" ng-model="form.email" placeholder="juan@email.com" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Contact Number <span class="field-required">*</span></label>
+      <div class="input-wrap">
+        <span class="input-icon">📱</span>
+        <input type="text" ng-model="form.contactNumber" placeholder="09xxxxxxxxx" />
       </div>
     </div>
 
@@ -94,22 +78,27 @@
       <label>Password <span class="field-required">*</span></label>
       <div class="input-wrap">
         <span class="input-icon">🔒</span>
-        <input
-          type="password"
-          ng-model="form.password"
-          placeholder="Temporary password"
-        />
+        <input type="password" ng-model="form.password" placeholder="Temporary password" />
+      </div>
+    </div>
+
+    <!-- Role -->
+    <div class="field-group">
+      <label>Role <span class="field-required">*</span></label>
+      <div class="input-wrap input-wrap--select">
+        <span class="input-icon">🛡</span>
+        <select ng-model="form.role">
+          <option value="CUSTOMER">Customer</option>
+          <option value="ADMIN">Admin</option>
+        </select>
       </div>
     </div>
 
     <!-- Actions -->
     <div class="confirm-actions" style="margin-top: 0.4rem;">
-      <button
-        class="btn-primary btn-primary--confirm"
-        ng-click="submit()"
-        ng-disabled="busy"
-      >
-        <span ng-if="!busy">Create Customer</span>
+      <button class="btn-primary btn-primary--confirm"
+        ng-click="submit()" ng-disabled="busy">
+        <span ng-if="!busy">Create User</span>
         <span ng-if="busy" class="btn-spinner">
           <span class="spinner spinner--btn"></span> Creating…
         </span>

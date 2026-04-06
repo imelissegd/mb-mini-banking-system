@@ -3,8 +3,8 @@
   <!-- ─── Header ─────────────────────────────────────────────────────── -->
   <div class="page-header">
     <div>
-      <p class="page-greeting">Admin Panel › Customers</p>
-      <h1 class="page-title">Customer Detail</h1>
+      <p class="page-greeting">Admin Panel › Users</p>
+      <h1 class="page-title">User Detail</h1>
     </div>
     <button class="btn-action btn-action--ghost" ng-click="goBack()">← Back</button>
   </div>
@@ -12,37 +12,37 @@
   <!-- ─── Loading ────────────────────────────────────────────────────── -->
   <div class="state-loading" ng-if="loading">
     <div class="spinner"></div>
-    <span>Loading customer…</span>
+    <span>Loading user…</span>
   </div>
 
   <!-- ─── Content ────────────────────────────────────────────────────── -->
-  <div ng-if="!loading && customer">
+  <div ng-if="!loading && user">
 
-    <div class="customer-detail-layout">
+    <div class="user-detail-layout">
 
       <!-- ════════════════════════════════════════════════════════════════
            LEFT COLUMN — Identity + Status
            ════════════════════════════════════════════════════════════════ -->
-      <div class="customer-detail-sidebar">
+      <div class="user-detail-sidebar">
 
         <!-- Identity card -->
         <div class="profile-identity-card">
           <div class="profile-avatar">
-            {{ customer.firstName.charAt(0) }}{{ customer.lastName.charAt(0) }}
+            {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
           </div>
           <div class="profile-identity-name">
-            {{ customer.firstName }}
-            <span ng-if="customer.middleName"> {{ customer.middleName }}</span>
-            {{ customer.lastName }}
-            <span ng-if="customer.suffix"> {{ customer.suffix }}</span>
+            {{ user.firstName }}
+            <span ng-if="user.middleName"> {{ user.middleName }}</span>
+            {{ user.lastName }}
+            <span ng-if="user.suffix"> {{ user.suffix }}</span>
           </div>
-          <div class="profile-identity-username">@{{ customer.username }}</div>
-          <span class="profile-role-badge">Customer</span>
+          <div class="profile-identity-username">@{{ user.username }}</div>
+          <span class="profile-role-badge">{{ user.role }}</span>
           <div class="profile-status-row">
-            <span
-              class="account-status-badge"
-              ng-class="customer.isActive ? 'badge--active' : 'badge--inactive'"
-            >{{ customer.isActive ? 'Active' : 'Inactive' }}</span>
+            <span class="account-status-badge"
+              ng-class="user.active ? 'badge--active' : 'badge--inactive'">
+              {{ user.active ? 'Active' : 'Inactive' }}
+            </span>
           </div>
         </div>
 
@@ -50,17 +50,15 @@
         <div class="admin-status-card">
           <p class="admin-status-card-label">Account Status</p>
           <p class="admin-status-card-sub">
-            {{ customer.isActive
-              ? 'This customer is currently active and can log in.'
-              : 'This customer is deactivated and cannot log in.' }}
+            {{ user.active
+              ? 'This user is currently active and can log in.'
+              : 'This user is deactivated and cannot log in.' }}
           </p>
-          <button
-            class="btn-primary"
-            ng-class="{ 'btn-primary--danger': customer.isActive }"
+          <button class="btn-primary"
+            ng-class="{ 'btn-primary--danger': user.active }"
             ng-click="toggleStatus()"
-            ng-disabled="statusBusy"
-          >
-            <span ng-if="!statusBusy">{{ customer.isActive ? 'Deactivate' : 'Activate' }}</span>
+            ng-disabled="statusBusy">
+            <span ng-if="!statusBusy">{{ user.active ? 'Deactivate' : 'Activate' }}</span>
             <span ng-if="statusBusy" class="btn-spinner">
               <span class="spinner spinner--btn"></span> Working…
             </span>
@@ -72,16 +70,14 @@
       <!-- ════════════════════════════════════════════════════════════════
            RIGHT COLUMN — Info panels
            ════════════════════════════════════════════════════════════════ -->
-      <div class="customer-detail-main">
+      <div class="user-detail-main">
 
         <!-- ── 1. Personal Info ──────────────────────────────────────── -->
         <div class="admin-panel">
           <div class="admin-panel-header">
             <h2 class="admin-panel-title">Personal Information</h2>
-            <button
-              class="btn-action btn-action--sm btn-action--ghost"
-              ng-click="toggleEdit()"
-            >{{ showEdit ? 'Cancel' : '✏ Edit' }}</button>
+            <button class="btn-action btn-action--sm btn-action--ghost"
+              ng-click="toggleEdit()">{{ showEdit ? 'Cancel' : '✏ Edit' }}</button>
           </div>
 
           <!-- Read-only view -->
@@ -90,37 +86,47 @@
               <div class="profile-field-row">
                 <div class="profile-field">
                   <span class="profile-field-label">First Name</span>
-                  <span class="profile-field-value">{{ customer.firstName }}</span>
+                  <span class="profile-field-value">{{ user.firstName }}</span>
                 </div>
                 <div class="profile-field">
                   <span class="profile-field-label">Middle Name</span>
-                  <span class="profile-field-value">{{ customer.middleName || '—' }}</span>
+                  <span class="profile-field-value">{{ user.middleName || '—' }}</span>
                 </div>
               </div>
               <div class="profile-field-row">
                 <div class="profile-field">
                   <span class="profile-field-label">Last Name</span>
-                  <span class="profile-field-value">{{ customer.lastName }}</span>
+                  <span class="profile-field-value">{{ user.lastName }}</span>
                 </div>
                 <div class="profile-field">
                   <span class="profile-field-label">Suffix</span>
-                  <span class="profile-field-value">{{ customer.suffix || '—' }}</span>
+                  <span class="profile-field-value">{{ user.suffix || '—' }}</span>
                 </div>
               </div>
               <div class="profile-field-row">
                 <div class="profile-field">
                   <span class="profile-field-label">Username</span>
-                  <span class="profile-field-value profile-field-value--mono">{{ customer.username }}</span>
+                  <span class="profile-field-value profile-field-value--mono">{{ user.username }}</span>
                 </div>
                 <div class="profile-field">
                   <span class="profile-field-label">Email</span>
-                  <span class="profile-field-value">{{ customer.email }}</span>
+                  <span class="profile-field-value">{{ user.email }}</span>
+                </div>
+              </div>
+              <div class="profile-field-row">
+                <div class="profile-field">
+                  <span class="profile-field-label">Contact Number</span>
+                  <span class="profile-field-value">{{ user.contactNumber || '—' }}</span>
+                </div>
+                <div class="profile-field">
+                  <span class="profile-field-label">Member Since</span>
+                  <span class="profile-field-value">{{ user.createdAt | date:'mediumDate' }}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Edit form (toggled) -->
+          <!-- Edit form -->
           <div ng-if="showEdit">
             <div class="field-row">
               <div class="field-group">
@@ -157,11 +163,8 @@
               </div>
             </div>
             <div class="confirm-actions" style="margin-top: 1.4rem;">
-              <button
-                class="btn-primary btn-primary--confirm"
-                ng-click="submitEdit()"
-                ng-disabled="editBusy"
-              >
+              <button class="btn-primary btn-primary--confirm"
+                ng-click="submitEdit()" ng-disabled="editBusy">
                 <span ng-if="!editBusy">Save Changes</span>
                 <span ng-if="editBusy" class="btn-spinner">
                   <span class="spinner spinner--btn"></span> Saving…
@@ -176,19 +179,20 @@
         <div class="admin-panel">
           <div class="admin-panel-header">
             <h2 class="admin-panel-title">Bank Accounts</h2>
-            <button
-              class="btn-action btn-action--sm"
-              ng-click="toggleOpenAccount()"
-            >{{ showOpenAccount ? 'Cancel' : '＋ Open Account' }}</button>
+            <button class="btn-action btn-action--sm" ng-click="toggleOpenAccount()">
+              {{ showOpenAccount ? 'Cancel' : '＋ Open Account' }}
+            </button>
           </div>
 
           <!-- Inline open-account form -->
+          <!-- FIX: ng-model uses openAccountForm.accountType (dot notation)
+               so ng-if child scope doesn't shadow $scope.openAccountForm -->
           <div class="admin-inline-form" ng-if="showOpenAccount">
             <div class="field-group">
               <label>Account Type <span class="field-required">*</span></label>
               <div class="input-wrap input-wrap--select">
                 <span class="input-icon">🏦</span>
-                <select ng-model="newAccountType">
+                <select ng-model="openAccountForm.accountType">
                   <option value="">— Select type —</option>
                   <option value="CHECKING">Checking</option>
                   <option value="SAVINGS">Savings</option>
@@ -196,11 +200,9 @@
               </div>
             </div>
             <div class="confirm-actions">
-              <button
-                class="btn-primary btn-primary--confirm"
+              <button class="btn-primary btn-primary--confirm"
                 ng-click="submitOpenAccount()"
-                ng-disabled="openAccountBusy || !newAccountType"
-              >
+                ng-disabled="openAccountBusy || !openAccountForm.accountType">
                 <span ng-if="!openAccountBusy">Open Account</span>
                 <span ng-if="openAccountBusy" class="btn-spinner">
                   <span class="spinner spinner--btn"></span> Opening…
@@ -211,13 +213,13 @@
           </div>
 
           <!-- Accounts table -->
-          <div class="state-empty state-empty--sm" ng-if="customer.accounts.length === 0">
+          <div class="state-empty state-empty--sm" ng-if="!user.accounts || user.accounts.length === 0">
             <p class="state-empty-icon">🏦</p>
             <h3 class="state-empty-title">No accounts yet</h3>
             <p class="state-empty-sub">Open one using the button above.</p>
           </div>
 
-          <div class="admin-table-wrap" ng-if="customer.accounts.length > 0">
+          <div class="admin-table-wrap" ng-if="user.accounts && user.accounts.length > 0">
             <table class="admin-table">
               <thead>
                 <tr>
@@ -228,15 +230,17 @@
                 </tr>
               </thead>
               <tbody>
-                <tr ng-repeat="acc in customer.accounts">
+                <tr ng-repeat="acc in user.accounts">
                   <td class="admin-table-mono">{{ acc.accountNumber }}</td>
                   <td>{{ acc.accountType }}</td>
                   <td class="admin-table-mono">{{ acc.balance | currency:'₱' }}</td>
                   <td>
-                    <span
-                      class="account-status-badge"
-                      ng-class="acc.status === 'ACTIVE' ? 'badge--active' : 'badge--inactive'"
-                    >{{ acc.status }}</span>
+                    <!-- FIX: was checking 'ACTIVE' — BE returns 'OPEN', 'FROZEN', 'CLOSED' -->
+                    <span class="account-status-badge"
+                      ng-class="acc.status === 'OPEN' ? 'badge--active' :
+                                (acc.status === 'FROZEN' ? 'badge--frozen' : 'badge--inactive')">
+                      {{ acc.status }}
+                    </span>
                   </td>
                 </tr>
               </tbody>
@@ -245,13 +249,10 @@
 
         </div>
 
-      </div>
-      <!-- end right column -->
+      </div><!-- end right column -->
 
-    </div>
-    <!-- end layout -->
+    </div><!-- end layout -->
 
-  </div>
-  <!-- end content -->
+  </div><!-- end content -->
 
 </div>

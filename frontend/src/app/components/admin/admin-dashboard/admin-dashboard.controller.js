@@ -10,7 +10,6 @@ angular.module('bankingApp')
           $scope.summary = data || {
             totalCustomers:    '—',
             totalAccounts:     '—',
-            transactionsToday: '—',
             totalBalance:      0
           };
         })
@@ -19,7 +18,6 @@ angular.module('bankingApp')
           $scope.summary = {
             totalCustomers:    '—',
             totalAccounts:     '—',
-            transactionsToday: '—',
             totalBalance:      0
           };
         })

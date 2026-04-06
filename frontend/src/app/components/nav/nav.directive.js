@@ -38,6 +38,18 @@ angular.module('bankingApp')
                 History
               </a>
 
+              <a class="nav-btn nav-btn--ghost" href="#!/requests"
+                 ng-if="!isAdmin"
+                 ng-class="{ active: currentPath() === '/requests' }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="9" y1="13" x2="15" y2="13"/>
+                  <line x1="9" y1="17" x2="12" y2="17"/>
+                </svg>
+                Requests
+              </a>
+
               <a class="nav-btn nav-btn--ghost" href="#!/profile"
                  ng-if="!isAdmin"
                  ng-class="{ active: currentPath() === '/profile' }">
@@ -61,16 +73,29 @@ angular.module('bankingApp')
                 Dashboard
               </a>
 
-              <a class="nav-btn nav-btn--ghost" href="#!/admin/customers"
+              <a class="nav-btn nav-btn--ghost" href="#!/admin/accounts"
                  ng-if="isAdmin"
-                 ng-class="{ active: currentPath().startsWith('/admin/customers') }">
+                 ng-class="{ active: currentPath().startsWith('/admin/accounts') }">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
-                  <line x1="19" y1="8" x2="19" y2="14"/>
-                  <line x1="16" y1="11" x2="22" y2="11"/>
+                  <rect x="2" y="5" width="20" height="14" rx="2"/>
+                  <line x1="2" y1="10" x2="22" y2="10"/>
                 </svg>
-                Customers
+                Accounts
+                
+              </a>
+              <a class="nav-btn nav-btn--ghost" href="#!/admin/users"
+                 ng-if="isAdmin"
+                 ng-class="{ active: currentPath().startsWith('/admin/users') }">
+                <svg viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4"></circle>
+                  <path d="M4 20v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"></path>
+                </svg>
+                Users
               </a>
 
               <a class="nav-btn nav-btn--ghost" href="#!/admin/transactions"
@@ -141,10 +166,7 @@ angular.module('bankingApp')
             scope.role        = AuthService.getRole() || 'GUEST';
           }
 
-          // Re-sync on route change (mid-session nav)
           scope.$watch(function () { return $location.path(); }, syncNav);
-
-          // Re-sync when currentUser changes (hard reload session recovery + logout)
           scope.$watch(function () { return AuthService.currentUser; }, syncNav);
 
           scope.logout = function () {

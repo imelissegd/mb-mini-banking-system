@@ -6,7 +6,6 @@
       <p class="page-greeting">Good day,</p>
       <h1 class="page-title">{{ displayName }}</h1>
     </div>
-    <a class="btn-action" href="#!/open-account">+ Open Account</a>
   </div>
 
   <!-- ─── Total Balance Summary Card ──────────────────────────────────── -->
@@ -33,7 +32,17 @@
       <span class="quick-action-label">Withdraw</span>
     </a>
     <a class="quick-action-card" href="#!/history">
-      <span class="quick-action-icon">&#9776;</span>
+      <span class="quick-action-icon">
+        <svg viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </span>
       <span class="quick-action-label">History</span>
     </a>
   </div>
@@ -50,14 +59,15 @@
     <!-- LEFT: My Accounts ──────────────────────────────────────────────── -->
     <div class="dashboard-col dashboard-col--accounts">
 
-      <h2 class="section-title">My Accounts</h2>
+      <div class="section-header-row">
+        <h2 class="section-title">My Accounts</h2>
+        <a class="btn-action" href="#!/open-account">+ Open Account</a>
+      </div>
 
       <!-- Empty State -->
       <div class="state-empty" ng-show="accounts.length === 0">
         <p class="state-empty-icon">&#128674;</p>
         <p class="state-empty-title">No accounts yet</p>
-        <p class="state-empty-sub">Open your first account to get started.</p>
-        <a class="btn-action" href="#!/open-account">Open Account</a>
       </div>
 
       <!-- Account Cards -->

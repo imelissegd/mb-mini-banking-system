@@ -50,27 +50,39 @@ angular.module('bankingApp')
           data: { requiresAuth: true }
         })
 
+        .when('/requests', {
+          templateUrl: 'src/app/components/requests/my-requests.html',
+          controller:  'MyRequestsController',
+          data: { requiresAuth: true }
+        })
+
         .when('/admin', {
           templateUrl: 'src/app/components/admin/admin-dashboard/admin-dashboard.html',
           controller:  'AdminDashboardController',
           data: { requiresAuth: true, requiresAdmin: true }
         })
 
-        .when('/admin/customers', {
-          templateUrl: 'src/app/components/admin/customer-list/customer-list.html',
-          controller:  'CustomerListController',
+        .when('/admin/users', {
+          templateUrl: 'src/app/components/admin/user-list/user-list.html',
+          controller:  'UserListController',
           data: { requiresAuth: true, requiresAdmin: true }
         })
 
-        .when('/admin/customers/new', {
-          templateUrl: 'src/app/components/admin/create-customer/create-customer.html',
-          controller:  'CreateCustomerController',
+        .when('/admin/users/new', {
+          templateUrl: 'src/app/components/admin/create-user/create-user.html',
+          controller:  'CreateUserController',
           data: { requiresAuth: true, requiresAdmin: true }
         })
 
-        .when('/admin/customers/:id', {
-          templateUrl: 'src/app/components/admin/customer-detail/customer-detail.html',
-          controller:  'CustomerDetailController',
+        .when('/admin/users/:id', {
+          templateUrl: 'src/app/components/admin/user-detail/user-detail.html',
+          controller:  'UserDetailController',
+          data: { requiresAuth: true, requiresAdmin: true }
+        })
+
+        .when('/admin/accounts', {
+          templateUrl: 'src/app/components/admin/account-list/account-list.html',
+          controller:  'AccountListController',
           data: { requiresAuth: true, requiresAdmin: true }
         })
 
@@ -109,21 +121,14 @@ angular.module('bankingApp')
       $rootScope.$on('$routeChangeStart', function (event, next) {
         var routeData = next && next.$$route && next.$$route.data;
 
-        // Public route — always allow through
         if (!routeData) return;
 
-        // currentUser in memory — synchronous check, no HTTP call
         if (AuthService.isAuthenticated()) {
           if (routeData.requiresAdmin && !AuthService.isAdmin()) {
             $location.path('/dashboard');
           }
           return;
         }
-
-        // currentUser is null (hard reload / fresh tab).
-        // Cannot determine cookie validity synchronously — let the route render.
-        // The controller's loadCurrentUser() will recover the session.
-        // authInterceptor handles 401 and redirects to /login automatically.
       });
 
     }

@@ -1,40 +1,18 @@
 angular.module('bankingApp')
-  .controller('RequestListController', ['$scope', '$location', 'AdminService', 'ToastService',
-    function ($scope, $location, AdminService, ToastService) {
+  .controller('MyRequestsController', ['$scope', '$http', 'APP_CONFIG', 'ToastService',
+    function ($scope, $http, APP_CONFIG, ToastService) {
 
-      $scope.loading  = true;
-      $scope.requests = [];
+      var BASE = APP_CONFIG.apiBaseUrl;
 
-      // ─── Pagination state ─────────────────────────────────────────────
+      $scope.loading       = false;
+      $scope.requests      = [];
       $scope.page          = 0;
       $scope.size          = 10;
       $scope.totalPages    = 0;
       $scope.totalElements = 0;
+      $scope.statusFilter  = '';
 
-      // ─── Filter state ─────────────────────────────────────────────────
-      $scope.statusFilter = '';
-      $scope.sortBy       = 'createdAt';
-      $scope.sortDir      = 'desc';
-
-      // ─── Pagination helpers ───────────────────────────────────────────
-      $scope.pages = function () {
-        var arr = [];
-        for (var i = 0; i < $scope.totalPages; i++) arr.push(i);
-        return arr;
-      };
-
-      $scope.goToPage = function (p) {
-        if (p < 0 || p >= $scope.totalPages) return;
-        $scope.page = p;
-        load();
-      };
-
-      $scope.applyFilter = function () {
-        $scope.page = 0;
-        load();
-      };
-
-      // ─── Badge helpers ────────────────────────────────────────────────
+      // ─── Badge helpers ─────────────────────────────────────────────────
       $scope.statusBadgeClass = function (status) {
         switch (status) {
           case 'PENDING':  return 'badge--pending';
@@ -70,8 +48,22 @@ angular.module('bankingApp')
         });
       };
 
-      $scope.viewRequest = function (id) {
-        $location.path('/admin/requests/' + id);
+      // ─── Pagination helpers ────────────────────────────────────────────
+      $scope.pages = function () {
+        var arr = [];
+        for (var i = 0; i < $scope.totalPages; i++) arr.push(i);
+        return arr;
+      };
+
+      $scope.goToPage = function (p) {
+        if (p < 0 || p >= $scope.totalPages) return;
+        $scope.page = p;
+        load();
+      };
+
+      $scope.applyFilter = function () {
+        $scope.page = 0;
+        load();
       };
 
       // ─── Load ─────────────────────────────────────────────────────────
@@ -81,20 +73,21 @@ angular.module('bankingApp')
         var params = {
           page:    $scope.page,
           size:    $scope.size,
-          sortBy:  $scope.sortBy,
-          sortDir: $scope.sortDir
+          sortBy:  'createdAt',
+          sortDir: 'desc'
         };
 
         if ($scope.statusFilter) params.status = $scope.statusFilter;
 
-        AdminService.getAllRequests(params)
-          .then(function (page) {
+        $http.get(BASE + '/requests', { params: params })
+          .then(function (res) {
+            var page = res.data.data;
             $scope.requests      = page.content || [];
             $scope.totalPages    = page.totalPages || 0;
             $scope.totalElements = page.totalElements || 0;
           })
           .catch(function () {
-            ToastService.show('Failed to load requests.', 'error');
+            ToastService.show('Failed to load your requests.', 'error');
           })
           .finally(function () {
             $scope.loading = false;
