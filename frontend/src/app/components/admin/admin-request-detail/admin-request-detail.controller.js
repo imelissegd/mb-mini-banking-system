@@ -13,7 +13,7 @@ angular.module('bankingApp')
       // Resolve form state
       $scope.showResolveForm = false;
       $scope.resolveAction   = '';   // 'APPROVED' | 'REJECTED'
-      $scope.resolveRemarks  = '';
+      $scope.form            = { resolveRemarks: '' };   // object property prevents child-scope shadowing
 
       // ─── Navigation ───────────────────────────────────────────────────
       $scope.goBack = function () {
@@ -70,15 +70,15 @@ angular.module('bankingApp')
 
       // ─── Open resolve form ────────────────────────────────────────────
       $scope.openResolve = function (action) {
-        $scope.resolveAction   = action;
-        $scope.resolveRemarks  = '';
-        $scope.showResolveForm = true;
+        $scope.resolveAction       = action;
+        $scope.form.resolveRemarks = '';
+        $scope.showResolveForm     = true;
       };
 
       $scope.cancelResolve = function () {
-        $scope.showResolveForm = false;
-        $scope.resolveAction   = '';
-        $scope.resolveRemarks  = '';
+        $scope.showResolveForm     = false;
+        $scope.resolveAction       = '';
+        $scope.form.resolveRemarks = '';
       };
 
       // ─── Submit resolve ───────────────────────────────────────────────
@@ -87,7 +87,9 @@ angular.module('bankingApp')
       // BE requires remarks when rejecting; send empty string (not null)
       // for approvals to avoid validation errors.
       $scope.submitResolve = function () {
-        if ($scope.resolveAction === 'REJECTED' && !$scope.resolveRemarks.trim()) {
+        var remarks = ($scope.form.resolveRemarks || '').trim();
+
+        if ($scope.resolveAction === 'REJECTED' && !remarks) {
           ToastService.show('Remarks are required when rejecting a request.', 'error');
           return;
         }
@@ -96,12 +98,13 @@ angular.module('bankingApp')
 
         AdminService.resolveRequest(requestId, {
           status:  $scope.resolveAction,
-          remarks: $scope.resolveRemarks.trim() || ''   // send '' not null to avoid BE validation error
+          remarks: remarks   // send '' not null to avoid BE validation error
         })
           .then(function (updated) {
             $scope.request = updated;
             parsePayload(updated);
-            $scope.showResolveForm = false;
+            $scope.showResolveForm     = false;
+            $scope.form.resolveRemarks = '';
             ToastService.show(
               'Request ' + updated.status.toLowerCase() + ' successfully.',
               'success'

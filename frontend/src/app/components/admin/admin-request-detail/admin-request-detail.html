@@ -136,7 +136,7 @@
         <div class="auth-divider"></div>
 
         <!-- Action buttons -->
-        <div class="confirm-actions" ng-if="!showResolveForm">
+        <div class="confirm-actions" ng-show="!showResolveForm">
           <button
             class="btn-primary btn-primary--confirm"
             ng-click="openResolve('APPROVED')"
@@ -147,8 +147,8 @@
           >✘ Reject</button>
         </div>
 
-        <!-- Inline resolve form -->
-        <div ng-if="showResolveForm">
+        <!-- Inline resolve form — ng-show preserves scope, preventing child-scope shadowing on ng-model -->
+        <div ng-show="showResolveForm">
           <div class="admin-inline-form">
 
             <p class="form-card-sub" style="margin-bottom: 1rem;">
@@ -167,7 +167,7 @@
               </label>
               <div class="input-wrap">
                 <textarea
-                  ng-model="resolveRemarks"
+                  ng-model="form.resolveRemarks"
                   rows="3"
                   placeholder="Add a note for the customer…"
                   style="resize: vertical;"
