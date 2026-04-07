@@ -12,6 +12,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Component
 public class TransactionSpecification {
@@ -104,13 +106,18 @@ public class TransactionSpecification {
             LocalDate startDate, LocalDate endDate) {
         return (root, query, cb) -> {
             if (startDate == null && endDate == null) return null;
-            Path<LocalDate> datePath = root.get("timestamp");
+            Path<LocalDateTime> datePath = root.get("timestamp");
+
             if (startDate != null && endDate != null) {
-                return cb.between(datePath, startDate, endDate);
+                return cb.between(
+                        datePath,
+                        startDate.atStartOfDay(),
+                        endDate.atTime(LocalTime.MAX)
+                );
             } else if (startDate != null) {
-                return cb.greaterThanOrEqualTo(datePath, startDate);
+                return cb.greaterThanOrEqualTo(datePath, startDate.atStartOfDay());
             } else {
-                return cb.lessThanOrEqualTo(datePath, endDate);
+                return cb.lessThanOrEqualTo(datePath, endDate.atTime(LocalTime.MAX));
             }
         };
     }
