@@ -84,6 +84,12 @@ angular.module('bankingApp')
         });
       };
 
+      function toDateString(val) {
+          if (!val) return '';
+          if (val instanceof Date) return val.toLocaleDateString('en-CA'); 
+          return val; 
+      }
+
       // ─── Load ─────────────────────────────────────────────────────────
       function load() {
         $scope.loading = true;
@@ -97,16 +103,8 @@ angular.module('bankingApp')
 
         if ($scope.filters.accountNumber) params.accountNumber = $scope.filters.accountNumber;
         if ($scope.filters.type)          params.type          = $scope.filters.type;
-        if ($scope.filters.startDate)     params.startDate     = $scope.filters.startDate;
-        if ($scope.filters.endDate) {
-          // ng-model on <input type="date"> in AngularJS gives a Date object, not a string.
-          // Use getFullYear/getMonth/getDate (local time) to avoid UTC offset shifting.
-          var end = new Date($scope.filters.endDate);
-          end.setDate(end.getDate() + 1);
-          params.endDate = end.getFullYear() + '-' +
-            String(end.getMonth() + 1).padStart(2, '0') + '-' +
-            String(end.getDate()).padStart(2, '0');
-        }
+        if ($scope.filters.startDate)     params.startDate     = toDateString($scope.filters.startDate);
+        if ($scope.filters.endDate)       params.endDate       = toDateString($scope.filters.endDate);
 
         $http.get(BASE + '/transactions', { params: params })
           .then(function (res) {
