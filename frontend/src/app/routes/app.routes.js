@@ -123,12 +123,16 @@ angular.module('bankingApp')
 
         if (!routeData) return;
 
-        if (AuthService.isAuthenticated()) {
-          if (routeData.requiresAdmin && !AuthService.isAdmin()) {
-            $location.path('/dashboard');
-          }
-          return;
+      if (AuthService.isAuthenticated()) {
+        if (routeData.requiresAdmin && !AuthService.isAdmin()) {
+          $location.path('/dashboard');
         }
+      } else {
+        // Not logged in — bounce to login for any protected route
+        if (routeData.requiresAuth) {
+          $location.path('/login');
+        }
+      }
       });
 
     }
