@@ -49,7 +49,7 @@ html, body {
 }
 
 body {
-    font-family: 'DM Sans', 'Segoe UI', Arial, sans-serif;
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
     background: var(--offwhite);
@@ -131,7 +131,8 @@ nav a:hover { text-decoration: underline; }
 }
 
 .navbar-logo {
-    font-size: 1.45rem;
+    font-family: 'DM Serif Display', serif;  
+    font-size: 1.6rem;
     font-weight: 800;
     color: #ffffff;
 }
@@ -212,9 +213,9 @@ body.auth-body {
 }
 
 .auth-brand .logo {
-    font-family: 'DM Sans', sans-serif;   /* match navbar */
-    font-size: 1.45rem;                   /* match navbar size */
-    font-weight: 800;                     /* match navbar boldness */
+    font-family: 'DM Serif Display', serif;  
+    font-size: 2rem;                   
+    font-weight: 800;                    
     color: var(--brand-blue);
     line-height: 1;
 }
@@ -441,7 +442,8 @@ body.auth-body {
     font-family: 'DM Serif Display', serif;
     font-size: 2rem;
     color: var(--brand-blue);
-    line-height: 1.1;
+    line-height: 1.1;;
+    letter-spacing: 3px;
 }
 
 /* ─── Action button (page-level CTA) ──────────────────────── */
@@ -663,7 +665,8 @@ body.auth-body {
 }
 
 .account-card-number {
-    font-family: 'DM Mono', 'Courier New', monospace;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     font-size: 1rem;
     font-weight: 600;
     color: var(--charcoal);
@@ -686,7 +689,8 @@ body.auth-body {
 }
 
 .account-balance-amount {
-    font-family: 'DM Serif Display', serif;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     font-size: 1.6rem;
     color: var(--brand-blue);
     line-height: 1.1;
@@ -727,7 +731,7 @@ body.auth-body {
     display: flex;
     flex-direction: column;
     line-height: 1.2;
-    text-align: right;
+    text-align: left;
 }
 
 .navbar-username {
@@ -821,11 +825,13 @@ body.auth-body {
    Section title
    ============================================================ */
 .section-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.1rem;
-    color: var(--charcoal);
+    font-family: 'DM Sans', sans-serif;
     margin: 0 0 1rem;
-    font-weight: 400;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
 }
 
 /* ============================================================
@@ -874,7 +880,8 @@ body.auth-body {
 }
 
 .balance-summary-amount {
-    font-family: 'DM Serif Display', serif;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     font-size: 2.6rem;
     font-weight: 400;
     line-height: 1.1;
@@ -1023,7 +1030,8 @@ body.auth-body {
 
 /* Amount */
 .tx-amount {
-    font-family: 'DM Mono', 'Courier New', monospace;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     font-size: 0.88rem;
     font-weight: 700;
     white-space: nowrap;
@@ -1176,7 +1184,8 @@ body.auth-body {
     font-weight: 500;
 }
 .balance-pill-amount {
-    font-family: 'DM Mono', 'Courier New', monospace;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     font-weight: 700;
     color: var(--brand-blue);
 }
@@ -1218,7 +1227,8 @@ body.auth-body {
 }
 
 .confirm-value--mono {
-    font-family: 'DM Mono', 'Courier New', monospace;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     letter-spacing: 0.06em;
 }
 
@@ -1234,7 +1244,8 @@ body.auth-body {
 }
 
 .confirm-value--amount {
-    font-family: 'DM Serif Display', serif;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     font-size: 1.6rem;
     color: var(--brand-blue);
     font-weight: 400;
@@ -1444,7 +1455,8 @@ body.auth-body {
 .profile-identity-username {
     font-size: 0.75rem;
     color: rgba(255,255,255,0.55);
-    font-family: 'DM Mono', 'Courier New', monospace;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
 }
 
 .profile-role-badge {
@@ -1522,7 +1534,8 @@ body.auth-body {
 }
 
 .profile-field-value--mono {
-    font-family: 'DM Mono', 'Courier New', monospace;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     font-size: 0.85rem;
 }
 
@@ -1629,11 +1642,12 @@ body.auth-body {
 }
 
 .admin-stat-value {
-    font-family: 'DM Serif Display', serif;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     font-size: 1.8rem;
     color: var(--brand-blue);
     line-height: 1.1;
-    font-weight: 400;
+    font-weight: 700;
 }
 
 .admin-stat-value--currency {
@@ -1679,7 +1693,7 @@ body.auth-body {
 
 .admin-table th {
     padding: 0.8rem 1.1rem;
-    text-align: left;
+    text-align: center;
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -1708,8 +1722,9 @@ body.auth-body {
 }
 
 .admin-table-mono {
-    font-family: 'DM Mono', 'Courier New', monospace;
-    font-size: 0.82rem;
+    font-family: "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-size: 0.95rem;
     letter-spacing: 0.04em;
 }
 
@@ -1726,11 +1741,12 @@ body.auth-body {
 .btn-action--sm {
     padding: 0.38rem 0.85rem;
     font-size: 0.72rem;
+    justify-content: center;
 }
 
 /* ─── Fixed-width action button — prevents cell resize on label change ── */
 .btn-action--fixed {
-    width: 90px;
+    width: 100px;
     justify-content: center;
 }
 
@@ -1910,7 +1926,7 @@ body.auth-body {
    ============================================================ */
 .tx-date {
     white-space: nowrap;
-    font-size: 0.8rem;
+    font-size: 0.95rem;
 }
 
 .tx-description {
@@ -1929,12 +1945,58 @@ body.auth-body {
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+}
+ 
+
+.admin-filter-date .input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.user-filter-date .input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
 }
 
 .admin-filter-select {
-    min-width: 200px;
+    min-width: 130px;
+}
+ 
+.admin-filter-date {
+    display: flex;
+}
+
+.user-filter-date {
+    display: flex;
+}
+
+.admin-filter-date input[type="date"] {
+    padding-left: 0.9rem;
+}
+
+.user-filter-date input[type="date"] {
+    padding-left: 0.9rem;
+}
+
+.range-text {
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+ 
+/* Search + Clear button group */
+.admin-filter-actions {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 /* ============================================================
@@ -1954,7 +2016,8 @@ body.auth-body {
 }
 
 .tx-detail-id {
-    font-family: 'DM Mono', 'Courier New', monospace;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
     font-size: 0.8rem;
     color: var(--muted);
     letter-spacing: 0.06em;

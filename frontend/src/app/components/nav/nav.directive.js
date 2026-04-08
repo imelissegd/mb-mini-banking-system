@@ -123,8 +123,8 @@ angular.module('bankingApp')
               <!-- ── User Info + Logout ── -->
               <div class="navbar-user">
                 <span class="navbar-user-info">
-                  <span class="navbar-username">{{ displayName }}</span>
-                  <span class="navbar-role">{{ role }}</span>
+                  <span class="navbar-username"> {{ displayName }}</span>
+                  <span class="navbar-role"> Role: {{ role }}</span>
                 </span>
                 <button class="nav-btn nav-btn--logout" ng-click="logout()">Logout</button>
               </div>

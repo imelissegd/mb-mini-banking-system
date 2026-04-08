@@ -10,17 +10,20 @@
 
   <!-- ─── Filters ─────────────────────────────────────────────────────── -->
   <div class="admin-filter-bar">
+
     <div class="input-wrap">
       <span class="input-icon">👤</span>
       <input type="text" ng-model="filters.username" placeholder="Username…"
         ng-keyup="$event.keyCode === 13 && applyFilters()" />
     </div>
+
     <div class="input-wrap">
       <span class="input-icon">🔢</span>
-      <input type="text" ng-model="filters.accountNumber" placeholder="Account number…"
+      <input type="text" ng-model="filters.accountNumber" placeholder="Account no…"
         ng-keyup="$event.keyCode === 13 && applyFilters()" />
     </div>
-    <div class="input-wrap input-wrap--select admin-filter-select" style="min-width:160px;">
+
+    <div class="input-wrap input-wrap--select admin-filter-select">
       <span class="input-icon">🔽</span>
       <select ng-model="filters.type">
         <option value="">All Types</option>
@@ -29,16 +32,26 @@
         <option value="WITHDRAWAL">Withdrawal</option>
       </select>
     </div>
-    <div class="input-wrap">
-      <span class="input-icon">📅</span>
-      <input type="date" ng-model="filters.startDate" />
+
+    <div class="admin-filter-date">
+      <div class="input-wrap">
+        <span class="range-text">From</span>
+        <input type="date" ng-model="filters.startDate" />
+      </div>
     </div>
-    <div class="input-wrap">
-      <span class="input-icon">📅</span>
-      <input type="date" ng-model="filters.endDate" />
+
+    <div class="admin-filter-date">
+      <div class="input-wrap">
+        <span class="range-text">To</span>
+        <input type="date" ng-model="filters.endDate" />
+      </div>
     </div>
-    <button class="btn-action btn-action--sm" ng-click="applyFilters()">Search</button>
-    <button class="btn-ghost" style="padding:0.38rem 0.85rem; font-size:0.72rem;" ng-click="clearFilters()">Clear</button>
+
+    <div class="admin-filter-actions">
+      <button class="btn-action btn-action--sm" ng-click="applyFilters()">Search</button>
+      <button class="btn-ghost" style="padding:0.38rem 0.85rem; font-size:0.72rem;" ng-click="clearFilters()">Clear</button>
+    </div>
+
   </div>
 
   <!-- ─── Loading ────────────────────────────────────────────────────── -->
