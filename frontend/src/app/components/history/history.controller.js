@@ -12,6 +12,7 @@ angular.module('bankingApp')
       $scope.size          = 10;
       $scope.totalPages    = 0;
       $scope.totalElements = 0;
+      $scope.pageSizeOptions = [10, 25, 50];
 
       // ─── Filter state ─────────────────────────────────────────────────
       $scope.filters = {
@@ -36,6 +37,11 @@ angular.module('bankingApp')
       };
 
       $scope.applyFilters = function () {
+        $scope.page = 0;
+        load();
+      };
+
+      $scope.changeSize = function () {
         $scope.page = 0;
         load();
       };

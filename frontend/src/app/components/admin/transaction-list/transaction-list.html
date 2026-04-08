@@ -47,6 +47,12 @@
       </div>
     </div>
 
+    <div class="input-wrap input-wrap--select admin-filter-select">
+      <span class="input-icon">📄</span>
+      <select ng-model="size" ng-options="s as s + ' per page' for s in pageSizeOptions" ng-change="changeSize()">
+      </select>
+    </div>
+
     <div class="admin-filter-actions">
       <button class="btn-action btn-action--sm" ng-click="applyFilters()">Search</button>
       <button class="btn-ghost" style="padding:0.38rem 0.85rem; font-size:0.72rem;" ng-click="clearFilters()">Clear</button>
