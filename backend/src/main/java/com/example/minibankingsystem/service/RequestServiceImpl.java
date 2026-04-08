@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -62,7 +64,6 @@ public class RequestServiceImpl {
 
         return mapToResponse(requestRepository.save(request));
     }
-
 
     @Transactional
     public RequestResponse submitEditProfileRequest(
@@ -116,8 +117,7 @@ public class RequestServiceImpl {
         return mapToResponse(
                 requestRepository.findById(requestId)
                         .orElseThrow(() -> new ResourceNotFoundException(
-                                MessageHelper.get("error.request.not.found", requestId)))
-        );
+                                MessageHelper.get("error.request.not.found", requestId))));
     }
 
     public Page<RequestResponse> getAllRequests(RequestStatus status, Pageable pageable) {
@@ -126,7 +126,6 @@ public class RequestServiceImpl {
         return requestRepository.findAll(spec, pageable)
                 .map(this::mapToResponse);
     }
-
 
     @Transactional
     public RequestResponse resolveRequest(
@@ -210,10 +209,21 @@ public class RequestServiceImpl {
         }
     }
 
+    private String formatOwnerName(User user) {
+        return Stream.of(
+                user.getFirstName(),
+                user.getMiddleName(),
+                user.getLastName(),
+                user.getSuffix())
+                .filter(part -> part != null && !part.isBlank())
+                .collect(Collectors.joining(" "));
+    }
+
     private RequestResponse mapToResponse(Request r) {
         return RequestResponse.builder()
                 .id(r.getId())
                 .requesterUsername(r.getUser().getUsername())
+                .requesterName(formatOwnerName(r.getUser()))
                 .type(r.getType())
                 .status(r.getStatus())
                 .payload(r.getPayload())
@@ -221,7 +231,8 @@ public class RequestServiceImpl {
                 .createdAt(r.getCreatedAt())
                 .resolvedAt(r.getResolvedAt())
                 .resolvedBy(r.getResolvedBy() != null
-                        ? r.getResolvedBy().getUsername() : null)
+                        ? r.getResolvedBy().getUsername()
+                        : null)
                 .build();
     }
 }

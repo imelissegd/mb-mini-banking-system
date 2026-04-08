@@ -58,32 +58,35 @@
             <th>Status</th>
             <th>Resolved By</th>
             <th>Resolved At</th>
-            <th></th>
+            <th style="text-align:center;">Action</th>
           </tr>
         </thead>
         <tbody>
           <tr ng-repeat="req in requests">
-            <td class="admin-table-mono tx-date">{{ formatDate(req.createdAt) }}</td>
-            <td class="admin-table-name">{{ req.requesterUsername }}</td>
+            <td class="admin-table-mono tx-date" style="text-align:center">{{ formatDate(req.createdAt) }}</td>
             <td>
+              <span class="admin-table-name">{{ req.requesterUsername }}</span>
+              <span class="admin-table-sub">{{ req.requesterName }}</span>
+            </td>
+            <td style="text-align:center;">
               <span class="req-type-badge" ng-class="typeBadgeClass(req.type)">
                 {{ formatType(req.type) }}
               </span>
             </td>
-            <td>
-              <span class="request-status-badge"
+            <td style="text-align:center;">
+              <span class="request-status-badge" 
                     ng-class="{
                       'badge--approved': req.status === 'APPROVED',
                       'badge--rejected': req.status === 'REJECTED',
                       'badge--pending': req.status === 'PENDING'
-                    }">
+                    }" >
                 {{ req.status === 'APPROVED' ? 'Approved' :
                   req.status === 'REJECTED' ? 'Rejected' :
                   'Pending' }}
               </span>
             </td>
-            <td class="admin-table-mono">{{ req.resolvedBy || '—' }}</td>
-            <td class="admin-table-mono tx-date">{{ formatDate(req.resolvedAt) }}</td>
+            <td class="admin-table-mono" style="text-align:center;">{{ req.resolvedBy || '—' }}</td>
+            <td class="admin-table-mono tx-date" style="text-align:center;">{{ formatDate(req.resolvedAt) }}</td>
             <td class="admin-table-action">
               <button class="btn-action btn-action--sm"
                 ng-click="viewRequest(req.id)">View</button>

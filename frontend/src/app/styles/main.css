@@ -1740,9 +1740,9 @@ body.auth-body {
 }
 
 .admin-table-action {
-    text-align: right;
-    white-space: nowrap;
+    text-align: center;
 }
+
 
 /* ─── Small action button variant ────────────────────────── */
 .btn-action--sm {

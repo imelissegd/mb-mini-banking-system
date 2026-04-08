@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class RequestResponse {
     private Long id;
     private String requesterUsername;
+    private String requesterName;
     private RequestType type;
     private RequestStatus status;
     private String payload;
