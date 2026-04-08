@@ -11,6 +11,7 @@ angular.module('bankingApp')
       $scope.totalPages    = 0;
       $scope.totalElements = 0;
       $scope.statusFilter  = '';
+      $scope.pageSizeOptions = [10, 25, 50];
 
       // ─── Badge helpers ─────────────────────────────────────────────────
       $scope.statusBadgeClass = function (status) {
@@ -62,6 +63,11 @@ angular.module('bankingApp')
       };
 
       $scope.applyFilter = function () {
+        $scope.page = 0;
+        load();
+      };
+
+      $scope.changeSize = function () {
         $scope.page = 0;
         load();
       };
