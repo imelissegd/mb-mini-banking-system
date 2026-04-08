@@ -79,32 +79,35 @@
       <table class="admin-table">
         <thead>
           <tr>
-            <th>Account Number</th>
+            <th style="text-align:center;">Account Number</th>
             <th>Account Holder</th>
-            <th>Type</th>
-            <th>Balance</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Actions</th>
+            <th style="text-align:center;">Type</th>
+            <th style="text-align:right;">Balance</th>
+            <th style="text-align:center;">Status</th>
+            <th style="text-align:center;">Created</th>
+            <th style="text-align:center;">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr ng-repeat="acc in accounts">
-            <td class="admin-table-mono">{{ acc.accountNumber }}</td>
-            <td class="admin-table-name">{{ acc.ownerName }}</td>
+            <td class="admin-table-mono" style="text-align:center;">{{ acc.accountNumber }}</td>
             <td>
+              <span class="admin-table-name">{{ acc.ownerUsername }}</span>
+              <span class="admin-table-sub">{{ acc.ownerName }}</span>
+            </td>
+            <td style="text-align:center;">
               <span class="tx-type-badge"
                 ng-class="acc.accountType === 'SAVINGS' ? 'tx-type-badge--transfer' : 'tx-type-badge--credit'">
                 {{ acc.accountType }}
               </span>
             </td>
-            <td class="admin-table-mono">{{ acc.balance | currency:'₱' }}</td>
-            <td>
+            <td class="admin-table-mono" style="text-align:right;">{{ acc.balance | currency:'₱' }}</td>
+            <td style="text-align:center;">
               <span class="account-status-badge" ng-class="statusBadgeClass(acc.status)">
                 {{ acc.status }}
               </span>
             </td>
-            <td class="admin-table-mono tx-date">{{ formatDate(acc.createdAt) }}</td>
+            <td class="admin-table-mono tx-date" style="text-align:center;">{{ formatDate(acc.createdAt) }}</td>
             <td class="admin-table-action">
               <div style="display:flex; gap:0.35rem; justify-content:flex-end;">
                 <!-- Freeze / Unfreeze — always visible, label + color toggle -->

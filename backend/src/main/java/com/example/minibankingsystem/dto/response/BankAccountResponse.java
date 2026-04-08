@@ -22,4 +22,5 @@ public class BankAccountResponse {
     private String status;
     private LocalDateTime createdAt;
     private String ownerName;
+    private String ownerUsername;
 }

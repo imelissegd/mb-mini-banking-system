@@ -37,7 +37,6 @@ import java.util.stream.Stream;
 import static com.example.minibankingsystem.service.BankAccountServiceImpl.AccountValidationRule.*;
 import static com.example.minibankingsystem.service.BankAccountServiceImpl.CreateAccountValidationRule.*;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -47,12 +46,11 @@ public class BankAccountServiceImpl {
     private final UserServiceImpl userService;
     private final JwtUtil jwtUtil;
 
-
     public enum AccountValidationRule {
-        CHECK_EXISTS,           // account exists in DB
-        CHECK_OWNED_BY_USER,    // account belongs to the authenticated user
-        CHECK_OPEN,             // account status is OPEN
-        CHECK_SUFFICIENT_FUNDS  // account has enough balance
+        CHECK_EXISTS, // account exists in DB
+        CHECK_OWNED_BY_USER, // account belongs to the authenticated user
+        CHECK_OPEN, // account status is OPEN
+        CHECK_SUFFICIENT_FUNDS // account has enough balance
     }
 
     public enum CreateAccountValidationRule {
@@ -61,12 +59,11 @@ public class BankAccountServiceImpl {
         CHECK_TYPE
     }
 
-
     public BankAccount getAccountByAccountNumber(String accountNumber) {
         return bankAccountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_NUMBER, accountNumber));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_NUMBER,
+                        accountNumber));
     }
-
 
     public BankAccount getAccountOwnedByUser(String accountNumber, String username) {
         User user = userService.getUserByUsername(username);
@@ -74,23 +71,21 @@ public class BankAccountServiceImpl {
             throw new ResourceNotFoundException(ResourceNotFoundException.USER_NAME, username);
         }
         return bankAccountRepository.findByAccountNumberAndUserId(accountNumber, user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_NUMBER, accountNumber));
+                .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_NUMBER,
+                        accountNumber));
     }
-
 
     public void checkAccountOpen(BankAccount account) {
         if (account.getStatus() != AccountStatus.OPEN) {
-            throw new AccountNotActiveException(AccountNotActiveException.ACCOUNT,  account.getAccountNumber());
+            throw new AccountNotActiveException(AccountNotActiveException.ACCOUNT, account.getAccountNumber());
         }
     }
-
 
     public void checkSufficientFunds(BankAccount account, BigDecimal amount) {
         if (account.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException();
         }
     }
-
 
     // Validate account for transaction requests
     public void validateAccount(
@@ -115,7 +110,8 @@ public class BankAccountServiceImpl {
             // re-verify ownership at validation time
             bankAccountRepository
                     .findByAccountNumberAndUserId(account.getAccountNumber(), user.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_NUMBER, account.getAccountNumber()));
+                    .orElseThrow(() -> new ResourceNotFoundException(ResourceNotFoundException.BANK_ACCOUNT_NUMBER,
+                            account.getAccountNumber()));
         }
 
         if (ruleSet.contains(CHECK_OPEN)) {
@@ -131,7 +127,6 @@ public class BankAccountServiceImpl {
         }
     }
 
-
     public BankAccount debit(BankAccount account, BigDecimal amount) {
         account.setBalance(account.getBalance().subtract(amount));
         return bankAccountRepository.save(account);
@@ -141,7 +136,6 @@ public class BankAccountServiceImpl {
         account.setBalance(account.getBalance().add(amount));
         return bankAccountRepository.save(account);
     }
-
 
     public BankAccountResponse getBankAccountByAccountNumber(
             String username, String accountNumber) {
@@ -226,7 +220,6 @@ public class BankAccountServiceImpl {
                 .build();
     }
 
-
     // Create Account Validation
 
     public void validateCreateBankAccount(
@@ -240,7 +233,8 @@ public class BankAccountServiceImpl {
                 throw new MissingFieldsException(MissingFieldsException.USER_ID);
             }
             if (!userService.userExistsById(request.getUserId())) {
-                throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID, String.valueOf(request.getUserId()));
+                throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID,
+                        String.valueOf(request.getUserId()));
             }
         }
 
@@ -293,6 +287,7 @@ public class BankAccountServiceImpl {
         response.setStatus(String.valueOf(bankAccount.getStatus()));
         response.setCreatedAt(bankAccount.getCreatedAt());
         response.setOwnerName(formatOwnerName(user));
+        response.setOwnerUsername(user.getUsername());
         return response;
     }
 
@@ -303,11 +298,10 @@ public class BankAccountServiceImpl {
 
     private String formatOwnerName(User user) {
         return Stream.of(
-                        user.getFirstName(),
-                        user.getMiddleName(),
-                        user.getLastName(),
-                        user.getSuffix()
-                )
+                user.getFirstName(),
+                user.getMiddleName(),
+                user.getLastName(),
+                user.getSuffix())
                 .filter(part -> part != null && !part.isBlank())
                 .collect(Collectors.joining(" "));
     }

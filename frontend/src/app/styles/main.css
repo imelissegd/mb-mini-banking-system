@@ -1709,6 +1709,13 @@ body.auth-body {
     vertical-align: middle;
 }
 
+.admin-table-sub {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+
 .admin-table tbody tr:last-child td {
     border-bottom: none;
 }
