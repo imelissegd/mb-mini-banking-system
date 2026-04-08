@@ -2099,3 +2099,15 @@ body.auth-body {
     color: var(--muted);
     line-height: 1.5;
 }
+/* ============================================================
+   Pagination — active page number (orange override)
+   ============================================================ */
+.btn-ghost.btn-action {
+    background: var(--brand-orange);
+    color: #fff;
+    border-color: var(--brand-orange);
+}
+.btn-ghost.btn-action:hover {
+    background: var(--brand-orange-dark);
+    border-color: var(--brand-orange-dark);
+}
