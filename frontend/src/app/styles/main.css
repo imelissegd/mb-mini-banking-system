@@ -1692,7 +1692,7 @@ body.auth-body {
 }
 
 .admin-table th {
-    padding: 0.8rem 1.1rem;
+    padding: 0.7rem 0.75rem;
     text-align: center;
     font-size: 0.65rem;
     font-weight: 700;
@@ -1703,7 +1703,7 @@ body.auth-body {
 }
 
 .admin-table td {
-    padding: 0.9rem 1.1rem;
+    padding: 0.75rem 0.75rem;
     color: var(--charcoal);
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
@@ -1724,8 +1724,8 @@ body.auth-body {
 .admin-table-mono {
     font-family: "Segoe UI", sans-serif;
     font-variant-numeric: tabular-nums lining-nums;
-    font-size: 0.95rem;
-    letter-spacing: 0.04em;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
 }
 
 .admin-table-center {
@@ -1926,7 +1926,7 @@ body.auth-body {
    ============================================================ */
 .tx-date {
     white-space: nowrap;
-    font-size: 0.95rem;
+    font-size: 0.82rem;
 }
 
 .tx-description {
@@ -1947,10 +1947,32 @@ body.auth-body {
     align-items: center;
     gap: 0.5rem;
     flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 0.25rem;
+    overflow-x: visible;
 }
- 
+
+/* Compact inputs scoped only to the filter bar */
+.admin-filter-bar .input-wrap input,
+.admin-filter-bar .input-wrap select {
+    padding: 0.38rem 0.6rem 0.38rem 1.9rem;
+    font-size: 0.75rem;
+    min-width: 0;
+}
+
+.admin-filter-bar .input-wrap .input-icon {
+    font-size: 11px;
+    left: 8px;
+}
+
+.admin-filter-bar .input-wrap svg {
+    left: 8px;
+    width: 12px;
+    height: 12px;
+}
+
+.admin-filter-bar .range-text {
+    font-size: 0.65rem;
+}
+
 
 .admin-filter-date .input-wrap {
     display: flex;
