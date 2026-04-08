@@ -86,7 +86,7 @@ angular.module('bankingApp')
 
       self.getDisplayName = function () {
         if (!self.currentUser) return 'User';
-        return self.currentUser.firstName || self.currentUser.username || 'User';
+        return `${self.currentUser.firstName || ''} ${self.currentUser.lastName || ''}`.trim();
       };
 
       self.getUsername = function () {
