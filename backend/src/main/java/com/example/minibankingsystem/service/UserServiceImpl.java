@@ -9,6 +9,10 @@ import com.example.minibankingsystem.exception.ResourceNotFoundException;
 import com.example.minibankingsystem.model.User;
 import com.example.minibankingsystem.model.enums.Role;
 import com.example.minibankingsystem.repository.UserRepository;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +31,7 @@ public class UserServiceImpl {
     }
 
     public void usernameExists(Long userId, String username) {
-        if(username == null) {
+        if (username == null) {
             return;
         }
         User user = userRepository.findById(userId).orElse(null);
@@ -71,7 +75,8 @@ public class UserServiceImpl {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID, String.valueOf(userId));
-        };
+        }
+        ;
         return user;
     }
 
@@ -79,20 +84,20 @@ public class UserServiceImpl {
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException(ResourceNotFoundException.USER_NAME, username);
-        };
+        }
+        ;
         return user;
     }
-
 
     // Admin functions
     public UserResponse getUserDetails(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID, String.valueOf(userId));
-        };
+        }
+        ;
         return mapToUserResponse(user);
     }
-
 
     public Page<UserResponse> getUsers(
             String username,
@@ -114,10 +119,14 @@ public class UserServiceImpl {
             checkUsername(userId, dto.getUsername());
             user.setUsername(dto.getUsername());
         }
-        if (dto.getFirstName() != null) user.setFirstName(dto.getFirstName());
-        if (dto.getMiddleName() != null)    user.setMiddleName(dto.getMiddleName());
-        if (dto.getLastName() != null)  user.setLastName(dto.getLastName());
-        if (dto.getSuffix() != null)    user.setSuffix(dto.getSuffix());
+        if (dto.getFirstName() != null)
+            user.setFirstName(dto.getFirstName());
+        if (dto.getMiddleName() != null)
+            user.setMiddleName(dto.getMiddleName());
+        if (dto.getLastName() != null)
+            user.setLastName(dto.getLastName());
+        if (dto.getSuffix() != null)
+            user.setSuffix(dto.getSuffix());
         if (dto.getEmail() != null) {
             checkEmail(userId, dto.getEmail());
             user.setEmail(dto.getEmail());
@@ -132,7 +141,7 @@ public class UserServiceImpl {
 
     public UserResponse toggleUserActive(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
-        if  (user == null) {
+        if (user == null) {
             throw new ResourceNotFoundException(ResourceNotFoundException.USER_ID, String.valueOf(userId));
         }
         user.setActive(!user.isActive());
@@ -181,6 +190,16 @@ public class UserServiceImpl {
         }
     }
 
+    private String formatOwnerName(User user) {
+        return Stream.of(
+                user.getFirstName(),
+                user.getMiddleName(),
+                user.getLastName(),
+                user.getSuffix())
+                .filter(part -> part != null && !part.isBlank())
+                .collect(Collectors.joining(" "));
+    }
+
     // Helper functions
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
@@ -189,6 +208,7 @@ public class UserServiceImpl {
                 .firstName(user.getFirstName())
                 .middleName(user.getMiddleName())
                 .lastName(user.getLastName())
+                .fullName(formatOwnerName(user))
                 .suffix(user.getSuffix())
                 .email(user.getEmail())
                 .contactNumber(user.getContactNumber())

@@ -59,8 +59,7 @@
         <thead>
           <tr>
             <th>Username</th>
-            <th>First Name</th>
-            <th>Last Name</th>
+            <th>Full Name</th>
             <th>Email</th>
             <th>Status</th>
             <th>Role</th>
@@ -69,17 +68,16 @@
         </thead>
         <tbody>
           <tr ng-repeat="u in users">
-            <td class="admin-table-mono">{{ u.username }}</td>
-            <td>{{ u.firstName }}</td>
-            <td>{{ u.lastName }}</td>
+            <td style="font-weight: 700;">{{ u.username }}</td>
+            <td>{{ u.fullName }}</td>
             <td>{{ u.email }}</td>
-            <td>
+            <td style="text-align:center;">
               <span class="account-status-badge"
                 ng-class="u.active ? 'badge--active' : 'badge--inactive'">
                 {{ u.active ? 'Active' : 'Inactive' }}
               </span>
             </td>
-            <td>
+            <td style="text-align:center;">
               <span class="account-role-badge"
                 ng-class="u.role === 'ADMIN' ? 'badge--admin' : 'badge--customer'">
                 {{ u.role === 'ADMIN' ? 'Admin' : 'Customer' }}
