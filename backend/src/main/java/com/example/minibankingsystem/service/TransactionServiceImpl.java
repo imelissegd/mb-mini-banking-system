@@ -26,6 +26,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.example.minibankingsystem.service.BankAccountServiceImpl.AccountValidationRule.*;
 
@@ -34,300 +36,298 @@ import static com.example.minibankingsystem.service.BankAccountServiceImpl.Accou
 @Slf4j
 public class TransactionServiceImpl {
 
-    private final TransactionRepository transactionRepository;
-    private final BankAccountServiceImpl bankAccountService;
-    private final UserServiceImpl userService;
-    private final JwtUtil jwtUtil;
+        private final TransactionRepository transactionRepository;
+        private final BankAccountServiceImpl bankAccountService;
+        private final UserServiceImpl userService;
+        private final JwtUtil jwtUtil;
 
-    // Account Transactions
-    @Transactional
-    public TransactionResponse transfer(String username, TransferRequest request) {
+        // Account Transactions
+        @Transactional
+        public TransactionResponse transfer(String username, TransferRequest request) {
 
-//        validateTransactionToken(
-//                request.getTransactionToken(),
-//                username,
-//                request.getFromAccountNumber(),
-//                "TRANSFER"
-//        );
+                // validateTransactionToken(
+                // request.getTransactionToken(),
+                // username,
+                // request.getFromAccountNumber(),
+                // "TRANSFER"
+                // );
 
-        if (request.getFromAccountNumber() == null || request.getFromAccountNumber().isBlank()) {
-            throw new MissingFieldsException(MissingFieldsException.FROM_BANK_ACCOUNT_NUMBER);
-        }
-        if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
-            throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
-        }
+                if (request.getFromAccountNumber() == null || request.getFromAccountNumber().isBlank()) {
+                        throw new MissingFieldsException(MissingFieldsException.FROM_BANK_ACCOUNT_NUMBER);
+                }
+                if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
+                        throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
+                }
 
-        BankAccount source = bankAccountService
-                .getAccountOwnedByUser(request.getFromAccountNumber(), username);
+                BankAccount source = bankAccountService
+                                .getAccountOwnedByUser(request.getFromAccountNumber(), username);
 
-        BankAccount destination = bankAccountService
-                .getAccountByAccountNumber(request.getToAccountNumber());
+                BankAccount destination = bankAccountService
+                                .getAccountByAccountNumber(request.getToAccountNumber());
 
+                // Check if account is allowed for transfer
+                bankAccountService.validateAccount(
+                                source,
+                                username,
+                                request.getAmount(),
+                                CHECK_OPEN,
+                                CHECK_SUFFICIENT_FUNDS);
 
-        // Check if account is allowed for transfer
-        bankAccountService.validateAccount(
-                source,
-                username,
-                request.getAmount(),
-                CHECK_OPEN,
-                CHECK_SUFFICIENT_FUNDS
-        );
+                // Check if destination is valid
+                bankAccountService.validateAccount(
+                                destination,
+                                null,
+                                null,
+                                CHECK_OPEN);
 
-        // Check if destination is valid
-        bankAccountService.validateAccount(
-                destination,
-                null,
-                null,
-                CHECK_OPEN
-        );
+                // Cannot transfer to same account
+                if (source.getAccountNumber().equals(destination.getAccountNumber())) {
+                        throw new IllegalArgumentException("Cannot transfer to the same account");
+                }
 
-        // Cannot transfer to same account
-        if (source.getAccountNumber().equals(destination.getAccountNumber())) {
-            throw new IllegalArgumentException("Cannot transfer to the same account");
-        }
+                // Bank account service performs the debit and credit
+                bankAccountService.debit(source, request.getAmount());
+                bankAccountService.credit(destination, request.getAmount());
 
-        // Bank account service performs the debit and credit
-        bankAccountService.debit(source, request.getAmount());
-        bankAccountService.credit(destination, request.getAmount());
+                Transaction transaction = buildTransaction(
+                                source, destination,
+                                request.getAmount(),
+                                TransactionType.TRANSFER,
+                                request.getDescription());
+                transactionRepository.save(transaction);
 
-
-        Transaction transaction = buildTransaction(
-                source, destination,
-                request.getAmount(),
-                TransactionType.TRANSFER,
-                request.getDescription()
-        );
-        transactionRepository.save(transaction);
-
-        return mapToResponse(transaction);
-    }
-
-
-    @Transactional
-    public TransactionResponse withdraw(String username, TransferRequest request) {
-
-//        validateTransactionToken(
-//                request.getTransactionToken(),
-//                username,
-//                request.getFromAccountNumber(),
-//                "WITHDRAWAL"
-//        );
-
-        if (request.getFromAccountNumber() == null || request.getFromAccountNumber().isBlank()) {
-            throw new MissingFieldsException(MissingFieldsException.FROM_BANK_ACCOUNT_NUMBER);
+                return mapToResponse(transaction);
         }
 
-        // Check if account exists and owned by the user
-        BankAccount source = bankAccountService
-                .getAccountOwnedByUser(request.getFromAccountNumber(), username);
+        @Transactional
+        public TransactionResponse withdraw(String username, TransferRequest request) {
 
-        // Check if account is allowed for withdraw
-        bankAccountService.validateAccount(
-                source,
-                username,
-                request.getAmount(),
-                CHECK_OPEN,
-                CHECK_SUFFICIENT_FUNDS
-        );
+                // validateTransactionToken(
+                // request.getTransactionToken(),
+                // username,
+                // request.getFromAccountNumber(),
+                // "WITHDRAWAL"
+                // );
 
-        bankAccountService.debit(source, request.getAmount());
+                if (request.getFromAccountNumber() == null || request.getFromAccountNumber().isBlank()) {
+                        throw new MissingFieldsException(MissingFieldsException.FROM_BANK_ACCOUNT_NUMBER);
+                }
 
-        Transaction transaction = buildTransaction(
-                source, null, // no destination for withdrawal
-                request.getAmount(),
-                TransactionType.WITHDRAWAL,
-                request.getDescription()
-        );
+                // Check if account exists and owned by the user
+                BankAccount source = bankAccountService
+                                .getAccountOwnedByUser(request.getFromAccountNumber(), username);
 
-        transactionRepository.save(transaction);
+                // Check if account is allowed for withdraw
+                bankAccountService.validateAccount(
+                                source,
+                                username,
+                                request.getAmount(),
+                                CHECK_OPEN,
+                                CHECK_SUFFICIENT_FUNDS);
 
-        return mapToResponse(transaction);
-    }
+                bankAccountService.debit(source, request.getAmount());
 
-    @Transactional
-    public TransactionResponse deposit(String username, TransferRequest request) {
+                Transaction transaction = buildTransaction(
+                                source, null, // no destination for withdrawal
+                                request.getAmount(),
+                                TransactionType.WITHDRAWAL,
+                                request.getDescription());
 
-//        validateTransactionToken(
-//                request.getTransactionToken(),
-//                username,
-//                request.getFromAccountNumber(),
-//                "DEPOSIT"
-//        );
+                transactionRepository.save(transaction);
 
-        if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
-            throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
+                return mapToResponse(transaction);
         }
 
-        // Check if account exists and owned by the user
-        BankAccount destination = bankAccountService
-                .getAccountOwnedByUser(request.getToAccountNumber(), username);
+        @Transactional
+        public TransactionResponse deposit(String username, TransferRequest request) {
 
-        // Check if destination is valid
-        bankAccountService.validateAccount(
-                destination,
-                null,
-                null,
-                CHECK_OPEN
-        );
+                // validateTransactionToken(
+                // request.getTransactionToken(),
+                // username,
+                // request.getFromAccountNumber(),
+                // "DEPOSIT"
+                // );
 
-        bankAccountService.credit(destination, request.getAmount());
+                if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
+                        throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
+                }
 
-        Transaction transaction = buildTransaction(
-                null, destination, // no source for deposit
-                request.getAmount(),
-                TransactionType.DEPOSIT,
-                request.getDescription()
-        );
+                // Check if account exists and owned by the user
+                BankAccount destination = bankAccountService
+                                .getAccountOwnedByUser(request.getToAccountNumber(), username);
 
-        transactionRepository.save(transaction);
+                // Check if destination is valid
+                bankAccountService.validateAccount(
+                                destination,
+                                null,
+                                null,
+                                CHECK_OPEN);
 
-        return mapToResponse(transaction);
-    }
+                bankAccountService.credit(destination, request.getAmount());
 
+                Transaction transaction = buildTransaction(
+                                null, destination, // no source for deposit
+                                request.getAmount(),
+                                TransactionType.DEPOSIT,
+                                request.getDescription());
 
-    // Admin can deposit when a user requests it
-    @Transactional
-    public TransactionResponse depositAdmin(TransferRequest request) {
+                transactionRepository.save(transaction);
 
-        if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
-            throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
+                return mapToResponse(transaction);
         }
 
-        // Check if account exists
-        BankAccount destination = bankAccountService
-                .getAccountByAccountNumber(request.getToAccountNumber());
+        // Admin can deposit when a user requests it
+        @Transactional
+        public TransactionResponse depositAdmin(TransferRequest request) {
 
-        // Check if destination is valid
-        bankAccountService.validateAccount(
-                destination,
-                null,
-                null,
-                CHECK_OPEN
-        );
+                if (request.getToAccountNumber() == null || request.getToAccountNumber().isBlank()) {
+                        throw new MissingFieldsException(MissingFieldsException.TO_BANK_ACCOUNT_NUMBER);
+                }
 
-        bankAccountService.credit(destination, request.getAmount());
+                // Check if account exists
+                BankAccount destination = bankAccountService
+                                .getAccountByAccountNumber(request.getToAccountNumber());
 
-        Transaction transaction = buildTransaction(
-                null, destination, // no source for deposit
-                request.getAmount(),
-                TransactionType.DEPOSIT,
-                request.getDescription()
-        );
+                // Check if destination is valid
+                bankAccountService.validateAccount(
+                                destination,
+                                null,
+                                null,
+                                CHECK_OPEN);
 
-        transactionRepository.save(transaction);
+                bankAccountService.credit(destination, request.getAmount());
 
-        return mapToResponse(transaction);
-    }
+                Transaction transaction = buildTransaction(
+                                null, destination, // no source for deposit
+                                request.getAmount(),
+                                TransactionType.DEPOSIT,
+                                request.getDescription());
 
+                transactionRepository.save(transaction);
 
-
-    // Customer transaction queries
-    public List<TransactionResponse> getMyTransactions(String username) {
-        User user = userService.getUserByUsername(username);
-        return transactionRepository.findRecentByUserId(user.getId(), PageRequest.of(0,10))
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
-
-
-    public Page<TransactionResponse> getMyAccountTransactions(
-            String username,
-            String accountNumber,
-            TransactionType type,
-            LocalDate startDate,
-            LocalDate endDate,
-            Pageable pageable) {
-
-        Specification<Transaction> spec = TransactionSpecification.withFilters(
-                null, username, accountNumber, type, startDate, endDate
-        );
-
-        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
-        return transactions.map(this::mapToResponse);
-    }
-
-
-    // Admin transaction queries
-    public TransactionResponse getTransactionById(long id) {
-        Transaction transaction = transactionRepository.findById(id).orElse(null);
-        if (transaction == null) {
-            throw new ResourceNotFoundException(ResourceNotFoundException.TRANSACTION_ID, String.valueOf(id));
-        }
-        return mapToResponse(transaction);
-    }
-
-    public Page<TransactionResponse> getAllTransactions(
-            Long bankAccountId,
-            String username,
-            String accountNumber,
-            TransactionType type,
-            LocalDate startDate,
-            LocalDate endDate,
-            Pageable pageable) {
-
-        Specification<Transaction> spec = TransactionSpecification.withFilters(
-                bankAccountId, username, accountNumber, type, startDate, endDate
-        );
-
-        Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
-        return transactions.map(this::mapToResponse);
-    }
-
-
-//    private void validateTransactionToken(
-//            String token,
-//            String username,
-//            String accountNumber,
-//            String action) {
-//
-//        if (!jwtUtil.isTransactionTokenValid(token, username, accountNumber, action)) {
-//            throw new InvalidTransactionTokenException(
-//                    "Transaction token is invalid, expired, or does not match this operation.");
-//        }
-//
-//        if (tokenBlacklistService.isAlreadyUsed(token)) {
-//            throw new InvalidTransactionTokenException(
-//                    "Transaction token has already been used.");
-//        }
-//    }
-
-    private Transaction buildTransaction(
-            BankAccount from,
-            BankAccount to,
-            BigDecimal amount,
-            TransactionType type,
-            String description) {
-
-        return Transaction.builder()
-                .fromAccount(from)
-                .toAccount(to)
-                .amount(amount)
-                .type(type)
-                .timestamp(LocalDateTime.now())
-                .description(description)
-                .build();
-    }
-
-    private TransactionResponse mapToResponse(Transaction t) {
-        String username = "";
-        if (t.getType().equals(TransactionType.DEPOSIT)) {
-            username = t.getToAccount().getUser().getUsername();
-        } else {
-            username = t.getFromAccount().getUser().getUsername();
+                return mapToResponse(transaction);
         }
 
-        return TransactionResponse.builder()
-                .id(t.getId())
-                .username(username)
-                .fromAccountNumber(t.getFromAccount() != null
-                        ? t.getFromAccount().getAccountNumber() : null)
-                .toAccountNumber(t.getToAccount() != null
-                        ? t.getToAccount().getAccountNumber() : null)
-                .amount(t.getAmount())
-                .type(t.getType())
-                .timestamp(t.getTimestamp())
-                .description(t.getDescription())
-                .build();
-    }
+        // Customer transaction queries
+        public List<TransactionResponse> getMyTransactions(String username) {
+                User user = userService.getUserByUsername(username);
+                return transactionRepository.findRecentByUserId(user.getId(), PageRequest.of(0, 10))
+                                .stream()
+                                .map(this::mapToResponse)
+                                .toList();
+        }
+
+        public Page<TransactionResponse> getMyAccountTransactions(
+                        String username,
+                        String accountNumber,
+                        TransactionType type,
+                        LocalDate startDate,
+                        LocalDate endDate,
+                        Pageable pageable) {
+
+                Specification<Transaction> spec = TransactionSpecification.withFilters(
+                                null, username, accountNumber, type, startDate, endDate);
+
+                Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
+                return transactions.map(this::mapToResponse);
+        }
+
+        // Admin transaction queries
+        public TransactionResponse getTransactionById(long id) {
+                Transaction transaction = transactionRepository.findById(id).orElse(null);
+                if (transaction == null) {
+                        throw new ResourceNotFoundException(ResourceNotFoundException.TRANSACTION_ID,
+                                        String.valueOf(id));
+                }
+                return mapToResponse(transaction);
+        }
+
+        public Page<TransactionResponse> getAllTransactions(
+                        Long bankAccountId,
+                        String username,
+                        String accountNumber,
+                        TransactionType type,
+                        LocalDate startDate,
+                        LocalDate endDate,
+                        Pageable pageable) {
+
+                Specification<Transaction> spec = TransactionSpecification.withFilters(
+                                bankAccountId, username, accountNumber, type, startDate, endDate);
+
+                Page<Transaction> transactions = transactionRepository.findAll(spec, pageable);
+                return transactions.map(this::mapToResponse);
+        }
+
+        // private void validateTransactionToken(
+        // String token,
+        // String username,
+        // String accountNumber,
+        // String action) {
+        //
+        // if (!jwtUtil.isTransactionTokenValid(token, username, accountNumber, action))
+        // {
+        // throw new InvalidTransactionTokenException(
+        // "Transaction token is invalid, expired, or does not match this operation.");
+        // }
+        //
+        // if (tokenBlacklistService.isAlreadyUsed(token)) {
+        // throw new InvalidTransactionTokenException(
+        // "Transaction token has already been used.");
+        // }
+        // }
+
+        private Transaction buildTransaction(
+                        BankAccount from,
+                        BankAccount to,
+                        BigDecimal amount,
+                        TransactionType type,
+                        String description) {
+
+                return Transaction.builder()
+                                .fromAccount(from)
+                                .toAccount(to)
+                                .amount(amount)
+                                .type(type)
+                                .timestamp(LocalDateTime.now())
+                                .description(description)
+                                .build();
+        }
+
+        private String formatOwnerName(User user) {
+                return Stream.of(
+                                user.getFirstName(),
+                                user.getMiddleName(),
+                                user.getLastName(),
+                                user.getSuffix())
+                                .filter(part -> part != null && !part.isBlank())
+                                .collect(Collectors.joining(" "));
+        }
+
+        private TransactionResponse mapToResponse(Transaction t) {
+                String username = "";
+                String fullName = "";
+                if (t.getType().equals(TransactionType.DEPOSIT)) {
+                        username = t.getToAccount().getUser().getUsername();
+                        fullName = formatOwnerName(t.getToAccount().getUser());
+                } else {
+                        username = t.getFromAccount().getUser().getUsername();
+                        fullName = formatOwnerName(t.getFromAccount().getUser());
+                }
+
+                return TransactionResponse.builder()
+                                .id(t.getId())
+                                .username(username)
+                                .fullName(fullName)
+                                .fromAccountNumber(t.getFromAccount() != null
+                                                ? t.getFromAccount().getAccountNumber()
+                                                : null)
+                                .toAccountNumber(t.getToAccount() != null
+                                                ? t.getToAccount().getAccountNumber()
+                                                : null)
+                                .amount(t.getAmount())
+                                .type(t.getType())
+                                .timestamp(t.getTimestamp())
+                                .description(t.getDescription())
+                                .build();
+        }
 }

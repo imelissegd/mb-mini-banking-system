@@ -86,25 +86,28 @@
         <thead>
           <tr>
             <th>Date / Time</th>
-            <th>Username</th>
+            <th>Performed by</th>
             <th>Type</th>
             <th>From Account</th>
             <th>To Account</th>
             <th>Amount</th>
             <th>Description</th>
-            <th></th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="tx in transactions" ng-class="txRowClass(tx.type)">
-            <td class="admin-table-mono tx-date">{{ formatDate(tx.timestamp) }}</td>
-            <td class="admin-table-mono">{{ tx.username || '—' }}</td>
+          <tr ng-repeat="tx in transactions" ng-class="txRowClass(tx.type)" >
+            <td class="admin-table-mono tx-date" style="text-align:center;">{{ formatDate(tx.timestamp) }}</td>
+            <td >
+              <span class="admin-table-name">{{ tx.username || '—' }}</span>
+              <span class="admin-table-sub">{{ tx.fullName || '—' }}</span>
+            </td>
             <td>
               <span class="tx-type-badge" ng-class="txBadgeClass(tx.type)">{{ tx.type }}</span>
             </td>
-            <td class="admin-table-mono">{{ tx.fromAccountNumber || '—' }}</td>
-            <td class="admin-table-mono">{{ tx.toAccountNumber || '—' }}</td>
-            <td class="admin-table-mono" ng-class="txAmountClass(tx.type)">
+            <td class="admin-table-mono" style="text-align:center;">{{ tx.fromAccountNumber || '—' }}</td>
+            <td class="admin-table-mono" style="text-align:center;">{{ tx.toAccountNumber || '—' }}</td>
+            <td class="admin-table-mono" ng-class="txAmountClass(tx.type)" style="text-align:right;">
               {{ tx.amount | currency:'₱' }}
             </td>
             <td class="tx-description">{{ tx.description || '—' }}</td>
