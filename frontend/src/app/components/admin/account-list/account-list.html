@@ -109,7 +109,7 @@
             </td>
             <td class="admin-table-mono tx-date" style="text-align:center;">{{ formatDate(acc.createdAt) }}</td>
             <td class="admin-table-action">
-              <div style="display:flex; gap:0.35rem; justify-content:flex-end;">
+              <div >
                 <!-- Freeze / Unfreeze — always visible, label + color toggle -->
                 <button class="btn-action btn-action--sm btn-action--fixed"                  
                   ng-class="{ 'btn-action--disabled': acc.status === 'CLOSED' }"
